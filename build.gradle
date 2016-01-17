@@ -1,13 +1,60 @@
-version '1.0-SNAPSHOT'
+plugins {
+    id "java"
+    id 'org.hidetake.ssh' version '0.4.5'
+}
 
-apply plugin: 'java'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
-sourceCompatibility = 1.5
+def wpilibDir = System.getenv()['HOME'] + '/wpilib/java/current'
 
 repositories {
     mavenCentral()
+
+    flatDir {
+        dirs wpilibDir + '/lib'
+        dirs '/lib'
+    }
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile name: 'BCNLib'
+}
+
+remotes {
+    roboRIO {
+        host = 'roboRIO-' + team + '-FRC.local'
+        user = 'admin'
+        password = ''
+    }
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
+
+jar {
+    baseName = 'FRCUserProgram'
+
+    manifest {
+        attributes 'Main-Class': 'edu.wpi.first.wpilibj.RobotBase',
+                'Robot-Class': robotClass
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task deploy(dependsOn: 'jar') << {
+    description = "Deploy the user program to the roboRIO"
+    println 'Team is ' + team
+
+    ssh.run {
+        session(remotes.roboRIO) {
+            put jar.archivePath, '/home/lvuser'
+            put wpilibDir + '/ant/robotCommand', '/home/lvuser'
+            execute '. /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r'
+        }
+    }
 }
