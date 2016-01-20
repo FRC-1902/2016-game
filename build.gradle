@@ -6,19 +6,19 @@ plugins {
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-def wpilibDir = System.getenv()['HOME'] + '/wpilib/java/current'
+//def wpilibDir = System.getenv()['HOME'] + '/wpilib/java/current'
 
 repositories {
     mavenCentral()
 
     flatDir {
-        dirs wpilibDir + '/lib'
         dirs '/lib'
     }
 }
 
 dependencies {
     compile name: 'BCNLib'
+    compile name: 'NetworkTables'
 }
 
 remotes {
@@ -37,7 +37,7 @@ jar {
     baseName = 'FRCUserProgram'
 
     manifest {
-        attributes 'Main-Class': 'edu.wpi.first.wpilibj.RobotBase',
+        attributes 'Main-Class': 'edu.wpi.first.wpilibj.RobotBase', //edu.wpi.first.wpilibj.RobotBase //com.explodingbacon.robot.Robot
                 'Robot-Class': robotClass
     }
 
@@ -53,7 +53,7 @@ task deploy(dependsOn: 'jar') << {
     ssh.run {
         session(remotes.roboRIO) {
             put jar.archivePath, '/home/lvuser'
-            put wpilibDir + '/ant/robotCommand', '/home/lvuser'
+            put '/lib/ant/robotCommand', '/home/lvuser'
             execute '. /etc/profile.d/natinst-path.sh; /usr/local/frc/bin/frcKillRobot.sh -t -r'
         }
     }
