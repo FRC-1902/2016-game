@@ -1,6 +1,5 @@
 package com.explodingbacon.robot.subsystems;
 
-import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.Talon;
 import com.explodingbacon.bcnlib.framework.Subsystem;;
 import com.explodingbacon.bcnlib.utils.MotorGroup;
