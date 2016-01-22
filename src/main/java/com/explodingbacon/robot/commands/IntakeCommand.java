@@ -11,16 +11,16 @@ public class IntakeCommand extends Command {
     }
 
     @Override
-    public void init() {}
+    public void onInit() {}
 
     @Override
-    public void loop() {
+    public void onLoop() {
         boolean out = false;
         if (OI.intakeMotorIn.get()) {
             Robot.intakeSubsystem.setIntakeSpeed(1);
 
-            Robot.shooterSubsystem.setShooterPower(-1);
-            Robot.shooterSubsystem.setRoller(-1);
+            Robot.shooterSubsystem.setShooterPower(-.5);
+            Robot.shooterSubsystem.setRoller(-.3);
 
             out = true;
         } else if (OI.intakeMotorOut.get()) {
@@ -34,7 +34,7 @@ public class IntakeCommand extends Command {
     }
 
     @Override
-    public void stop() {}
+    public void onStop() {}
 
     @Override
     public boolean isFinished() {

@@ -11,16 +11,18 @@ public class ShooterCommand extends Command {
     }
 
     @Override
-    public void init() {}
+    public void onInit() {}
 
     @Override
-    public void loop() {
-        Robot.shooterSubsystem.setShooterPower(OI.shooterRev.get() ? 1 : 0); //When true, have shooter motors running
-        Robot.shooterSubsystem.setRoller(OI.shooterShoot1.get() || OI.shooterShoot2.get() ? 1 : 0); //When true, the ball is actually shot
+    public void onLoop() {
+        if (!OI.intakeMotorIn.get()) {
+            Robot.shooterSubsystem.setShooterPower(OI.shooterRev.get() ? 1 : 0); //When true, have shooter motors running
+            Robot.shooterSubsystem.setRoller(OI.shooterShoot1.get() || OI.shooterShoot2.get() ? 1 : 0); //When true, the ball is actually shot
+        }
     }
 
     @Override
-    public void stop() {}
+    public void onStop() {}
 
     @Override
     public boolean isFinished() {

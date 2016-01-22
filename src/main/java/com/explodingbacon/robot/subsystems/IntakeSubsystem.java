@@ -1,5 +1,6 @@
 package com.explodingbacon.robot.subsystems;
 
+import com.explodingbacon.bcnlib.actuators.CANTalon;
 import com.explodingbacon.bcnlib.actuators.Talon;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;

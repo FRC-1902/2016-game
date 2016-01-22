@@ -11,15 +11,19 @@ public class DriveCommand extends Command {
     }
 
     @Override
-    public void init() {}
+    public void onInit() {}
 
     @Override
-    public void loop() {
-        Robot.driveSubsystem.tankDrive(OI.left.getY(), OI.right.getY());
+    public void onLoop() {
+        double leftY = OI.left.getY();
+        double rightY = OI.right.getY();
+        leftY = Math.abs(leftY) > 0.05 ? leftY : 0;
+        rightY = Math.abs(rightY) > 0.05 ? rightY : 0;
+        Robot.driveSubsystem.tankDrive(leftY, rightY);
     }
 
     @Override
-    public void stop() {}
+    public void onStop() {}
 
     @Override
     public boolean isFinished() {
