@@ -15,11 +15,14 @@ public class DriveCommand extends Command {
 
     @Override
     public void onLoop() {
+        /*
         double leftY = OI.left.getY();
         double rightY = OI.right.getY();
         leftY = Math.abs(leftY) > 0.05 ? leftY : 0;
         rightY = Math.abs(rightY) > 0.05 ? rightY : 0;
         Robot.driveSubsystem.tankDrive(leftY, rightY);
+        */
+        Robot.driveSubsystem.arcadeDrive(OI.drive.getX(), OI.drive.getY());
     }
 
     @Override

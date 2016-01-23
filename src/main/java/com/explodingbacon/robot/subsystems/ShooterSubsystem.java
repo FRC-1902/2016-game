@@ -1,17 +1,20 @@
 package com.explodingbacon.robot.subsystems;
 
-import com.explodingbacon.bcnlib.actuators.CANTalon;
-import com.explodingbacon.bcnlib.actuators.Talon;
+import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Subsystem;;
 import com.explodingbacon.robot.main.Map;
+import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.Talon;
 
 public class ShooterSubsystem extends Subsystem {
 
-    public Talon shooter = new Talon(Map.SHOOTER_MOTOR);
-    private CANTalon outRoller = new CANTalon(Map.SHOOTER_ROLLER);
+    public Motor shooter = new Motor(Talon.class, Map.SHOOTER_MOTOR);
+    private Motor outRoller = new Motor(CANTalon.class, Map.SHOOTER_ROLLER);
 
     public ShooterSubsystem() {
+        super();
         outRoller.setReversed(true);
+        //shooter.tune("ShooterMotor");
     }
 
     public void setShooterPower(double d) {

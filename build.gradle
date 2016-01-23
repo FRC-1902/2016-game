@@ -18,7 +18,6 @@ repositories {
 
 dependencies {
     compile name: 'BCNLib'
-    compile name: 'NetworkTables'
 }
 
 remotes {
@@ -44,6 +43,8 @@ jar {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    println 'JAR located at ' + jar.archivePath
 }
 
 task deploy(dependsOn: 'jar') << {

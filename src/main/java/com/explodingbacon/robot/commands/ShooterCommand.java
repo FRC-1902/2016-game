@@ -17,7 +17,7 @@ public class ShooterCommand extends Command {
     public void onLoop() {
         if (!OI.intakeMotorIn.get()) {
             Robot.shooterSubsystem.setShooterPower(OI.shooterRev.get() ? 1 : 0); //When true, have shooter motors running
-            Robot.shooterSubsystem.setRoller(OI.shooterShoot1.get() || OI.shooterShoot2.get() ? 1 : 0); //When true, the ball is actually shot
+            Robot.shooterSubsystem.setRoller(OI.shooterShoot.get() ? 1 : 0); //When true, the ball is actually shot
         }
     }
 

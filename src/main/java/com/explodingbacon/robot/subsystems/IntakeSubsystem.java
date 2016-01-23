@@ -1,15 +1,20 @@
 package com.explodingbacon.robot.subsystems;
 
-import com.explodingbacon.bcnlib.actuators.CANTalon;
-import com.explodingbacon.bcnlib.actuators.Talon;
+import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Talon;
 
 public class IntakeSubsystem extends Subsystem {
 
-    private Talon intakeMotor = new Talon(Map.INTAKE_MOTOR);
+    private Motor intakeMotor = new Motor(Talon.class, Map.INTAKE_MOTOR);
     private Solenoid intakeOut = new Solenoid(Map.INTAKE_SOLENOID);
+
+    public IntakeSubsystem() {
+        super();
+        intakeMotor.setReversed(true);
+    }
 
     public void setIntakeSpeed(double d) {
         intakeMotor.setPower(d);

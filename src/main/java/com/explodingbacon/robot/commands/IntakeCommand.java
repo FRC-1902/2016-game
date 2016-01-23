@@ -19,8 +19,8 @@ public class IntakeCommand extends Command {
         if (OI.intakeMotorIn.get()) {
             Robot.intakeSubsystem.setIntakeSpeed(1);
 
-            Robot.shooterSubsystem.setShooterPower(-.5);
-            Robot.shooterSubsystem.setRoller(-.3);
+            Robot.shooterSubsystem.setShooterPower(-.8);
+            Robot.shooterSubsystem.setRoller(-1);
 
             out = true;
         } else if (OI.intakeMotorOut.get()) {
