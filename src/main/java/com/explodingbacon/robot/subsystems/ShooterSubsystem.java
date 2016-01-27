@@ -8,13 +8,12 @@ import edu.wpi.first.wpilibj.Talon;
 
 public class ShooterSubsystem extends Subsystem {
 
-    public Motor shooter = new Motor(Talon.class, Map.SHOOTER_MOTOR);
-    private Motor outRoller = new Motor(CANTalon.class, Map.SHOOTER_ROLLER);
+    public Motor shooter = new Motor(Talon.class, Map.SHOOTER_MOTOR).setName("Shooter");
+    private Motor outRoller = new Motor(CANTalon.class, Map.SHOOTER_ROLLER).setName("Shooter Roller");
 
     public ShooterSubsystem() {
         super();
         outRoller.setReversed(true);
-        //shooter.tune("ShooterMotor");
     }
 
     public void setShooterPower(double d) {

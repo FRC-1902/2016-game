@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.Talon;
 
 public class IntakeSubsystem extends Subsystem {
 
-    private Motor intakeMotor = new Motor(Talon.class, Map.INTAKE_MOTOR);
+    private Motor intakeMotor = new Motor(Talon.class, Map.INTAKE_MOTOR).setName("Intake");
     private Solenoid intakeOut = new Solenoid(Map.INTAKE_SOLENOID);
 
     public IntakeSubsystem() {

@@ -41,7 +41,7 @@ public class Robot extends ExtendableRobot {
 
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
 
-        System.out.println("Baconbot initialized!");
+        System.out.println("1902 Robot initialized!");
     }
 
     @Override
