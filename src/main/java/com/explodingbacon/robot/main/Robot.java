@@ -20,6 +20,8 @@ public class Robot extends ExtendableRobot {
     public static ClimberSubsystem climberSubsystem;
     public static SendableChooser driverChooser;
 
+    //public VisionThread vision = new VisionThread();
+
     public OI oi;
 
     @Override
@@ -40,6 +42,8 @@ public class Robot extends ExtendableRobot {
         oi = new OI();
 
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
+
+        //vision.start();
 
         System.out.println("1902 Robot initialized!");
     }

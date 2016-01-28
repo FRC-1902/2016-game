@@ -16,6 +16,8 @@ public class OI extends ExtendableOI {
     public static Button shooterRev;
     public static Button shooterShoot;
 
+    public static Button takePicture;
+
     public OI() {
         init();
         start();
@@ -34,5 +36,7 @@ public class OI extends ExtendableOI {
 
         shooterRev = new JoystickButton(manip, 1);
         shooterShoot = new JoystickButton(manip, 2);
+
+        takePicture = new JoystickButton(manip, 8);
     }
 }
