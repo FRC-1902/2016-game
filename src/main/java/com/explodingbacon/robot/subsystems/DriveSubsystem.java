@@ -21,12 +21,6 @@ public class DriveSubsystem extends Subsystem {
     }
 
     public void arcadeDrive(double joyX, double joyY) {
-        if (Math.abs(joyX) < 0.05) {
-            joyX = 0;
-        }
-        if (Math.abs(joyY) < 0.05) {
-            joyY = 0;
-        }
         tankDrive(joyY - joyX, joyY + joyX);
     }
 

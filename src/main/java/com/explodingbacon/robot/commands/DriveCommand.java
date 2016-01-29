@@ -22,7 +22,16 @@ public class DriveCommand extends Command {
         rightY = Math.abs(rightY) > 0.05 ? rightY : 0;
         Robot.driveSubsystem.tankDrive(leftY, rightY);
         */
-        Robot.driveSubsystem.arcadeDrive(OI.drive.getX(), OI.drive.getY());
+
+        double joyX = OI.drive.getX();
+        double joyY = OI.drive.getY();
+        if (Math.abs(joyX) < 0.08) {
+            joyX = 0;
+        }
+        if (Math.abs(joyY) < 0.08) {
+            joyY = 0;
+        }
+        Robot.driveSubsystem.arcadeDrive(joyX, joyY);
     }
 
     @Override

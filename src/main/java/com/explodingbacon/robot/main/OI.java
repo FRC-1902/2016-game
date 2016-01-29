@@ -3,6 +3,7 @@ package com.explodingbacon.robot.main;
 import com.explodingbacon.bcnlib.framework.Button;
 import com.explodingbacon.bcnlib.framework.ExtendableOI;
 import com.explodingbacon.bcnlib.framework.JoystickButton;
+import com.explodingbacon.bcnlib.utils.Xbox;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class OI extends ExtendableOI {
@@ -35,7 +36,7 @@ public class OI extends ExtendableOI {
         intakeMotorOut = new JoystickButton(manip, 5);
 
         shooterRev = new JoystickButton(manip, 1);
-        shooterShoot = new JoystickButton(manip, 2);
+        shooterShoot = new JoystickButton(drive, 6);
 
         takePicture = new JoystickButton(manip, 8);
     }
