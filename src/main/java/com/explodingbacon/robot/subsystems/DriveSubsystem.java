@@ -2,6 +2,7 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Subsystem;
+import com.explodingbacon.bcnlib.utils.Drive;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.Talon;
 
@@ -15,13 +16,8 @@ public class DriveSubsystem extends Subsystem {
         leftMotor.setReversed(true);
     }
 
-    public void tankDrive(double l, double r) {
-        leftMotor.setPower(l);
-        rightMotor.setPower(r);
-    }
-
-    public void arcadeDrive(double joyX, double joyY) {
-        tankDrive(joyY - joyX, joyY + joyX);
+    public void configureDrive() {
+        Drive.configure(leftMotor, rightMotor, Drive.DriveType.ARCADE);
     }
 
     @Override

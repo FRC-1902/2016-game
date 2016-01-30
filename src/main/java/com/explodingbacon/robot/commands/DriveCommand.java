@@ -1,6 +1,7 @@
 package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
+import com.explodingbacon.bcnlib.utils.Drive;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
 
@@ -31,7 +32,8 @@ public class DriveCommand extends Command {
         if (Math.abs(joyY) < 0.08) {
             joyY = 0;
         }
-        Robot.driveSubsystem.arcadeDrive(joyX, joyY);
+        Drive.drive(3, OI.drive);
+        Robot.driveSubsystem.arcadeDrive(Math.pow(joyX, 3), Math.pow(joyY, 3));
     }
 
     @Override

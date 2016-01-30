@@ -2,9 +2,8 @@ package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.Button;
 import com.explodingbacon.bcnlib.framework.ExtendableOI;
+import com.explodingbacon.bcnlib.framework.Joystick;
 import com.explodingbacon.bcnlib.framework.JoystickButton;
-import com.explodingbacon.bcnlib.utils.Xbox;
-import edu.wpi.first.wpilibj.Joystick;
 
 public class OI extends ExtendableOI {
 

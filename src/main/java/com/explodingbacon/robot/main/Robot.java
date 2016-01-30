@@ -1,6 +1,7 @@
 package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.ExtendableRobot;
+import com.explodingbacon.bcnlib.utils.Drive;
 import com.explodingbacon.robot.commands.DriveCommand;
 import com.explodingbacon.robot.commands.IntakeCommand;
 import com.explodingbacon.robot.commands.ShooterCommand;
@@ -42,6 +43,8 @@ public class Robot extends ExtendableRobot {
         oi = new OI();
 
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
+
+        driveSubsystem.configureDrive();
 
         //vision.start();
 
