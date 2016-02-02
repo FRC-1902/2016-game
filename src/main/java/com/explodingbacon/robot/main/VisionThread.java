@@ -25,7 +25,7 @@ public class VisionThread extends CodeThread {
     public void run() {
         try {
             if (OI.takePicture.get() && !OI.takePicture.getPrevious()) {
-                Image i = camera.getFrame();
+                Image i = camera.getImage();
                 i.drawRectangle(10, 10, 400, 400, new Color(255, 146, 220));
                 i.saveAs("please_work.png");
             }

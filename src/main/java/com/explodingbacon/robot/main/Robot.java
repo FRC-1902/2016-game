@@ -44,8 +44,6 @@ public class Robot extends ExtendableRobot {
 
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
 
-        driveSubsystem.configureDrive();
-
         //vision.start();
 
         System.out.println("1902 Robot initialized!");

@@ -7,6 +7,8 @@ import com.explodingbacon.robot.main.OI;
 
 public class DriveCommand extends Command {
 
+    public boolean left = true;
+
     public DriveCommand() {
         requires(Robot.driveSubsystem);
     }
@@ -24,16 +26,33 @@ public class DriveCommand extends Command {
         Robot.driveSubsystem.tankDrive(leftY, rightY);
         */
 
-        double joyX = OI.drive.getX();
-        double joyY = OI.drive.getY();
+        double joyX;
+        double joyY;
+        if (OI.leftJoy.get()) {
+            left = true;
+        } else if (OI.rightJoy.get()) {
+            left = false;
+        }
+
+        if (left) {
+            joyX = OI.drive.getX();
+            joyY = OI.drive.getY();
+        } else {
+            joyX = OI.drive.getRawAxis(2);
+            joyY = OI.drive.getRawAxis(3);
+        }
+
+        //joyX = OI.drive.getX();
+        //joyY = OI.drive.getRawAxis(3);
+
         if (Math.abs(joyX) < 0.08) {
             joyX = 0;
         }
         if (Math.abs(joyY) < 0.08) {
             joyY = 0;
         }
-        Drive.drive(3, OI.drive);
-        Robot.driveSubsystem.arcadeDrive(Math.pow(joyX, 3), Math.pow(joyY, 3));
+
+        Robot.driveSubsystem.arcadeDrive(joyX, joyY);
     }
 
     @Override

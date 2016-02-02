@@ -16,8 +16,13 @@ public class DriveSubsystem extends Subsystem {
         leftMotor.setReversed(true);
     }
 
-    public void configureDrive() {
-        Drive.configure(leftMotor, rightMotor, Drive.DriveType.ARCADE);
+    public void tankDrive(double l, double r) {
+        leftMotor.setPower(l);
+        rightMotor.setPower(r);
+    }
+
+    public void arcadeDrive(double x, double y) {
+        tankDrive(y - x, y + x);
     }
 
     @Override
