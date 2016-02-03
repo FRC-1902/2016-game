@@ -1,7 +1,6 @@
 package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.ExtendableRobot;
-import com.explodingbacon.bcnlib.utils.Drive;
 import com.explodingbacon.robot.commands.DriveCommand;
 import com.explodingbacon.robot.commands.IntakeCommand;
 import com.explodingbacon.robot.commands.ShooterCommand;
@@ -9,9 +8,6 @@ import com.explodingbacon.robot.subsystems.ClimberSubsystem;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends ExtendableRobot {
 
@@ -19,7 +15,6 @@ public class Robot extends ExtendableRobot {
     public static IntakeSubsystem intakeSubsystem;
     public static ShooterSubsystem shooterSubsystem;
     public static ClimberSubsystem climberSubsystem;
-    public static SendableChooser driverChooser;
 
     //public VisionThread vision = new VisionThread();
 
@@ -34,19 +29,13 @@ public class Robot extends ExtendableRobot {
 
         System.out.println("Subsystems initialized!");
 
-        driverChooser = new SendableChooser();
-        driverChooser.initTable(NetworkTable.getTable("Table"));
-        driverChooser.addDefault("Two Drivers", "two");
-        driverChooser.addObject("One Driver", "one");
-        SmartDashboard.putData("Number of Drivers", driverChooser);
-
         oi = new OI();
 
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
 
         //vision.start();
 
-        System.out.println("1902 Robot initialized!");
+        System.out.println("1902 Kitbot initialized!");
     }
 
     @Override
