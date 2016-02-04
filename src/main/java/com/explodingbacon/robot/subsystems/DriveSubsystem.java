@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.Talon;
 
 public class DriveSubsystem extends Subsystem {
 
-    private Motor leftMotor = new Motor(Talon.class, Map.LEFT_DRIVE).setName("Left Drive");
-    private Motor rightMotor = new Motor(Talon.class, Map.RIGHT_DRIVE).setName("Right Drive");
+    public Motor leftMotor = new Motor(Talon.class, Map.LEFT_DRIVE).setName("Left Drive");
+    public Motor rightMotor = new Motor(Talon.class, Map.RIGHT_DRIVE).setName("Right Drive");
 
     public DriveSubsystem() {
         super();

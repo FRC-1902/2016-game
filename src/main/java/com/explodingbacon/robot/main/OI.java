@@ -1,10 +1,10 @@
 package com.explodingbacon.robot.main;
 
-import com.explodingbacon.bcnlib.framework.Button;
+import com.explodingbacon.bcnlib.controllers.Button;
+import com.explodingbacon.bcnlib.controllers.Joystick;
+import com.explodingbacon.bcnlib.controllers.JoystickButton;
+import com.explodingbacon.bcnlib.controllers.LogitechController;
 import com.explodingbacon.bcnlib.framework.ExtendableOI;
-import com.explodingbacon.bcnlib.framework.Joystick;
-import com.explodingbacon.bcnlib.framework.JoystickButton;
-import com.explodingbacon.bcnlib.utils.LogitechController;
 
 public class OI extends ExtendableOI {
 
@@ -16,7 +16,7 @@ public class OI extends ExtendableOI {
 
     public static Button shooterRev;
 
-    public static Button takePicture;
+    public static Button targetLock;
 
     public OI() {
         init();
@@ -32,6 +32,6 @@ public class OI extends ExtendableOI {
 
         shooterRev = new JoystickButton(manip, 1);
 
-        takePicture = new JoystickButton(manip, 8);
+        targetLock = new JoystickButton(manip, 8);
     }
 }
