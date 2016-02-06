@@ -20,6 +20,8 @@ public class DriveSubsystem extends Subsystem {
 
     private static ADXSensor adx = new ADXSensor(SPI.Port.kMXP);
 
+    private static boolean driverControl = true;
+
     private static double encoderKP = 0.13, encoderMin = 0.3, encoderMax = 0.5;
 
     private static double gyroKP = 0.01, gyroKI = 0.00025, gyroMin = 0.2, gyroMax = 0.35;
@@ -45,6 +47,30 @@ public class DriveSubsystem extends Subsystem {
      */
     public static Motor getRightMotors() {
         return rightMotors;
+    }
+
+    /**
+     * Gets the ADXSensor (Gyroscope and Accelerometer)
+     * @return The ADXSensor.
+     */
+    public static ADXSensor getADX() {
+        return adx;
+    }
+
+    /**
+     * Checks if the DriveSubsystem is currently controllable by the driver.
+     * @return If the DriveSubsystem is currently controllable by the driver.
+     */
+    public static boolean isDriverControl() {
+        return driverControl;
+    }
+
+    /**
+     * Sets if the DriveSubsystem can be controlled by the driver.
+     * @param b If the DriveSubsystem can be controlled by the driver.
+     */
+    public static void setDriverControl(boolean b) {
+        driverControl = b;
     }
 
     /**
@@ -116,7 +142,10 @@ public class DriveSubsystem extends Subsystem {
         left.enable();
         right.enable();
 
-        left.waitUntilDone(); //Left and right should finish at the same time, so we only need to wait for one to finish
+        left.waitUntilDone(); //TODO: Decide if we should wait for just one or both of the PIDs to finish
+
+        left.disable();
+        right.disable();
     }
 
     /**

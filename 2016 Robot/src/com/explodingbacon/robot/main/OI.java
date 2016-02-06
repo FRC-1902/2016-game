@@ -8,6 +8,8 @@ public class OI extends ExtendableOI {
     public static LogitechController drive; //Driver controller
     public static XboxController manip; //Manipulator controller
 
+    public static Button gyroForward;
+
     public static ButtonGroup intakeRetract;
 
     public static Button intakeMotorIn;
@@ -22,11 +24,16 @@ public class OI extends ExtendableOI {
         start();
     }
 
+    /**
+     * Initializes all the Joystick and Button variables.
+     */
     public static void init() {
         drive = new LogitechController(0);
         manip = new XboxController(1);
 
         //Driver controls
+
+        gyroForward = drive.one;
 
         shoot = drive.triggers;
 

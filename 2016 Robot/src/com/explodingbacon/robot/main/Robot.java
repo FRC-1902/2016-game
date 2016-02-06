@@ -14,6 +14,7 @@
  */
 package com.explodingbacon.robot.main;
 
+import com.explodingbacon.bcnlib.event.EventHandler;
 import com.explodingbacon.bcnlib.framework.ExtendableRobot;
 import com.explodingbacon.robot.commands.AutonomousCommand;
 import com.explodingbacon.robot.commands.DriveCommand;
@@ -50,6 +51,8 @@ public class Robot extends ExtendableRobot {
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
 
         visionTargeting.start();
+
+        EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm this works
 
         System.out.println("1902 Robot initialized!");
 }
