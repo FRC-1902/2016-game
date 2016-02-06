@@ -20,7 +20,9 @@ public class ShooterSubsystem extends Subsystem {
         shooter.setPower(d);
     }
 
-    public void setRoller(double d) { outRoller.setPower(d); }
+    public void setRoller(double d) {
+        outRoller.setPower(d);
+    }
 
     @Override
     public void stop() {
