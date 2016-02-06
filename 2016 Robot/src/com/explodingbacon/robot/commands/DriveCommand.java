@@ -8,8 +8,6 @@ import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 
-import java.sql.Driver;
-
 public class DriveCommand extends Command {
 
     public double deadzone = 0.08;
@@ -31,7 +29,7 @@ public class DriveCommand extends Command {
 
     @Override
     public void onLoop() {
-        if (DriveSubsystem.isDriverControl()) {
+        if (DriveSubsystem.isDriverControlled()) {
             double leftTurn = 0, rightTurn = 0;
             if (OI.gyroForward.get()) {
                 ADXSensor adx = DriveSubsystem.getADX();

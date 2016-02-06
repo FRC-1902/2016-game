@@ -60,7 +60,7 @@ public class VisionTargeting extends CodeThread {
                     if (error > PIXELS_ERROR_FIX) { //If we are off center by more than an acceptable amount of pixels, then auto-correct if we are shooting
                         OI.drive.rumble(0, 0);
                         if (ShooterSubsystem.shouldShoot()) {
-                            DriveSubsystem.setDriverControl(false);
+                            DriveSubsystem.setDriverControlled(false);
                             source.update(midX);
                             left.setTarget(target);
                             right.setTarget(target);
@@ -73,7 +73,7 @@ public class VisionTargeting extends CodeThread {
                             }
                             left.disable();
                             right.disable();
-                            DriveSubsystem.setDriverControl(true);
+                            DriveSubsystem.setDriverControlled(true);
                         }
                     } else { //We are lined up with the goal
                         OI.drive.rumble(0.1f, 0.1f);

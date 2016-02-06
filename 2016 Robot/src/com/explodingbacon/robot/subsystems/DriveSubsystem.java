@@ -20,7 +20,7 @@ public class DriveSubsystem extends Subsystem {
 
     private static ADXSensor adx = new ADXSensor(SPI.Port.kMXP);
 
-    private static boolean driverControl = true;
+    private static boolean driverControlled = true;
 
     private static double encoderKP = 0.13, encoderMin = 0.3, encoderMax = 0.5;
 
@@ -61,16 +61,16 @@ public class DriveSubsystem extends Subsystem {
      * Checks if the DriveSubsystem is currently controllable by the driver.
      * @return If the DriveSubsystem is currently controllable by the driver.
      */
-    public static boolean isDriverControl() {
-        return driverControl;
+    public static boolean isDriverControlled() {
+        return driverControlled;
     }
 
     /**
      * Sets if the DriveSubsystem can be controlled by the driver.
      * @param b If the DriveSubsystem can be controlled by the driver.
      */
-    public static void setDriverControl(boolean b) {
-        driverControl = b;
+    public static void setDriverControlled(boolean b) {
+        driverControlled = b;
     }
 
     /**
