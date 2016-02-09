@@ -2,9 +2,8 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
-import com.explodingbacon.bcnlib.framework.ExtendableRobot;
 import com.explodingbacon.bcnlib.framework.PIDController;
-import com.explodingbacon.bcnlib.framework.Subsystem;;
+import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.bcnlib.sensors.EncoderInterface;
 import com.explodingbacon.robot.main.Map;

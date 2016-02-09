@@ -31,7 +31,7 @@ public class VisionTargeting extends CodeThread {
         camera.getImage(); //You seem to have to call this once in order for it to work properly
 
         usb = new USBCamera();
-        usb.setExposureManual(100); //TODO: see if this function even works
+        usb.setExposureManual(1); //TODO: see if this changes the appearance of the camera feed at all
 
         source = new InternalSource();
         left = new PIDController(DriveSubsystem.getLeftMotors(), source, kP, kI, 0, min, max);
@@ -52,7 +52,7 @@ public class VisionTargeting extends CodeThread {
             Contour goal = null;
             if (camera.isOpen()) {
                 Image i = camera.getImage(); //TODO: See if there is a delay from pressing shoot to actually shooting
-                int target = i.getWidth() / 2;
+                double target = i.getWidth() / 2;
                 goal = getGoal(i);
                 if (goal != null) {
                     double midX = goal.getMiddleX();
@@ -117,7 +117,7 @@ public class VisionTargeting extends CodeThread {
             }
         }
 
-        biggest = biggest.approxEdges(0.01);
+        biggest = biggest != null ? biggest.approxEdges(0.01) : null;
 
         return biggest;
     }

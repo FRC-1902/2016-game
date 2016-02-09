@@ -16,6 +16,7 @@ package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.event.EventHandler;
 import com.explodingbacon.bcnlib.framework.ExtendableRobot;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.robot.commands.AutonomousCommand;
 import com.explodingbacon.robot.commands.DriveCommand;
 import com.explodingbacon.robot.commands.IntakeCommand;
@@ -44,7 +45,7 @@ public class Robot extends ExtendableRobot {
         shooterSubsystem = new ShooterSubsystem();
         climberSubsystem = new ClimberSubsystem();
 
-        System.out.println("Subsystems initialized!");
+        Log.l("Subsystems initialized!");
 
         oi = new OI();
 
@@ -54,7 +55,7 @@ public class Robot extends ExtendableRobot {
 
         EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm this works
 
-        System.out.println("1902 Robot initialized!");
+        Log.l("1902 Robot initialized!");
 }
 
     @Override

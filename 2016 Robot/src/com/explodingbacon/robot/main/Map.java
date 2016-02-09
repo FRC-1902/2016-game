@@ -9,7 +9,7 @@ public class Map {
     public static final int LEFT_DRIVE_3 = 2;
     public static final int RIGHT_DRIVE_1 = 3;
     public static final int RIGHT_DRIVE_2 = 4;
-    public static final int RIGHT_DRIVE_3 = 5;;
+    public static final int RIGHT_DRIVE_3 = 5;
 
     public static final int INTAKE_MOTOR = 6;
 
