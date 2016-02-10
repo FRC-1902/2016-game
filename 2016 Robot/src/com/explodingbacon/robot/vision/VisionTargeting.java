@@ -1,12 +1,13 @@
 package com.explodingbacon.robot.vision;
 
 import com.explodingbacon.bcnlib.framework.InternalSource;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.utils.CodeThread;
+import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
-import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
@@ -26,7 +27,6 @@ public class VisionTargeting extends CodeThread {
     double kP = 1, kI = 1, min = 0.2, max = 0.35;
 
     private void init() {
-        if (!Vision.isInitialized()) Vision.init();
         camera = new Camera(0);
         camera.getImage(); //You seem to have to call this once in order for it to work properly
 
@@ -49,11 +49,34 @@ public class VisionTargeting extends CodeThread {
     @Override
     public void code() {
         try {
+            double rate = ShooterSubsystem.DEFAULT_SHOOT_RATE;
+
             Contour goal = null;
+            Image i = null;
             if (camera.isOpen()) {
-                Image i = camera.getImage(); //TODO: See if there is a delay from pressing shoot to actually shooting
-                double target = i.getWidth() / 2;
+                i = camera.getImage();
                 goal = getGoal(i);
+            }
+
+            if (goal != null) rate = ShooterSubsystem.calculateShooterRate(Utils.getDistanceFromPx(goal.getWidth()));
+
+            //TODO: Check if shooting is responsive when it's in this thread (the Thread.sleep() calls SHOULD be fine, but check anyway)
+            if (OI.shooterRev.get()) {
+                ShooterSubsystem.shooterPID.setTarget(rate);
+                if (!ShooterSubsystem.shooterPID.isEnabled()) ShooterSubsystem.shooterPID.enable();
+            } else {
+                ShooterSubsystem.shooterPID.disable();
+                ShooterSubsystem.setShooter(0);
+            }
+            if (OI.shooterRev.get() && ShooterSubsystem.isRateAcceptable()) {
+                OI.manip.rumble(0.1f, 0.1f);
+            } else {
+                OI.manip.rumble(0, 0);
+            }
+
+            if (camera.isOpen()) {
+                double target = i.getWidth() / 2;
+
                 if (goal != null) {
                     double midX = goal.getMiddleX();
                     double error = Math.abs(target - midX);
@@ -66,7 +89,7 @@ public class VisionTargeting extends CodeThread {
                             right.setTarget(target);
                             left.enable();
                             right.enable();
-                            while (!left.isDone()) { //TODO: Decide if it is safe to just wait for left or if we have to wait for right too
+                            while (!left.isDone() || !right.isDone()) {
                                 midX = goal.getMiddleX();
                                 source.update(midX);
                                 Thread.sleep(25);
@@ -80,20 +103,21 @@ public class VisionTargeting extends CodeThread {
                     }
                 }
             }
+
             //The robot will shoot the ball regardless of if it can see the target, but requires the shooter motors to be active
-            if (ShooterSubsystem.shouldShoot() && ShooterSubsystem.getEncoder().getRate() > 5) { //TODO: tweak this rate to be accurate for "shooter motors are moving at an okay speed"
+            if (ShooterSubsystem.shouldShoot() && ShooterSubsystem.isRateAcceptable()) {
                 ShooterSubsystem.setRoller(1);
                 Thread.sleep(500);
                 ShooterSubsystem.setRoller(0);
                 ShooterSubsystem.setShouldShoot(false);
                 if (!camera.isOpen()) {
-                    System.out.println("[VISION] Shooting blind due to the camera not working!");
+                    Log.c("VISION", "Shooting blind due to the camera not working!");
                 } else if (goal == null) {
-                    System.out.println("[VISION] Shooting a ball despite not being able to see a goal!");
+                    Log.c("VISION", "Shooting a ball despite not being able to see a goal!");
                 }
             }
         } catch (Exception e) {
-            System.out.println("VisionTargeting Exception!");
+            Log.e("VisionTargeting Exception!");
             e.printStackTrace();
         }
     }
@@ -103,7 +127,7 @@ public class VisionTargeting extends CodeThread {
      * @param i The image the goal is in.
      * @return The Contour for the retroreflective tape around the Castle's high goal.
      */
-    public Contour getGoal(Image i) {
+    private Contour getGoal(Image i) {
         Image filtered = i.colorRange(new Color(230, 230, 230), new Color(255, 255, 255));
 
         Contour biggest = null;

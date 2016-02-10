@@ -11,17 +11,17 @@ public class TempEventHandler {
 
     @EventListener
     public void teleopStart(TeleopStartEvent e) {
-        Log.l("TeleopStartEvent success!");
+        Log.d("TeleopStartEvent success!");
     }
 
     @EventListener
     public void autonomousStart(AutonomousStartEvent e) {
-        Log.l("AutonomousStartEvent success!");
+        Log.d("AutonomousStartEvent success!");
     }
 
     @EventListener
     public void buttonPressed(ButtonPressEvent e) {
         Button b = e.getButton();
-        Log.l("ButtonPressEvent success! " + b.get());
+        Log.d("ButtonPressEvent success! " + b.get());
     }
 }

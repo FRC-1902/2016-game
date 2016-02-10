@@ -16,25 +16,24 @@ public class ShooterCommand extends Command {
 
     @Override
     public void onLoop() {
+        if (OI.shoot.getAny()) {
+            ShooterSubsystem.shoot();
+        }
+        /*
         if (!OI.intakeMotorIn.get()) {
+
             if (OI.shooterRev.get()) {
-                if (!ShooterSubsystem.shooterPID.isEnabled()) {
-                    //TODO: When the shooter PID is enabled, set its target rate to be a rate generated based off of the robot's distance from the goal
-                    ShooterSubsystem.shooterPID.enable();
-                }
+                ShooterSubsystem.setShooter(1);
             } else {
-                ShooterSubsystem.shooterPID.disable();
-            }
-            if (OI.shoot.getAny()) {
-                ShooterSubsystem.shoot();
+                ShooterSubsystem.setShooter(0);
             }
         }
-
         if (Math.abs(ShooterSubsystem.getEncoder().getRate()) > 5) { //TODO: tweak this rate to be the correct rate to shoot into goal
             OI.manip.rumble(0.1f, 0.1f);
         } else {
             OI.manip.rumble(0, 0);
         }
+        */
     }
 
     @Override

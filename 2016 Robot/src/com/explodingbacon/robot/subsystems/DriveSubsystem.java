@@ -2,13 +2,17 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
+
+import java.lang.reflect.Field;
 
 public class DriveSubsystem extends Subsystem {
 
@@ -31,6 +35,25 @@ public class DriveSubsystem extends Subsystem {
     public DriveSubsystem() {
         super();
         leftMotors.setReversed(true);
+
+        Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
+
+        Log.d(getField(t, "loopTime"));
+        Log.d(getField(t, "m_maxPwm"));
+        Log.d(getField(t, "m_deadbandMaxPwm"));
+        Log.d(getField(t, "m_centerPwm"));
+        Log.d(getField(t, "m_deadbandMinPwm"));
+        Log.d(getField(t, "m_minPwm"));
+
+    }
+
+    public static String getField(Object o, String field) {
+        try {
+            Field f = PWM.class.getDeclaredField(field);
+            f.setAccessible(true);
+            return f.get(o).toString();
+        } catch (Exception e) {}
+        return null;
     }
 
     /**
@@ -114,7 +137,7 @@ public class DriveSubsystem extends Subsystem {
         double startAngle = adx.getAngle();
         left.enable();
         right.enable();
-        while (!left.isDone()) {
+        while (!left.isDone() || !right.isDone()) {
             double angleError = adx.getAngle() - startAngle; //TODO: check if the sign on this is wrong or not
             if (Math.abs(angleError) > GYRO_ANGLE_ERROR_FIX) {
                 left.disable();
@@ -142,7 +165,9 @@ public class DriveSubsystem extends Subsystem {
         left.enable();
         right.enable();
 
-        left.waitUntilDone(); //TODO: Decide if we should wait for just one or both of the PIDs to finish
+        //Wait until both of the PIDs are done
+        left.waitUntilDone();
+        right.waitUntilDone();
 
         left.disable();
         right.disable();

@@ -13,7 +13,7 @@ public class AutonomousCommand extends Command {
 
     @Override
     public void onInit() {
-        //Drive forward through low bar, turn, shoot, go back to original angle, turn around, return through low bar
+        //Drive forward through low bar, turn, shoot, turn to 180 degrees from the original angle, return through low bar
         double originAngle = DriveSubsystem.getADX().getAngle();
         DriveSubsystem.inchDrive(100);
         DriveSubsystem.gyroTurn(45);

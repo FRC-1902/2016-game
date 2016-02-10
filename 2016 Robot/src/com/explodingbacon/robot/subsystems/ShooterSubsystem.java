@@ -21,6 +21,8 @@ public class ShooterSubsystem extends Subsystem {
 
     private static boolean shouldShoot = false;
 
+    public static final double DEFAULT_SHOOT_RATE = 2000; //TODO: Tune
+
     public ShooterSubsystem() {
         super();
         encoder.setPidMode(EncoderInterface.RATE);
@@ -63,6 +65,23 @@ public class ShooterSubsystem extends Subsystem {
      * @param d The speed of the Shooter.
      */
     public static void setShooter(double d) { shooter.setPower(d); }
+
+    /**
+     * Calculates the spin rate required to launch a boulder into a goal that is "distance" away.
+     * @param distance How far away the goal is.
+     * @return The spin rate required to launch a boulder into a goal that is "distance" away.
+     */
+    public static double calculateShooterRate(double distance) {
+        return DEFAULT_SHOOT_RATE; //TODO: Actually calculate the needed shooter rate
+    }
+
+    /**
+     * Checks if the current rate of the shooter is acceptable for shooting.
+     * @return If the current rate of the shooter is acceptable for shooting.
+     */
+    public static boolean isRateAcceptable() { //TODO: better name?
+        return encoder.getRate() > (shooterPID.getTarget() * 0.75); //TODO: tune
+    }
 
     /**
      * Sets the speed of the Shooter roller. The roller is used to move the ball into the Shooter wheels.
