@@ -15,8 +15,8 @@
 package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.event.EventHandler;
-import com.explodingbacon.bcnlib.framework.ExtendableRobot;
 import com.explodingbacon.bcnlib.framework.Log;
+import com.explodingbacon.bcnlib.framework.RobotCore;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.AutonomousCommand;
 import com.explodingbacon.robot.commands.DriveCommand;
@@ -27,8 +27,9 @@ import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import com.explodingbacon.robot.vision.VisionTargeting;
+import edu.wpi.first.wpilibj.IterativeRobot;
 
-public class Robot extends ExtendableRobot {
+public class Robot extends RobotCore {
 
     public static DriveSubsystem driveSubsystem;
     public static IntakeSubsystem intakeSubsystem;
@@ -38,6 +39,14 @@ public class Robot extends ExtendableRobot {
     public VisionTargeting visionTargeting;
 
     public OI oi;
+
+    public Robot() {
+        super();
+    }
+
+    public Robot(IterativeRobot r) {
+        super(r);
+    }
 
     @Override
     public void robotInit() {
@@ -60,7 +69,7 @@ public class Robot extends ExtendableRobot {
         EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm the event system works
 
         Log.l("1902 Robot initialized!");
-}
+    }
 
     @Override
     public void autonomousInit() {

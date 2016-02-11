@@ -1,8 +1,8 @@
 package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
-import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
+import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 

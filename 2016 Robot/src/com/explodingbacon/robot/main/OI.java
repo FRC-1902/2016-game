@@ -1,9 +1,9 @@
 package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.controllers.*;
-import com.explodingbacon.bcnlib.framework.ExtendableOI;
+import com.explodingbacon.bcnlib.framework.AbstractOI;
 
-public class OI extends ExtendableOI {
+public class OI extends AbstractOI {
 
     public static LogitechController drive; //Driver controller
     public static XboxController manip; //Manipulator controller
