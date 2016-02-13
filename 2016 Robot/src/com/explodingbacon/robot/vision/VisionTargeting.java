@@ -8,6 +8,7 @@ import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
+import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;

@@ -32,7 +32,8 @@ public class DriveCommand extends Command {
     public void onLoop() {
         if (DriveSubsystem.isDriverControlled()) {
             double leftTurn = 0, rightTurn = 0;
-            if (OI.gyroForward.get()) {
+            if (OI.gyroForward.get()) { //TODO: uncomment this
+                /*
                 ADXSensor adx = DriveSubsystem.getADX();
                 if (!buttonWasTrue) angleStart = adx.getAngle();
                 double angleError = adx.getAngle() - angleStart; //TODO: Check if the sign is wrong
@@ -47,10 +48,13 @@ public class DriveCommand extends Command {
                     }
                     leftTurn = left.getMotorPower() / 3;
                     rightTurn = right.getMotorPower() / 3;
+
                 }
+
                 buttonWasTrue = true;
             } else {
                 buttonWasTrue = false;
+                */
             }
 
             double joyX;

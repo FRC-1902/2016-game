@@ -1,21 +1,23 @@
 package com.explodingbacon.robot.subsystems;
 
+import com.explodingbacon.bcnlib.actuators.FakeMotor;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
-import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.bcnlib.sensors.EncoderInterface;
+import com.explodingbacon.bcnlib.sensors.MotorEncoder;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Talon;
 
 public class ShooterSubsystem extends Subsystem {
 
-    private static Motor shooter = new MotorGroup(Talon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
-    private static Motor outRoller = new Motor(CANTalon.class, Map.SHOOTER_ROLLER).setName("Shooter Roller");
+    //TODO: Make outRoller an actual motor
+    private static Motor shooter = new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+    private static Motor outRoller = /*new Motor(CANTalon.class, Map.SHOOTER_ROLLER).setName("Shooter Roller")*/
+            new FakeMotor().setName("Shooter Roller");
 
-    private static Encoder encoder = new Encoder(Map.SHOOTER_ENCODER_1, Map.SHOOTER_ENCODER_2);
+    private static MotorEncoder encoder;
     public static PIDController shooterPID;
     private static double kP = 1; //TODO: tune
 
@@ -25,6 +27,13 @@ public class ShooterSubsystem extends Subsystem {
 
     public ShooterSubsystem() {
         super();
+
+        encoder = ((MotorGroup)shooter).getMotors().get(0).getEncoder();
+        if (encoder == null) {
+            System.out.println("Encoder is null! oh no!");
+        }
+
+        System.out.println("test");
         encoder.setPidMode(EncoderInterface.RATE);
         shooterPID = new PIDController(shooter, encoder, kP, 0, 0);
         outRoller.setReversed(true);
@@ -95,7 +104,7 @@ public class ShooterSubsystem extends Subsystem {
      * Gets the Encoder on the Shooter.
      * @return Yhe Encoder on the Shooter.
      */
-    public static Encoder getEncoder() {
+    public static MotorEncoder getEncoder() {
         return encoder;
     }
 

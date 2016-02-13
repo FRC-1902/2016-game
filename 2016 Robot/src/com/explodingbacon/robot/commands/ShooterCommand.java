@@ -16,10 +16,12 @@ public class ShooterCommand extends Command {
 
     @Override
     public void onLoop() {
+        /*
         if (OI.shoot.getAny()) {
             ShooterSubsystem.shoot();
         }
-        /*
+        */
+
         if (!OI.intakeMotorIn.get()) {
 
             if (OI.shooterRev.get()) {
@@ -28,12 +30,12 @@ public class ShooterCommand extends Command {
                 ShooterSubsystem.setShooter(0);
             }
         }
-        if (Math.abs(ShooterSubsystem.getEncoder().getRate()) > 5) { //TODO: tweak this rate to be the correct rate to shoot into goal
+        if (ShooterSubsystem.isRateAcceptable()) { //TODO: tweak this rate to be the correct rate to shoot into goal
             OI.manip.rumble(0.1f, 0.1f);
         } else {
             OI.manip.rumble(0, 0);
         }
-        */
+
     }
 
     @Override

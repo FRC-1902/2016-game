@@ -63,10 +63,10 @@ public class Robot extends RobotCore {
 
         Vision.init();
 
-        visionTargeting = new VisionTargeting();
-        visionTargeting.start();
+        //visionTargeting = new VisionTargeting();
+        //visionTargeting.start();
 
-        EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm the event system works
+        //EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm the event system works
 
         Log.l("1902 Robot initialized!");
     }

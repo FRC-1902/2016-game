@@ -22,7 +22,7 @@ public class DriveSubsystem extends Subsystem {
     private static Encoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_1, Map.LEFT_DRIVE_ENCODER_2);
     private static Encoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_1, Map.RIGHT_DRIVE_ENCODER_2);
 
-    private static ADXSensor adx = new ADXSensor(SPI.Port.kMXP);
+    //private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS0, SPI.Port.kOnboardCS1);
 
     private static boolean driverControlled = true;
 
@@ -34,8 +34,10 @@ public class DriveSubsystem extends Subsystem {
 
     public DriveSubsystem() {
         super();
+        Log.d("Pickles");
         leftMotors.setReversed(true);
 
+        /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
 
         Log.d(getField(t, "loopTime"));
@@ -43,7 +45,7 @@ public class DriveSubsystem extends Subsystem {
         Log.d(getField(t, "m_deadbandMaxPwm"));
         Log.d(getField(t, "m_centerPwm"));
         Log.d(getField(t, "m_deadbandMinPwm"));
-        Log.d(getField(t, "m_minPwm"));
+        Log.d(getField(t, "m_minPwm"));*/
 
     }
 
@@ -77,7 +79,8 @@ public class DriveSubsystem extends Subsystem {
      * @return The ADXSensor.
      */
     public static ADXSensor getADX() {
-        return adx;
+        //return adx; //TODO: uncomment
+        return null;
     }
 
     /**
@@ -127,7 +130,8 @@ public class DriveSubsystem extends Subsystem {
      * Makes the Robot drive a certain amount of encoder clicks.
      * @param distance How many encoder clicks to drive.
      */
-    public static void encoderDrive(double distance) {
+    public static void encoderDrive(double distance) { //TODO: uncomment
+        /*
         leftEncoder.reset();
         rightEncoder.reset();
         PIDController left = new PIDController(leftMotors, leftEncoder, encoderKP, 0, 0, encoderMin, encoderMax);
@@ -149,14 +153,15 @@ public class DriveSubsystem extends Subsystem {
             try {
                 Thread.sleep(25);
             } catch (Exception e) {}
-        }
+        }*/
     }
 
     /**
      * Makes the Robot turn a certain amount of degrees.
      * @param degrees How many degrees to turn.
      */
-    public static void gyroTurn(double degrees) {
+    public static void gyroTurn(double degrees) { //TODO: uncomment
+        /*
         adx.calibrate();
         PIDController left = new PIDController(leftMotors, adx, gyroKP, gyroKI, 0, gyroMin, gyroMax);
         PIDController right = new PIDController(rightMotors, adx, gyroKP, gyroKI, 0, gyroMin, gyroMax).setInverted(true);
@@ -170,7 +175,7 @@ public class DriveSubsystem extends Subsystem {
         right.waitUntilDone();
 
         left.disable();
-        right.disable();
+        right.disable();*/
     }
 
     /**
