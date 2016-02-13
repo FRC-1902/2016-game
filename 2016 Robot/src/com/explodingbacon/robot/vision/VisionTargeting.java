@@ -8,7 +8,6 @@ import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
-import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
@@ -107,9 +106,9 @@ public class VisionTargeting extends CodeThread {
 
             //The robot will shoot the ball regardless of if it can see the target, but requires the shooter motors to be active
             if (ShooterSubsystem.shouldShoot() && ShooterSubsystem.isRateAcceptable()) {
-                ShooterSubsystem.setRoller(1);
+                ShooterSubsystem.setIndexer(1);
                 Thread.sleep(500);
-                ShooterSubsystem.setRoller(0);
+                ShooterSubsystem.setIndexer(0);
                 ShooterSubsystem.setShouldShoot(false);
                 if (!camera.isOpen()) {
                     Log.c("VISION", "Shooting blind due to the camera not working!");

@@ -3,6 +3,7 @@ package com.explodingbacon.robot.commands;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
+import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.WPIRobot;
@@ -15,6 +16,9 @@ public class DriveCommand extends Command {
 
     public double angleStart = 0;
     public boolean buttonWasTrue = false;
+    public double previousRate = 0;
+
+    public boolean wasShiftingLow = false;
 
     public double gyroKP = 1, gyroKI = 1, min = 0.1, max = 1;
 
@@ -56,6 +60,16 @@ public class DriveCommand extends Command {
                 buttonWasTrue = false;
                 */
             }
+
+            if (OI.lowShift.getAny()) {
+                DriveSubsystem.shift(false);
+                wasShiftingLow = true;
+            } else if (wasShiftingLow) {
+                DriveSubsystem.shift(true);
+                wasShiftingLow = false;
+            }
+
+            DriveSubsystem.shiftIfResistance();
 
             double joyX;
             double joyY;

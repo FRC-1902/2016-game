@@ -25,16 +25,35 @@ public class ShooterCommand extends Command {
         if (!OI.intakeMotorIn.get()) {
 
             if (OI.shooterRev.get()) {
-                ShooterSubsystem.setShooter(1);
+                ShooterSubsystem.setShooter(0.3);
+                /*
+                ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.DEFAULT_SHOOT_RATE);
+                
+                ShooterSubsystem.shooterPID.whenFinished(() -> {
+                   OI.manip.rumble(0.1f, 0.1f, 1);
+                });
+
+                ShooterSubsystem.shooterPID.enable();*/
             } else {
                 ShooterSubsystem.setShooter(0);
+                /*
+                ShooterSubsystem.shooterPID.disable();
+                ShooterSubsystem.shooterPID.whenFinished(null);
+                ShooterSubsystem.setShooter(0);*/
+            }
+
+            if (OI.shoot.getAny()) {
+                ShooterSubsystem.setIndexer(1);
+            } else {
+                ShooterSubsystem.setIndexer(0);
             }
         }
+        /*
         if (ShooterSubsystem.isRateAcceptable()) { //TODO: tweak this rate to be the correct rate to shoot into goal
             OI.manip.rumble(0.1f, 0.1f);
         } else {
             OI.manip.rumble(0, 0);
-        }
+        }*/
 
     }
 

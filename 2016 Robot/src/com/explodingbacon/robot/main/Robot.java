@@ -1,20 +1,29 @@
 /*
- *   (Currently unnamed) 2016 Robot!
- *
- *   Programmed by Ryan Shavell and Dominic Canora.
- *
- *   This project was written by team 1902 for the 2016 FIRST Robotics Competition game, "Stonghold".
- *
- *   Libraries Used:
- *
- *   -BCNLib
- *      -WPILib
- *      -OpenCV
- *      -Jedis
+         .----------------.  .----------------.  .----------------.  .----------------.  .----------------.  .----------------.
+        | .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |
+        | |  ____  ____  | || |      __      | || | ____    ____ | || |   _____      | || |  _________   | || |  _________   | |
+        | | |_   ||   _| | || |     /  \     | || ||_   \  /   _|| || |  |_   _|     | || | |_   ___  |  | || | |  _   _  |  | |
+        | |   | |__| |   | || |    / /\ \    | || |  |   \/   |  | || |    | |       | || |   | |_  \_|  | || | |_/ | | \_|  | |
+        | |   |  __  |   | || |   / ____ \   | || |  | |\  /| |  | || |    | |   _   | || |   |  _|  _   | || |     | |      | |
+        | |  _| |  | |_  | || | _/ /    \ \_ | || | _| |_\/_| |_ | || |   _| |__/ |  | || |  _| |___/ |  | || |    _| |_     | |
+        | | |____||____| | || ||____|  |____|| || ||_____||_____|| || |  |________|  | || | |_________|  | || |   |_____|    | |
+        | |              | || |              | || |              | || |              | || |              | || |              | |
+        | '--------------' || '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |
+        '----------------'  '----------------'  '----------------'  '----------------'  '----------------'  '----------------'
+
+    Programmed by Ryan Shavell and Dominic Canora.
+
+    This project was written by team 1902 for the 2016 FIRST Robotics Competition game, "Stronghold".
+
+    Libraries Used:
+
+    -BCNLib
+       -WPILib
+       -OpenCV
+       -Jedis
  */
 package com.explodingbacon.robot.main;
 
-import com.explodingbacon.bcnlib.event.EventHandler;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
 import com.explodingbacon.bcnlib.vision.Vision;

@@ -1,6 +1,5 @@
 package com.explodingbacon.robot.subsystems;
 
-import com.explodingbacon.bcnlib.actuators.FakeMotor;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.Subsystem;
@@ -10,12 +9,11 @@ import edu.wpi.first.wpilibj.CANTalon;
 public class IntakeSubsystem extends Subsystem {
 
     //TODO: Change this to a real motor
-    private static Motor intakeMotor = new FakeMotor().setName("Intake"); /*new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake")*/;
+    private static Motor intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
     private static Solenoid intakeOut = new Solenoid(Map.INTAKE_SOLENOID);
 
     public IntakeSubsystem() {
         super();
-        intakeMotor.setReversed(true);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
+import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
@@ -19,8 +20,10 @@ public class DriveSubsystem extends Subsystem {
     private static Motor leftMotors = new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
     private static Motor rightMotors = new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
 
-    private static Encoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_1, Map.LEFT_DRIVE_ENCODER_2);
-    private static Encoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_1, Map.RIGHT_DRIVE_ENCODER_2);
+    private static Solenoid shift = new Solenoid(Map.SHIFT_SOLENOID);
+
+    private static Encoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
+    private static Encoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
 
     //private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS0, SPI.Port.kOnboardCS1);
 
@@ -32,11 +35,10 @@ public class DriveSubsystem extends Subsystem {
 
     public static final double GYRO_ANGLE_ERROR_FIX = 3; //The minimum angle error needed before the Robot auto-corrects
 
+    public static final double LOW_GEAR_SHIFT_RATE = 1000; //TODO: Change this to be about the rate of maximum low gear speed
+
     public DriveSubsystem() {
         super();
-        Log.d("Pickles");
-        leftMotors.setReversed(true);
-
         /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
 
@@ -75,12 +77,36 @@ public class DriveSubsystem extends Subsystem {
     }
 
     /**
+     * Gets the left drive Encoder.
+     * @return The left drive Encoder.
+     */
+    public static Encoder getLeftEncoder() {
+        return leftEncoder;
+    }
+
+    /**
+     * Gets the right drive Encoder.
+     * @return The right drive Encoder.
+     */
+    public static Encoder getRightEncoder() {
+        return rightEncoder;
+    }
+
+    /**
      * Gets the ADXSensor (Gyroscope and Accelerometer)
      * @return The ADXSensor.
      */
     public static ADXSensor getADX() {
         //return adx; //TODO: uncomment
         return null;
+    }
+
+    /**
+     * Shifts into either high gear or low gear.
+     * @param high If the robot should shift into high gear.
+     */
+    public static void shift(boolean high) {
+        shift.set(high); //TODO: Check if true is for high gear
     }
 
     /**
@@ -185,6 +211,31 @@ public class DriveSubsystem extends Subsystem {
      */
     private static double inchesToEncoder(double inches) {
         return inches / (Math.PI * 9) * (9.6 * 256);
+    }
+
+    private static double previousRate = 0;
+    private static boolean resistanceShiftedToLow = false;
+
+    /**
+     * Makes the robot shift into low gear if it is encountering resistance to the point that it cannot move.
+     * It will shift back into high gear once it reaches full speed while in low gear.
+     */
+    public static void shiftIfResistance() {
+        double rate = getHighestAbsoluteRate();
+        if (previousRate > 10) { //TODO: Decide what the "we were moving before" rate is
+            if (rate < 5) { //TODO: Decide what "we are at a standstill" rate is
+                shift(false);
+                resistanceShiftedToLow = true;
+            } else if (resistanceShiftedToLow && rate >= LOW_GEAR_SHIFT_RATE) {
+                shift(true);
+                resistanceShiftedToLow = false;
+            }
+        }
+        previousRate = rate;
+    }
+
+    private static double getHighestAbsoluteRate() {
+        return Math.max(Math.abs(leftEncoder.getRate()), Math.abs(rightEncoder.getRate()));
     }
 
     @Override

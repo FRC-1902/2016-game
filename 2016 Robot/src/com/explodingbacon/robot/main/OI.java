@@ -10,11 +10,12 @@ public class OI extends AbstractOI {
 
     public static Button gyroForward;
 
+    public static ButtonGroup lowShift;
+
     public static ButtonGroup intakeRetract;
 
     public static Button intakeMotorIn;
     public static Button intakeMotorOut;
-
     public static Button shooterRev;
 
     public static ButtonGroup shoot;
@@ -34,6 +35,8 @@ public class OI extends AbstractOI {
         //Driver controls
 
         gyroForward = drive.one;
+
+        lowShift = drive.bumpers;
 
         shoot = drive.triggers;
 
