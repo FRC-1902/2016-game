@@ -27,11 +27,7 @@ public class IntakeCommand extends Command {
         } else {
             IntakeSubsystem.setSpeed(0);
         }
-        if (OI.manip.start.get()) {
-            ClimberSubsystem.climber.setPower(1);
-        } else {
-            ClimberSubsystem.climber.setPower(0);
-        }
+
         IntakeSubsystem.setPosition(!OI.intakeRetract.getAny());
     }
 

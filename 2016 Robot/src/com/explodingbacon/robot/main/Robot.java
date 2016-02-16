@@ -1,15 +1,12 @@
 /*
-         .----------------.  .----------------.  .----------------.  .----------------.  .----------------.  .----------------.
-        | .--------------. || .--------------. || .--------------. || .--------------. || .--------------. || .--------------. |
-        | |  ____  ____  | || |      __      | || | ____    ____ | || |   _____      | || |  _________   | || |  _________   | |
-        | | |_   ||   _| | || |     /  \     | || ||_   \  /   _|| || |  |_   _|     | || | |_   ___  |  | || | |  _   _  |  | |
-        | |   | |__| |   | || |    / /\ \    | || |  |   \/   |  | || |    | |       | || |   | |_  \_|  | || | |_/ | | \_|  | |
-        | |   |  __  |   | || |   / ____ \   | || |  | |\  /| |  | || |    | |   _   | || |   |  _|  _   | || |     | |      | |
-        | |  _| |  | |_  | || | _/ /    \ \_ | || | _| |_\/_| |_ | || |   _| |__/ |  | || |  _| |___/ |  | || |    _| |_     | |
-        | | |____||____| | || ||____|  |____|| || ||_____||_____|| || |  |________|  | || | |_________|  | || |   |_____|    | |
-        | |              | || |              | || |              | || |              | || |              | || |              | |
-        | '--------------' || '--------------' || '--------------' || '--------------' || '--------------' || '--------------' |
-        '----------------'  '----------------'  '----------------'  '----------------'  '----------------'  '----------------'
+  ____        _   _            _               _    _
+ |  _ \      | | | |          (_)             | |  | |
+ | |_) | __ _| |_| |_ ___ _ __ _ _ __   __ _  | |__| | __ _ _ __ ___
+ |  _ < / _` | __| __/ _ \ '__| | '_ \ / _` | |  __  |/ _` | '_ ` _ \
+ | |_) | (_| | |_| ||  __/ |  | | | | | (_| | | |  | | (_| | | | | | |
+ |____/ \__,_|\__|\__\___|_|  |_|_| |_|\__, | |_|  |_|\__,_|_| |_| |_|
+                                        __/ |
+                                       |___/
 
     Programmed by Ryan Shavell and Dominic Canora.
 
@@ -26,11 +23,9 @@ package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
+import com.explodingbacon.bcnlib.javascript.Javascript;
 import com.explodingbacon.bcnlib.vision.Vision;
-import com.explodingbacon.robot.commands.AutonomousCommand;
-import com.explodingbacon.robot.commands.DriveCommand;
-import com.explodingbacon.robot.commands.IntakeCommand;
-import com.explodingbacon.robot.commands.ShooterCommand;
+import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.ClimberSubsystem;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.IntakeSubsystem;
@@ -59,30 +54,33 @@ public class Robot extends RobotCore {
 
     @Override
     public void robotInit() {
+        Javascript.init();
+        Vision.init();
+
         driveSubsystem = new DriveSubsystem();
         intakeSubsystem = new IntakeSubsystem();
         shooterSubsystem = new ShooterSubsystem();
         climberSubsystem = new ClimberSubsystem();
 
-        Log.l("Subsystems initialized!");
+        Log.i("Subsystems initialized!");
 
         oi = new OI();
 
-        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
+        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand(), new ClimberCommand());
 
-        Vision.init();
-
-        //visionTargeting = new VisionTargeting();
-        //visionTargeting.start();
+        if (Vision.isInit()) {
+            visionTargeting = new VisionTargeting();
+            visionTargeting.start();
+        }
 
         //EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm the event system works
 
-        Log.l("1902 Robot initialized!");
+        Log.i("Battering Ham initialized!");
     }
 
     @Override
     public void autonomousInit() {
-        OI.runCommand(new AutonomousCommand());
+        OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
 
         super.autonomousInit();
     }

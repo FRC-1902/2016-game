@@ -7,6 +7,7 @@ import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
+import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.PWM;
@@ -22,8 +23,8 @@ public class DriveSubsystem extends Subsystem {
 
     private static Solenoid shift = new Solenoid(Map.SHIFT_SOLENOID);
 
-    private static Encoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
-    private static Encoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
+    private static AbstractEncoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
+    private static AbstractEncoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
 
     //private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS0, SPI.Port.kOnboardCS1);
 
@@ -80,7 +81,7 @@ public class DriveSubsystem extends Subsystem {
      * Gets the left drive Encoder.
      * @return The left drive Encoder.
      */
-    public static Encoder getLeftEncoder() {
+    public static AbstractEncoder getLeftEncoder() {
         return leftEncoder;
     }
 
@@ -88,7 +89,7 @@ public class DriveSubsystem extends Subsystem {
      * Gets the right drive Encoder.
      * @return The right drive Encoder.
      */
-    public static Encoder getRightEncoder() {
+    public static AbstractEncoder getRightEncoder() {
         return rightEncoder;
     }
 

@@ -3,29 +3,39 @@ package com.explodingbacon.robot.subsystems;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.actuators.Solenoid;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.Subsystem;
-import com.explodingbacon.bcnlib.sensors.TouchSensor;
+import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
+import com.explodingbacon.bcnlib.sensors.DigitalInput;
+import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.CANTalon;
 
 public class ClimberSubsystem extends Subsystem {
 
-    public static Motor climber = new MotorGroup(CANTalon.class, Map.CLIMBER_MOTOR_1, Map.CLIMBER_MOTOR_2).setName("Climber");
-    private static Solenoid deploy = new Solenoid(Map.CLIMBER_SOLENOID);
-    private static TouchSensor down = new TouchSensor(Map.CLIMBER_DOWN_TOUCH);
-    private static TouchSensor up = new TouchSensor(Map.CLIMBER_UP_TOUCH);
+    private static Motor climber = new MotorGroup(CANTalon.class, Map.CLIMBER_MOTOR_1, Map.CLIMBER_MOTOR_2).setName("Climber");
+    private static Solenoid position = new Solenoid(Map.CLIMBER_SOLENOID);
+    private static AbstractEncoder encoder = new Encoder(Map.CLIMBER_ENCODER_A, Map.CLIMBER_ENCODER_B);
+    private static DigitalInput down = new DigitalInput(Map.CLIMBER_DOWN_TOUCH);
+    private static DigitalInput up = new DigitalInput(Map.CLIMBER_UP_TOUCH);
 
     /**
-     * Deploys the Climber.
+     * Sets the position of the Climber.
      */
+    public static void setPosition(boolean pos) {
+        position.set(pos);
+    }
+
     public static void deploy() {
-        deploy.set(true);
-        while (! (up.get() && !down.get()) ) {
-            try {
-                Thread.sleep(25);
-            } catch (Exception e) {}
+        if (up.get() && !down.get()) { //If climber is completely up
+            //TODO: confirm 500 times over that it is safe to move the motors at this point and then program them to move up
         }
-        //TODO: write code to deploy climber after confirming that we are safe to deploy at this point
+    }
+
+    public static void retract() {
+        if (up.get() && !down.get()) { //If climber is completely up
+            //TODO: move climber motors back down
+        }
     }
 
 

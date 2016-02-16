@@ -8,17 +8,24 @@ public class OI extends AbstractOI {
     public static LogitechController drive; //Driver controller
     public static XboxController manip; //Manipulator controller
 
+    //Driver buttons
+
     public static Button gyroForward;
 
     public static ButtonGroup lowShift;
 
-    public static ButtonGroup intakeRetract;
+    public static ButtonGroup shoot;
 
+    //Manipulator buttons
+
+    public static ButtonGroup intakeRetract;
     public static Button intakeMotorIn;
     public static Button intakeMotorOut;
+
     public static Button shooterRev;
 
-    public static ButtonGroup shoot;
+    public static Button climberDeploy;
+    public static Button climberRetract;
 
     public OI() {
         init();
@@ -44,9 +51,12 @@ public class OI extends AbstractOI {
 
         intakeRetract = manip.bumpers;
 
-        intakeMotorIn = manip.a; //Should be left button
-        intakeMotorOut = manip.x; //Should be top button
+        intakeMotorIn = manip.x;
+        intakeMotorOut = manip.y;
 
-        shooterRev = manip.b;
+        shooterRev = manip.triggers; //TODO: Only use this if there is not a delay from press to telling the motors to move
+
+        climberDeploy = manip.start; //HAS TO BE LEFT BUTTON
+        climberRetract = manip.select; //HAS TO BE RIGHT BUTTON
     }
 }

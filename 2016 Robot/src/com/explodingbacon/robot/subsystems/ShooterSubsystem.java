@@ -4,9 +4,8 @@ import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
-import com.explodingbacon.bcnlib.sensors.EncoderInterface;
-import com.explodingbacon.bcnlib.sensors.MotorEncoder;
-import com.explodingbacon.bcnlib.sensors.TouchSensor;
+import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
+import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -16,12 +15,12 @@ public class ShooterSubsystem extends Subsystem {
     private static Motor shooter = new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
 
-    private static MotorEncoder encoder;
+    private static AbstractEncoder encoder;
     public static PIDController shooterPID;
 
-    private static TouchSensor hasBall = new TouchSensor(Map.SHOOTER_BALL_TOUCH);
+    private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
-    private static double kP = Math.pow(10, -5); //TODO: tune
+    private static double kP = 0.1; //TODO: tune
 
     private static boolean shouldShoot = false;
 
@@ -32,7 +31,7 @@ public class ShooterSubsystem extends Subsystem {
 
         encoder = ((MotorGroup)shooter).getMotors().get(0).getEncoder();
 
-        encoder.setPidMode(EncoderInterface.RATE);
+        encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
         shooterPID = new PIDController(shooter, encoder, kP, 0, 0);
         indexer.setReversed(true);
     }
@@ -110,7 +109,7 @@ public class ShooterSubsystem extends Subsystem {
      * Gets the Encoder on the Shooter.
      * @return Yhe Encoder on the Shooter.
      */
-    public static MotorEncoder getEncoder() {
+    public static AbstractEncoder getEncoder() {
         return encoder;
     }
 

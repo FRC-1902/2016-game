@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.CANTalon;
 
 public class IntakeSubsystem extends Subsystem {
 
-    //TODO: Change this to a real motor
     private static Motor intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
     private static Solenoid intakeOut = new Solenoid(Map.INTAKE_SOLENOID);
 

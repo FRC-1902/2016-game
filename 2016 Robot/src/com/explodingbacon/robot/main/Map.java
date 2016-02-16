@@ -41,6 +41,9 @@ public class Map {
 
     public static final int SHOOTER_BALL_TOUCH = 4;
 
-    public static final int CLIMBER_DOWN_TOUCH = 5;
-    public static final int CLIMBER_UP_TOUCH = 6;
+    public static final int CLIMBER_ENCODER_A = 5;
+    public static final int CLIMBER_ENCODER_B = 6;
+
+    public static final int CLIMBER_DOWN_TOUCH = 6;
+    public static final int CLIMBER_UP_TOUCH = 7;
 }
