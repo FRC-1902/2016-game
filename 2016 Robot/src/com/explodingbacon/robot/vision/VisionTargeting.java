@@ -65,8 +65,7 @@ public class VisionTargeting extends CodeThread {
                 ShooterSubsystem.shooterPID.setTarget(rate);
                 if (!ShooterSubsystem.shooterPID.isEnabled()) ShooterSubsystem.shooterPID.enable();
             } else {
-                ShooterSubsystem.shooterPID.disable();
-                ShooterSubsystem.setShooter(0);
+                ShooterSubsystem.shooterPID.setTarget(0);
             }
             if (OI.shooterRev.get() && ShooterSubsystem.isRateAcceptable()) {
                 OI.manip.rumble(0.1f, 0.1f);
@@ -98,8 +97,12 @@ public class VisionTargeting extends CodeThread {
                             right.disable();
                             DriveSubsystem.setDriverControlled(true);
                         }
-                    } else { //We are lined up with the goal
-                        OI.drive.rumble(0.1f, 0.1f);
+                    }
+                    if (!(error > PIXELS_ERROR_FIX)) { //We are lined up to shoot
+                        //OI.drive.rumble(0.1f, 0.1f);
+                        ShooterSubsystem.getLight().enable();
+                    } else {
+                        ShooterSubsystem.getLight().stop();
                     }
                 }
             }

@@ -1,7 +1,9 @@
 package com.explodingbacon.robot.subsystems;
 
+import com.explodingbacon.bcnlib.actuators.Light;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
+import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
@@ -11,20 +13,20 @@ import edu.wpi.first.wpilibj.CANTalon;
 
 public class ShooterSubsystem extends Subsystem {
 
-    //TODO: Make indexer an actual motor
-    private static Motor shooter = new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+    public static Motor shooter = new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
+
+    private static Light light = new Light(new Solenoid(Map.LIGHT));
 
     private static AbstractEncoder encoder;
     public static PIDController shooterPID;
 
+    public static final int INTAKE_RATE = 10000;
+    public static final int DEFAULT_SHOOT_RATE = -38000; //TODO: Tune
+
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
-    private static double kP = 0.1; //TODO: tune
-
     private static boolean shouldShoot = false;
-
-    public static final double DEFAULT_SHOOT_RATE = 9000; //TODO: Tune
 
     public ShooterSubsystem() {
         super();
@@ -32,8 +34,12 @@ public class ShooterSubsystem extends Subsystem {
         encoder = ((MotorGroup)shooter).getMotors().get(0).getEncoder();
 
         encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
-        shooterPID = new PIDController(shooter, encoder, kP, 0, 0);
+        shooterPID = new PIDController(shooter, encoder, 0.00016, 0, 0, 0.3, 0.9);
         indexer.setReversed(true);
+
+        shooter.setFiltered(100); //TODO: Remove?
+        shooterPID.enable();
+        shooterPID.setInverted(true);
     }
 
     /**
@@ -70,7 +76,9 @@ public class ShooterSubsystem extends Subsystem {
      * Sets the speed of the Shooter.
      * @param d The speed of the Shooter.
      */
-    public static void setShooter(double d) { shooter.setPower(d); }
+    private static void setShooter(double d) {
+        shooter.setPower(d);
+    }
 
     /**
      * Checks if the Shooter has a ball in it.
@@ -93,7 +101,7 @@ public class ShooterSubsystem extends Subsystem {
      * Checks if the current rate of the shooter is acceptable for shooting.
      * @return If the current rate of the shooter is acceptable for shooting.
      */
-    public static boolean isRateAcceptable() { //TODO: better name?
+    public static boolean isRateAcceptable() {
         return encoder.getRate() > (shooterPID.getTarget() * 0.95); //TODO: tune
     }
 
@@ -111,6 +119,14 @@ public class ShooterSubsystem extends Subsystem {
      */
     public static AbstractEncoder getEncoder() {
         return encoder;
+    }
+
+    /**
+     * Gets the indicator light.
+     * @return The indicator light.
+     */
+    public static Light getLight() {
+        return light;
     }
 
     @Override

@@ -20,15 +20,19 @@ public class IntakeCommand extends Command {
     public void onLoop() {
         if (OI.intakeMotorIn.get() && !ShooterSubsystem.hasBall()) {
             IntakeSubsystem.setSpeed(1);
-            ShooterSubsystem.setShooter(-.8);
+            ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
             ShooterSubsystem.setIndexer(-1);
         } else if (OI.intakeMotorOut.get()) {
             IntakeSubsystem.setSpeed(-1);
-        } else {
+            ShooterSubsystem.setIndexer(1);
+            ShooterSubsystem.shooterPID.setTarget(0);
+        } else if (!OI.shooterRev.get() && !OI.shoot.getAny() && !ShooterSubsystem.shouldShoot()){
             IntakeSubsystem.setSpeed(0);
+            ShooterSubsystem.setIndexer(0);
+            ShooterSubsystem.shooterPID.setTarget(0);
         }
 
-        IntakeSubsystem.setPosition(!OI.intakeRetract.getAny());
+        IntakeSubsystem.setPosition(OI.intakeRetract.getAny());
     }
 
     @Override

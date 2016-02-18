@@ -69,7 +69,7 @@ public class DriveCommand extends Command {
                 wasShiftingLow = false;
             }
 
-            DriveSubsystem.shiftIfResistance();
+            //DriveSubsystem.shiftIfResistance();
 
             double joyX;
             double joyY;

@@ -21,15 +21,20 @@ public class Map {
     public static final int SHOOTER_INDEXER = 0x03; //Final
 
     public static final int SHOOTER_MOTOR_1 = 0x05; //Final
-    public static final int SHOOTER_MOTOR_2= 0x01; //Final
+    public static final int SHOOTER_MOTOR_2 = 0x01; //Final
 
-    //SOLENOIDS
+    //PCM ports
 
-    public static final int SHIFT_SOLENOID = 0;
+    public static final int LIGHT = 0;
 
-    public static final int INTAKE_SOLENOID = 1;
+    public static final int SHIFT_SOLENOID_A = 2;
+    public static final int SHIFT_SOLENOID_B = 5;
 
-    public static final int CLIMBER_SOLENOID = 2;
+    public static final int INTAKE_SOLENOID_A = 1;
+    public static final int INTAKE_SOLENOID_B = 4;
+
+    public static final int CLIMBER_SOLENOID_A = 3;
+    public static final int CLIMBER_SOLENOID_B = 6;
 
     //SENSORS
 
@@ -44,6 +49,6 @@ public class Map {
     public static final int CLIMBER_ENCODER_A = 5;
     public static final int CLIMBER_ENCODER_B = 6;
 
-    public static final int CLIMBER_DOWN_TOUCH = 6;
-    public static final int CLIMBER_UP_TOUCH = 7;
+    public static final int CLIMBER_DOWN_TOUCH = 7;
+    public static final int CLIMBER_UP_TOUCH = 8;
 }

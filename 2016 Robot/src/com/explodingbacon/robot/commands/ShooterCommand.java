@@ -25,21 +25,18 @@ public class ShooterCommand extends Command {
         if (!OI.intakeMotorIn.get()) {
 
             if (OI.shooterRev.get()) {
-                //ShooterSubsystem.setShooter(0.3);
+                //ShooterSubsystem.setShooter(0.5);
 
                 ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.DEFAULT_SHOOT_RATE);
 
                 ShooterSubsystem.shooterPID.whenFinished(() -> {
-                   OI.manip.rumble(0.1f, 0.1f, 1);
+                   OI.manip.rumble(0.1f, 0.1f, 4);
                 });
-
-                ShooterSubsystem.shooterPID.enable();
             } else {
                 //ShooterSubsystem.setShooter(0);
 
-                ShooterSubsystem.shooterPID.disable();
+                ShooterSubsystem.shooterPID.setTarget(0);
                 ShooterSubsystem.shooterPID.whenFinished(null);
-                ShooterSubsystem.setShooter(0);
             }
 
             if (OI.shoot.getAny()) {

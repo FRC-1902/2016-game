@@ -21,6 +21,7 @@
  */
 package com.explodingbacon.robot.main;
 
+import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
 import com.explodingbacon.bcnlib.javascript.Javascript;
@@ -32,6 +33,7 @@ import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 public class Robot extends RobotCore {
 
@@ -39,6 +41,8 @@ public class Robot extends RobotCore {
     public static IntakeSubsystem intakeSubsystem;
     public static ShooterSubsystem shooterSubsystem;
     public static ClimberSubsystem climberSubsystem;
+    public static PowerDistributionPanel pdp = new PowerDistributionPanel();
+
 
     public VisionTargeting visionTargeting;
 
@@ -54,14 +58,15 @@ public class Robot extends RobotCore {
 
     @Override
     public void robotInit() {
-        Javascript.init();
-        Vision.init();
+        super.robotInit();
+        //Javascript.init();
+        //Vision.init();
 
         driveSubsystem = new DriveSubsystem();
         intakeSubsystem = new IntakeSubsystem();
         shooterSubsystem = new ShooterSubsystem();
         climberSubsystem = new ClimberSubsystem();
-
+        
         Log.i("Subsystems initialized!");
 
         oi = new OI();
@@ -80,8 +85,26 @@ public class Robot extends RobotCore {
 
     @Override
     public void autonomousInit() {
-        OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
-
+        //OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
         super.autonomousInit();
+    }
+
+    @Override
+    public void teleopInit() {
+        super.teleopInit();
+        ShooterSubsystem.getLight().stop();
+        //ShooterSubsystem.setShooter(0.5);
+    }
+
+    @Override
+    public void teleopPeriodic() {
+        Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " +
+                ShooterSubsystem.getEncoder().getRate());
+    }
+
+    @Override
+    public void disabled() {
+        super.disabled();
+        ShooterSubsystem.shooterPID.setTarget(0);
     }
 }

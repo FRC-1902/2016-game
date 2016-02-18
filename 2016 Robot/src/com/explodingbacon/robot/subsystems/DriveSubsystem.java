@@ -1,5 +1,6 @@
 package com.explodingbacon.robot.subsystems;
 
+import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.actuators.Solenoid;
@@ -21,7 +22,7 @@ public class DriveSubsystem extends Subsystem {
     private static Motor leftMotors = new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
     private static Motor rightMotors = new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
 
-    private static Solenoid shift = new Solenoid(Map.SHIFT_SOLENOID);
+    private static DoubleSolenoid shift = new DoubleSolenoid(Map.SHIFT_SOLENOID_A, Map.SHIFT_SOLENOID_B);
 
     private static AbstractEncoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
     private static AbstractEncoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
@@ -40,6 +41,8 @@ public class DriveSubsystem extends Subsystem {
 
     public DriveSubsystem() {
         super();
+        leftMotors.setReversed(true);
+        rightMotors.setReversed(true);
         /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
 
@@ -142,7 +145,7 @@ public class DriveSubsystem extends Subsystem {
      * @param y The Y axis of the Joystick.
      */
     public static void arcadeDrive(double x, double y) {
-        tankDrive(y - x, y + x);
+        tankDrive(x - y, x + y);
     }
 
     /**
