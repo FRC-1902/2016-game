@@ -18,6 +18,9 @@ public class ClimberCommand extends Command {
     @Override
     public void onLoop() {
         Direction d = OI.manip.getDPad();
+        if (ClimberSubsystem.isTouchDown()) {
+            ClimberSubsystem.getEncoder().reset();
+        }
         if (d.isUp()) {
             ClimberSubsystem.setPosition(true);
         } else if (d.isDown()) {

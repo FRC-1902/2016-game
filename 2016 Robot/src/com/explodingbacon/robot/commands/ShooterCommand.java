@@ -29,14 +29,17 @@ public class ShooterCommand extends Command {
 
                 ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.DEFAULT_SHOOT_RATE);
 
-                ShooterSubsystem.shooterPID.whenFinished(() -> {
-                   OI.manip.rumble(0.1f, 0.1f, 4);
-                });
+                if (ShooterSubsystem.shooterPID.isDone()) {
+                    OI.manip.rumble(0.1f, 0.1f);
+                } else {
+                    OI.manip.rumble(0, 0);
+                }
+
             } else {
                 //ShooterSubsystem.setShooter(0);
 
                 ShooterSubsystem.shooterPID.setTarget(0);
-                ShooterSubsystem.shooterPID.whenFinished(null);
+                OI.manip.rumble(0, 0);
             }
 
             if (OI.shoot.getAny()) {

@@ -8,21 +8,22 @@ import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.DigitalInput;
+import com.explodingbacon.bcnlib.sensors.MotorEncoder;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.CANTalon;
 
 public class ShooterSubsystem extends Subsystem {
 
-    public static Motor shooter = new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+    private static MotorGroup shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
 
     private static Light light = new Light(new Solenoid(Map.LIGHT));
 
-    private static AbstractEncoder encoder;
+    private static MotorEncoder encoder;
     public static PIDController shooterPID;
 
-    public static final int INTAKE_RATE = 10000;
-    public static final int DEFAULT_SHOOT_RATE = -38000; //TODO: Tune
+    public static final int INTAKE_RATE = -25000;
+    public static final int DEFAULT_SHOOT_RATE = 38000 + 2000 + 6000; //TODO: Tune
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
@@ -31,15 +32,16 @@ public class ShooterSubsystem extends Subsystem {
     public ShooterSubsystem() {
         super();
 
-        encoder = ((MotorGroup)shooter).getMotors().get(0).getEncoder();
-
-        encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
-        shooterPID = new PIDController(shooter, encoder, 0.00016, 0, 0, 0.3, 0.9);
         indexer.setReversed(true);
-
         shooter.setFiltered(100); //TODO: Remove?
+
+        encoder = shooter.getMotors().get(1).getEncoder();
+        encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
+        encoder.setReversed(true);
+
+        shooterPID = new PIDController(shooter, encoder, 0.0005, 0, 0.001, 0.3, 0.9); //P=0.00025
+        shooterPID.setInverted(false); //Changed from true
         shooterPID.enable();
-        shooterPID.setInverted(true);
     }
 
     /**
@@ -76,7 +78,7 @@ public class ShooterSubsystem extends Subsystem {
      * Sets the speed of the Shooter.
      * @param d The speed of the Shooter.
      */
-    private static void setShooter(double d) {
+    public static void setShooter(double d) {
         shooter.setPower(d);
     }
 
@@ -114,10 +116,26 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     /**
+     * Gets the MotorGroup for the shooter Motors.
+     * @return The MotorGroup for the shooter Motors.
+     */
+    public static MotorGroup getShooterMotors() {
+        return shooter;
+    }
+
+    /**
+     * Gets the indexer Motor.
+     * @return The indexer Motor.
+     */
+    public static Motor getIndexerMotor() {
+        return indexer;
+    }
+
+    /**
      * Gets the Encoder on the Shooter.
      * @return Yhe Encoder on the Shooter.
      */
-    public static AbstractEncoder getEncoder() {
+    public static MotorEncoder getEncoder() {
         return encoder;
     }
 
@@ -131,7 +149,7 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public void stop() {
-        shooterPID.disable();
+        //shooterPID.disable();
         shooter.setPower(0);
         indexer.setPower(0);
     }

@@ -13,15 +13,15 @@ public class Map {
 
     //CAN
 
-    public static final int INTAKE_MOTOR = 0x04; //Final
+    public static final int INTAKE_MOTOR = 15;
 
-    public static final int CLIMBER_MOTOR_1 = 0x02; //Final
-    public static final int CLIMBER_MOTOR_2 = 0x06; //Final
+    public static final int CLIMBER_MOTOR_1 = 13;
+    public static final int CLIMBER_MOTOR_2 = 14; //has encoder
 
-    public static final int SHOOTER_INDEXER = 0x03; //Final
+    public static final int SHOOTER_INDEXER = 12;
 
-    public static final int SHOOTER_MOTOR_1 = 0x05; //Final
-    public static final int SHOOTER_MOTOR_2 = 0x01; //Final
+    public static final int SHOOTER_MOTOR_1 = 10;
+    public static final int SHOOTER_MOTOR_2 = 11; //has encoder
 
     //PCM ports
 
@@ -30,11 +30,11 @@ public class Map {
     public static final int SHIFT_SOLENOID_A = 2;
     public static final int SHIFT_SOLENOID_B = 5;
 
-    public static final int INTAKE_SOLENOID_A = 1;
-    public static final int INTAKE_SOLENOID_B = 4;
+    public static final int INTAKE_SOLENOID_A = 4;
+    public static final int INTAKE_SOLENOID_B = 1;
 
-    public static final int CLIMBER_SOLENOID_A = 3;
-    public static final int CLIMBER_SOLENOID_B = 6;
+    public static final int CLIMBER_SOLENOID_A = 6;
+    public static final int CLIMBER_SOLENOID_B = 3;
 
     //SENSORS
 
@@ -46,9 +46,5 @@ public class Map {
 
     public static final int SHOOTER_BALL_TOUCH = 4;
 
-    public static final int CLIMBER_ENCODER_A = 5;
-    public static final int CLIMBER_ENCODER_B = 6;
-
-    public static final int CLIMBER_DOWN_TOUCH = 7;
-    public static final int CLIMBER_UP_TOUCH = 8;
+    public static final int CLIMBER_DOWN_TOUCH = 5;
 }

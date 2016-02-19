@@ -2,7 +2,6 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
-import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.CANTalon;
@@ -14,6 +13,7 @@ public class IntakeSubsystem extends Subsystem {
 
     public IntakeSubsystem() {
         super();
+        intakeOut.set(true);
     }
 
     /**
@@ -30,6 +30,14 @@ public class IntakeSubsystem extends Subsystem {
      */
     public static void setPosition(boolean b) {
         intakeOut.set(b);
+    }
+
+    /**
+     * Gets the intake Motor.
+     * @return The intake Motor.
+     */
+    public static Motor getIntakeMotor() {
+        return intakeMotor;
     }
 
     @Override

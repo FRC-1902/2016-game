@@ -21,10 +21,9 @@
  */
 package com.explodingbacon.robot.main;
 
-import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
-import com.explodingbacon.bcnlib.javascript.Javascript;
+import com.explodingbacon.bcnlib.sensors.PDP;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.ClimberSubsystem;
@@ -33,7 +32,6 @@ import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 public class Robot extends RobotCore {
 
@@ -41,7 +39,7 @@ public class Robot extends RobotCore {
     public static IntakeSubsystem intakeSubsystem;
     public static ShooterSubsystem shooterSubsystem;
     public static ClimberSubsystem climberSubsystem;
-    public static PowerDistributionPanel pdp = new PowerDistributionPanel();
+    public static PDP pdp = new PDP();
 
 
     public VisionTargeting visionTargeting;
@@ -66,12 +64,8 @@ public class Robot extends RobotCore {
         intakeSubsystem = new IntakeSubsystem();
         shooterSubsystem = new ShooterSubsystem();
         climberSubsystem = new ClimberSubsystem();
-        
-        Log.i("Subsystems initialized!");
 
         oi = new OI();
-
-        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand(), new ClimberCommand());
 
         if (Vision.isInit()) {
             visionTargeting = new VisionTargeting();
@@ -83,28 +77,39 @@ public class Robot extends RobotCore {
         Log.i("Battering Ham initialized!");
     }
 
+    public void initControlCommands() {
+        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand(), new ClimberCommand());
+    }
+
     @Override
     public void autonomousInit() {
-        //OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
+        OI.deleteAllTriggers(); //TODO: make sure this doesn't wind up deleting the command initialized right after this
+        OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
         super.autonomousInit();
     }
 
     @Override
     public void teleopInit() {
         super.teleopInit();
-        ShooterSubsystem.getLight().stop();
-        //ShooterSubsystem.setShooter(0.5);
+        OI.deleteAllTriggers(); //TODO: Make sure this doesn't wind up deleting the commands initialized right after this
+        initControlCommands();
+    }
+
+    @Override
+    public void testInit() {
+        OI.deleteAllTriggers();
+        OI.runCommand(new ShakedownCommand());
     }
 
     @Override
     public void teleopPeriodic() {
-        Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " +
-                ShooterSubsystem.getEncoder().getRate());
+        super.teleopPeriodic();
+        Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " + ShooterSubsystem.getEncoder().getRate());
     }
 
     @Override
-    public void disabled() {
-        super.disabled();
+    public void disabledInit() {
+        super.disabledInit();
         ShooterSubsystem.shooterPID.setTarget(0);
     }
 }

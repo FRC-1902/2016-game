@@ -9,6 +9,8 @@ import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 
 public class IntakeCommand extends Command {
 
+    Boolean currentState = false, buttonHeld = false;
+
     public IntakeCommand() {
         requires(Robot.intakeSubsystem);
     }
@@ -32,7 +34,14 @@ public class IntakeCommand extends Command {
             ShooterSubsystem.shooterPID.setTarget(0);
         }
 
-        IntakeSubsystem.setPosition(OI.intakeRetract.getAny());
+        //IntakeSubsystem.setPosition(OI.intakeRetract.getAny());
+
+        if(OI.intakeRetract.getAny() && !buttonHeld) {
+            IntakeSubsystem.setPosition(!currentState);
+            currentState = !currentState;
+        }
+
+        buttonHeld = OI.intakeRetract.getAny();
     }
 
     @Override

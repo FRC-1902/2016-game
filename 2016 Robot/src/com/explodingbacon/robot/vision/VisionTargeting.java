@@ -55,7 +55,7 @@ public class VisionTargeting extends CodeThread {
             Image i = null;
             if (camera.isOpen()) {
                 i = camera.getImage();
-                goal = getGoal(i);
+                goal = findGoal(i);
             }
 
             if (goal != null) rate = ShooterSubsystem.calculateShooterRate(Utils.getDistanceFromPx(goal.getWidth()));
@@ -130,7 +130,7 @@ public class VisionTargeting extends CodeThread {
      * @param i The image the goal is in.
      * @return The Contour for the retroreflective tape around the Castle's high goal.
      */
-    private Contour getGoal(Image i) {
+    private Contour findGoal(Image i) {
         Image filtered = i.colorRange(new Color(230, 230, 230), new Color(255, 255, 255));
 
         Contour biggest = null;

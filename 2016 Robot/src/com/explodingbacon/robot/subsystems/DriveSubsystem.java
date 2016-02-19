@@ -11,23 +11,22 @@ import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
-import edu.wpi.first.wpilibj.PWM;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 
 import java.lang.reflect.Field;
 
 public class DriveSubsystem extends Subsystem {
 
-    private static Motor leftMotors = new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
-    private static Motor rightMotors = new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+    private static MotorGroup leftMotors = (MotorGroup) new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
+    private static MotorGroup rightMotors = (MotorGroup) new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
 
     private static DoubleSolenoid shift = new DoubleSolenoid(Map.SHIFT_SOLENOID_A, Map.SHIFT_SOLENOID_B);
 
     private static AbstractEncoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
     private static AbstractEncoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
 
-    //private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS0, SPI.Port.kOnboardCS1);
+    private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
 
     private static boolean driverControlled = true;
 
@@ -43,6 +42,10 @@ public class DriveSubsystem extends Subsystem {
         super();
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
+
+        shift(true);
+
+
         /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
 
@@ -68,7 +71,7 @@ public class DriveSubsystem extends Subsystem {
      * Gets the MotorGroup for the left drivetrain motors.
      * @return The MotorGroup for the left drivetrain motors.
      */
-    public static Motor getLeftMotors() {
+    public static MotorGroup getLeftMotors() {
         return leftMotors;
     }
 
@@ -76,7 +79,7 @@ public class DriveSubsystem extends Subsystem {
      * Gets the MotorGroup for the right drivetrain motors.
      * @return The MotorGroup for the right drivetrain motors.
      */
-    public static Motor getRightMotors() {
+    public static MotorGroup getRightMotors() {
         return rightMotors;
     }
 
@@ -101,8 +104,7 @@ public class DriveSubsystem extends Subsystem {
      * @return The ADXSensor.
      */
     public static ADXSensor getADX() {
-        //return adx; //TODO: uncomment
-        return null;
+        return adx;
     }
 
     /**
