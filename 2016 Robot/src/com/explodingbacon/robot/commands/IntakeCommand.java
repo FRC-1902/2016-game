@@ -1,5 +1,6 @@
 package com.explodingbacon.robot.commands;
 
+import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.controllers.FakeButton;
 import com.explodingbacon.bcnlib.framework.Command;
@@ -9,9 +10,15 @@ import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class IntakeCommand extends Command {
 
     boolean currentState = false, wasPressed = false, testedCurrentBall = false;
+
+    List<Double> powerList;
+    private final int AVERAGER_SIZE = 10; //The number of records to average
 
     public IntakeCommand() {
         requires(Robot.intakeSubsystem);
@@ -23,18 +30,12 @@ public class IntakeCommand extends Command {
     @Override
     public void onLoop() {
         if (OI.intakeMotorIn.get() && !ShooterSubsystem.hasBall()) {
-            IntakeSubsystem.setSpeed(1);
-            ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
-            ShooterSubsystem.setIndexer(-1);
+            IntakeSubsystem.intake();
             testedCurrentBall = false; //If this block of code runs, we're intaking a new ball
         } else if (OI.intakeMotorOut.get()) {
-            IntakeSubsystem.setSpeed(-1);
-            ShooterSubsystem.setIndexer(1);
-            ShooterSubsystem.shooterPID.setTarget(0);
-        } else if (!OI.shooterRev.get() && !OI.shoot.getAny() && !ShooterSubsystem.shouldShoot()){
-            IntakeSubsystem.setSpeed(0);
-            ShooterSubsystem.setIndexer(0);
-            ShooterSubsystem.shooterPID.setTarget(0);
+            IntakeSubsystem.outtake();
+        } else if (!OI.shooterRev.get() && !OI.shoot.getAny() && !ShooterSubsystem.shouldVisionShoot()){
+            IntakeSubsystem.stopIntake();
         }
 
         boolean pressed = OI.intakeRetract.getAny();
@@ -47,51 +48,43 @@ public class IntakeCommand extends Command {
         if (IntakeSubsystem.TEST_BALLS && !testedCurrentBall && ShooterSubsystem.hasBall()) {
             try {
                 ((FakeButton) OI.testingBall).set(true);
-                IntakeSubsystem.setSpeed(0);
-                ShooterSubsystem.shooterPID.setTarget(0);
+                IntakeSubsystem.stopIntake();
 
                 Motor indexer = ShooterSubsystem.getIndexer();
 
                 indexer.setPower(0);
 
-                Log.d("Beginning wait");
-                Thread.sleep(2000);
-                Log.d("Wait over");
+                powerList = new ArrayList<>();
 
-                indexer.setPower(.6);
+                Thread.sleep(2000); //Wait for things to calm down
 
-                Log.d("Outtaking");
+                indexer.setPower(.6); //Outtake
 
-                Thread.sleep(1500);
+                Thread.sleep(750); //Outtake time
 
-                indexer.setPower(-.6);
+                indexer.setPower(-.6); //Intake
 
-                Log.d("Intaking");
-
-                while(!ShooterSubsystem.hasBall()) {
+                while(!ShooterSubsystem.hasBall()) { //Log intake powers until we have the ball
+                    powerList.add(indexer.getWatts());
                     Thread.sleep(25);
                 }
 
-                Log.d("We have the ball");
+                Log.d("Indexer unaveraged: " + indexer.getWatts());
 
-                double power = indexer.getWatts();
+                powerList.add(indexer.getWatts());
                 indexer.setPower(0);
 
-                ShooterSubsystem.setBallWatts(power);
-                Log.d("End power: " + power + " watts");
-                Log.d("Shot at " + (ShooterSubsystem.shooterPID.getTarget() +
-                        ShooterSubsystem.shooterPID.getCurrentError()));
+                double total = 0; //Pull out the last n values
+                int counter = 0;
+                for(Double element : powerList.subList(powerList.size() - AVERAGER_SIZE, powerList.size())) {
+                    total += element;
+                    counter ++;
+                }
 
-                    /*
-                    indexer.rampUpWait(10, false, (Motor.RampUpData data) -> {
-                        if (!ShooterSubsystem.hasBall()) {
-                            double watts = indexer.getWatts();
-                            ShooterSubsystem.setBallWatts(watts);
-                            Log.d("Watts for moving ball: " + watts + ", motor speed:" + indexer.getPower() + ", current: " + indexer.getOutputCurrent() + ", battery voltage: " + Robot.getBatteryVoltage());
-                            data.setCancelled(true);
-                        }
-                        return data;
-                    });*/
+                double avgPower = total / counter; //Average them
+
+                ShooterSubsystem.setBallWatts(avgPower); //Pass the average to ShooterSubsystem
+                Log.d("Average power: " + avgPower + " watts");
 
                 testedCurrentBall = true;
             } catch (Exception e) {

@@ -48,8 +48,6 @@ public class VisionTargeting extends CodeThread {
     @Override
     public void code() {
         try {
-            double rate = ShooterSubsystem.DEFAULT_SHOOT_RATE;
-
             Contour goal = null;
             Image i = null;
             if (camera.isOpen()) {
@@ -57,19 +55,7 @@ public class VisionTargeting extends CodeThread {
                 goal = findGoal(i);
             }
 
-            //if (goal != null) rate = ShooterSubsystem.calculateShooterRate(Utils.getDistanceFromPx(goal.getWidth()));
-
             //TODO: Check if shooting is responsive when it's in this thread (the Thread.sleep() calls SHOULD be fine, but check anyway)
-            if (OI.shooterRev.get()) {
-                ShooterSubsystem.shooterPID.setTarget(rate);
-            } else {
-                ShooterSubsystem.shooterPID.setTarget(0);
-            }
-            if (OI.shooterRev.get() && ShooterSubsystem.isRateAcceptable()) {
-                OI.manip.rumble(0.1f, 0.1f);
-            } else {
-                OI.manip.rumble(0, 0);
-            }
 
             if (camera.isOpen()) {
                 double target = i.getWidth() / 2;
@@ -79,7 +65,7 @@ public class VisionTargeting extends CodeThread {
                     double error = Math.abs(target - midX);
                     if (error > PIXELS_ERROR_FIX) { //If we are off center by more than an acceptable amount of pixels, then auto-correct if we are shooting
                         OI.drive.rumble(0, 0);
-                        if (ShooterSubsystem.shouldShoot()) {
+                        if (ShooterSubsystem.shouldVisionShoot()) {
                             DriveSubsystem.setDriverControlled(false);
                             source.update(midX);
                             left.setTarget(target);
@@ -106,11 +92,11 @@ public class VisionTargeting extends CodeThread {
             }
 
             //The robot will shoot the ball regardless of if it can see the target, but requires the shooter motors to be active
-            if (ShooterSubsystem.shouldShoot() && ShooterSubsystem.isRateAcceptable()) {
-                ShooterSubsystem.setIndexer(1);
+            if (ShooterSubsystem.shouldVisionShoot() && ShooterSubsystem.shooterPID.isDone()) {
+                ShooterSubsystem.setIndexerRaw(1);
                 Thread.sleep(500);
-                ShooterSubsystem.setIndexer(0);
-                ShooterSubsystem.setShouldShoot(false);
+                ShooterSubsystem.setIndexerRaw(0);
+                ShooterSubsystem.setShouldVisionShoot(false);
                 if (!camera.isOpen()) {
                     Log.c("VISION", "Shooting blind due to the camera not working!");
                 } else if (goal == null) {

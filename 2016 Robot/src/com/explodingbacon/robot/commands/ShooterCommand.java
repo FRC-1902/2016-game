@@ -1,6 +1,7 @@
 package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
@@ -10,6 +11,7 @@ public class ShooterCommand extends Command {
     public ShooterCommand() {
         requires(Robot.shooterSubsystem);
     }
+    private boolean loggedSpeed = false;
 
     @Override
     public void onInit() {}
@@ -18,49 +20,31 @@ public class ShooterCommand extends Command {
     public void onLoop() {
         /*
         if (OI.shoot.getAny()) {
-            ShooterSubsystem.shoot();
+            ShooterSubsystem.queueVisionShoot();
         }
         */
 
         if (!OI.intakeMotorIn.get()) {
 
             if (OI.shooterRev.get()) {
-                //ShooterSubsystem.setShooter(0.5);
-
-                ShooterSubsystem.setSpotlight(true);
-
-                ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.calculateRateFromWatts());
-
-                if (ShooterSubsystem.shooterPID.isDone()) {
-                    OI.manip.rumble(0.1f, 0.1f);
-                } else {
-                    OI.manip.rumble(0, 0);
-                }
+                ShooterSubsystem.rev();
 
             } else {
-                //ShooterSubsystem.setShooter(0);
-
-                ShooterSubsystem.setSpotlight(false);
-
-                ShooterSubsystem.shooterPID.setTarget(0);
-                OI.manip.rumble(0, 0);
+                ShooterSubsystem.stopRev();
             }
 
             if(!OI.testingBall.get()) {
                 if (OI.shoot.getAny()) {
-                    ShooterSubsystem.setIndexer(1);
+                    ShooterSubsystem.setIndexerRaw(1);
+                    if(!loggedSpeed)
+                        Log.d("Shooter Speed: " + ShooterSubsystem.shooterPID.getCurrentSourceValue());
+                    loggedSpeed = true;
                 } else {
-                    ShooterSubsystem.setIndexer(0);
+                    ShooterSubsystem.setIndexerRaw(0);
+                    loggedSpeed = false;
                 }
             }
         }
-        /*
-        if (ShooterSubsystem.isRateAcceptable()) { //TODO: tweak this rate to be the correct rate to shoot into goal
-            OI.manip.rumble(0.1f, 0.1f);
-        } else {
-            OI.manip.rumble(0, 0);
-        }*/
-
     }
 
     @Override

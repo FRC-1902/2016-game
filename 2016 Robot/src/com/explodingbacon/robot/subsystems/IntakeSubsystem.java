@@ -18,12 +18,22 @@ public class IntakeSubsystem extends Subsystem {
         intakeOut.set(true);
     }
 
-    /**
-     * Sets the speed of the Intake.
-     * @param d The speed of the Intake.
-     */
-    public static void setSpeed(double d) {
-        intakeMotor.setPower(d);
+    public static void intake() {
+        intakeMotor.setPower(1);
+        ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
+        ShooterSubsystem.setIndexerRaw(-1);
+    }
+
+    public static void outtake() {
+        intakeMotor.setPower(-1);
+        ShooterSubsystem.shooterPID.setTarget(0);
+        ShooterSubsystem.setIndexerRaw(1);
+    }
+
+    public static void stopIntake() {
+        intakeMotor.setPower(0);
+        ShooterSubsystem.setIndexerRaw(0);
+        ShooterSubsystem.shooterPID.setTarget(0);
     }
 
     /**
@@ -40,6 +50,14 @@ public class IntakeSubsystem extends Subsystem {
      */
     public static Motor getIntake() {
         return intakeMotor;
+    }
+
+    /**
+     * Sets the speed of the Intake.
+     * @param d The speed of the Intake.
+     */
+    public static void setRawSpeed(double d) {
+        intakeMotor.setPower(d);
     }
 
     @Override

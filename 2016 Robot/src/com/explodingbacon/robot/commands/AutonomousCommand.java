@@ -13,15 +13,21 @@ public class AutonomousCommand extends Command {
 
     @Override
     public void onInit() {
-        //Drive forward through low bar, turn, shoot, turn to 180 degrees from the original angle, return through low bar
+        //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, return through low bar
+
         double originAngle = DriveSubsystem.getADX().getAngle();
-        DriveSubsystem.inchDrive(100);
-        DriveSubsystem.gyroTurn(45);
-        ShooterSubsystem.shoot();
-        ShooterSubsystem.waitForShoot();
+        DriveSubsystem.inchDrive(120);
+        DriveSubsystem.gyroTurn(60);
+
+        /*
+        ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.calculateRateFromWatts());
+
+        ShooterSubsystem.shooterPID.waitUntilDone();
+
         double angleDiff = DriveSubsystem.getADX().getAngle() - originAngle; //TODO: check if sign is wrong
         DriveSubsystem.gyroTurn(angleDiff + 180);
         DriveSubsystem.inchDrive(-100);
+        */
     }
 
     @Override

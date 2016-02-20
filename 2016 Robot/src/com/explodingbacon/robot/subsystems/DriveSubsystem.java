@@ -2,14 +2,14 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
+import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
-import edu.wpi.first.wpilibj.*;
-
-import java.lang.reflect.Field;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Talon;
 
 public class DriveSubsystem extends Subsystem {
 
@@ -25,9 +25,9 @@ public class DriveSubsystem extends Subsystem {
 
     private static boolean driverControlled = true;
 
-    private static double encoderKP = 0.13, encoderMin = 0.3, encoderMax = 0.5;
+    private static double encoderkP = 0.13, encoderkI = 0, encoderkD = 0, encoderMin = 0.3, encoderMax = 0.5;
 
-    private static double gyroKP = 0.01, gyroKI = 0.00025, gyroMin = 0.2, gyroMax = 0.35;
+    private static double gyrokP = 0.01, gyrokI = 0.00025, gyrokD = 0, gyroMin = 0.2, gyroMax = 0.35;
 
     public static final double GYRO_ANGLE_ERROR_FIX = 3; //The minimum angle error needed before the Robot auto-corrects
 
@@ -53,6 +53,7 @@ public class DriveSubsystem extends Subsystem {
 
     }
 
+    /*
     public static String getField(Object o, String field) {
         try {
             Field f = PWM.class.getDeclaredField(field);
@@ -60,7 +61,7 @@ public class DriveSubsystem extends Subsystem {
             return f.get(o).toString();
         } catch (Exception e) {}
         return null;
-    }
+    }*/
 
     /**
      * Gets the MotorGroup for the left drivetrain motors.
@@ -158,11 +159,10 @@ public class DriveSubsystem extends Subsystem {
      * @param distance How many encoder clicks to drive.
      */
     public static void encoderDrive(double distance) { //TODO: uncomment
-        /*
         leftEncoder.reset();
         rightEncoder.reset();
-        PIDController left = new PIDController(leftMotors, leftEncoder, encoderKP, 0, 0, encoderMin, encoderMax);
-        PIDController right = new PIDController(rightMotors, rightEncoder, encoderKP, 0, 0, encoderMin, encoderMax).setInverted(true);
+        PIDController left = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
+        PIDController right = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInverted(true);
         left.setTarget(distance);
         right.setTarget(distance);
         double startAngle = adx.getAngle();
@@ -180,7 +180,7 @@ public class DriveSubsystem extends Subsystem {
             try {
                 Thread.sleep(25);
             } catch (Exception e) {}
-        }*/
+        }
     }
 
     /**
@@ -188,10 +188,9 @@ public class DriveSubsystem extends Subsystem {
      * @param degrees How many degrees to turn.
      */
     public static void gyroTurn(double degrees) { //TODO: uncomment
-        /*
-        adx.calibrate();
-        PIDController left = new PIDController(leftMotors, adx, gyroKP, gyroKI, 0, gyroMin, gyroMax);
-        PIDController right = new PIDController(rightMotors, adx, gyroKP, gyroKI, 0, gyroMin, gyroMax).setInverted(true);
+        adx.reset();
+        PIDController left = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+        PIDController right = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax).setInverted(true);
         left.setTarget(degrees);
         right.setTarget(degrees);
         left.enable();
@@ -202,7 +201,7 @@ public class DriveSubsystem extends Subsystem {
         right.waitUntilDone();
 
         left.disable();
-        right.disable();*/
+        right.disable();
     }
 
     /**

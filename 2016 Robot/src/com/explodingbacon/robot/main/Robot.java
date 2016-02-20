@@ -21,6 +21,7 @@
  */
 package com.explodingbacon.robot.main;
 
+import com.explodingbacon.bcnlib.framework.DataLogger;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
 import com.explodingbacon.bcnlib.sensors.PDP;
@@ -32,7 +33,6 @@ import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.Relay;
 
 public class Robot extends RobotCore {
 
@@ -41,6 +41,7 @@ public class Robot extends RobotCore {
     public static ShooterSubsystem shooterSubsystem;
     public static ClimberSubsystem climberSubsystem;
     //public static PDP pdp = new PDP();
+    //public static DataLogger logger = new DataLogger();
     public static boolean logging = false;
 
     public VisionTargeting visionTargeting;
@@ -68,10 +69,12 @@ public class Robot extends RobotCore {
 
         oi = new OI();
 
+        /*
         if (Vision.isInit()) {
             visionTargeting = new VisionTargeting();
             visionTargeting.start();
         }
+        */
 
         //EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm the event system works
 
@@ -85,8 +88,7 @@ public class Robot extends RobotCore {
     @Override
     public void autonomousInit() {
         OI.deleteAllTriggers();
-        ShooterSubsystem.setSpotlight(true);
-        //OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
+        OI.runCommand(new AutonomousCommand());
         super.autonomousInit();
     }
 
@@ -95,22 +97,29 @@ public class Robot extends RobotCore {
         super.teleopInit();
         OI.deleteAllTriggers();
         initControlCommands();
+
+        DriveSubsystem.getADX().reset();
     }
 
     @Override
     public void testInit() {
         OI.deleteAllTriggers();
-        OI.runCommand(new ShakedownCommand());
+        //OI.runCommand(new ShakedownCommand());
     }
 
     @Override
     public void teleopPeriodic() {
         super.teleopPeriodic();
 
+        //Log.d("Left enc: " + DriveSubsystem.getLeftEncoder().get() + ", Right enc: " + DriveSubsystem.getRightEncoder().get());
+
+        //Log.d("Angle: " + DriveSubsystem.getADX().getAngle());
+
         //ShooterSubsystem.setIndexer(0.5);
         //Log.d("Indexer current: " + ShooterSubsystem.getIndexer().getOutputCurrent());
 
-        //Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " + ShooterSubsystem.getEncoder().getRate());
+        //Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " +
+        // ShooterSubsystem.getEncoder().getRate() + ", Setpoint: " + ShooterSubsystem.shooterPID.getMotorPower());
     }
 
     @Override

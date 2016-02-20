@@ -7,6 +7,7 @@ import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
 import com.explodingbacon.robot.main.Map;
+import com.explodingbacon.robot.main.OI;
 import edu.wpi.first.wpilibj.CANTalon;
 
 public class ShooterSubsystem extends Subsystem {
@@ -21,7 +22,7 @@ public class ShooterSubsystem extends Subsystem {
     public static PIDController shooterPID;
 
     public static final int INTAKE_RATE = -25000;
-    public static final int DEFAULT_SHOOT_RATE = 48000; //TODO: Tune
+    public static final int DEFAULT_SHOOT_RATE = 55000;
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
@@ -39,22 +40,45 @@ public class ShooterSubsystem extends Subsystem {
         encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
         encoder.setReversed(true);
 
-        shooterPID = new PIDController(shooter, encoder, 0.0001, 0.0002, 0.0005, 0.3, 0.9); //i=.0002 d=.001
+        shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
+        shooterPID.setFinishedTolerance(1500);
         shooterPID.setInverted(false); //Changed from true
         shooterPID.enable();
+    }
+
+    public static void rev() {
+        setSpotlight(true);
+
+        shooterPID.setTarget(ShooterSubsystem.calculateRateFromWatts());
+
+        shooterPID.setExtraCode(() -> {
+            if (shooterPID.isDone()) {
+                OI.manip.rumble(0.1f, 0.1f);
+            } else {
+                OI.manip.rumble(0, 0);
+            }
+        });
+    }
+
+    public static void stopRev() {
+        setSpotlight(false);
+
+        shooterPID.setTarget(0);
+
+        shooterPID.setExtraCode(null);
     }
 
     /**
      * Tells the Shooter to shoot the boulder.
      */
-    public static void shoot() {
-        setShouldShoot(true);
+    public static void queueVisionShoot() {
+        setShouldVisionShoot(true);
     }
 
     /**
      * Waits until the Shooter shoots the boulder.
      */
-    public static void waitForShoot() {
+    public static void waitForVisionShoot() {
         while (!shouldShoot) {
             try {
                 Thread.sleep(25);
@@ -66,19 +90,20 @@ public class ShooterSubsystem extends Subsystem {
      * Checks if the Shooter has been told to shoot.
      * @return If the Shooter has been told to shoot.
      */
-    public static boolean shouldShoot() { return shouldShoot; }
+    public static boolean shouldVisionShoot() { return shouldShoot; }
 
     /**
      * Sets if the Shooter should shoot the boulder.
      * @param b If the Shooter should shoot the boulder.
      */
-    public static void setShouldShoot(boolean b) { shouldShoot = b; }
+    public static void setShouldVisionShoot(boolean b) { shouldShoot = b; }
+
 
     /**
      * Sets the speed of the Shooter.
      * @param d The speed of the Shooter.
      */
-    public static void setShooter(double d) {
+    public static void setShooterRaw(double d) {
         shooter.setPower(d);
     }
 
@@ -119,18 +144,10 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     /**
-     * Checks if the current rate of the shooter is acceptable for shooting.
-     * @return If the current rate of the shooter is acceptable for shooting.
-     */
-    public static boolean isRateAcceptable() {
-        return encoder.getRate() > (shooterPID.getTarget() * 0.95); //TODO: tune
-    }
-
-    /**
      * Sets the speed of the Shooter indexer. The indexer is used to move the ball into the Shooter wheels.
      * @param d The speed of the Shooter indexer.
      */
-    public static void setIndexer(double d) {
+    public static void setIndexerRaw(double d) {
         indexer.setPower(d);
     }
 

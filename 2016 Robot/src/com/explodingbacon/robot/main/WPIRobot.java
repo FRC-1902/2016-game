@@ -1,7 +1,6 @@
 package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.AbstractRobot;
-import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
 
 public class WPIRobot extends AbstractRobot {
