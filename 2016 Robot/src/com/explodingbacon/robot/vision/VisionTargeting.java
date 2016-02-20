@@ -4,7 +4,6 @@ import com.explodingbacon.bcnlib.framework.InternalSource;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.utils.CodeThread;
-import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
@@ -34,8 +33,8 @@ public class VisionTargeting extends CodeThread {
         usb.setExposureManual(1); //TODO: see if this changes the appearance of the camera feed at all
 
         source = new InternalSource();
-        left = new PIDController(DriveSubsystem.getLeftMotors(), source, kP, kI, 0, min, max);
-        right = new PIDController(DriveSubsystem.getRightMotors(), source, kP, kI, 0, min, max).setInverted(true);
+        left = new PIDController(DriveSubsystem.getLeft(), source, kP, kI, 0, min, max);
+        right = new PIDController(DriveSubsystem.getRight(), source, kP, kI, 0, min, max).setInverted(true);
     }
 
     @Override
@@ -58,12 +57,11 @@ public class VisionTargeting extends CodeThread {
                 goal = findGoal(i);
             }
 
-            if (goal != null) rate = ShooterSubsystem.calculateShooterRate(Utils.getDistanceFromPx(goal.getWidth()));
+            //if (goal != null) rate = ShooterSubsystem.calculateShooterRate(Utils.getDistanceFromPx(goal.getWidth()));
 
             //TODO: Check if shooting is responsive when it's in this thread (the Thread.sleep() calls SHOULD be fine, but check anyway)
             if (OI.shooterRev.get()) {
                 ShooterSubsystem.shooterPID.setTarget(rate);
-                if (!ShooterSubsystem.shooterPID.isEnabled()) ShooterSubsystem.shooterPID.enable();
             } else {
                 ShooterSubsystem.shooterPID.setTarget(0);
             }

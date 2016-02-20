@@ -27,6 +27,8 @@ public class OI extends AbstractOI {
     public static Button climberDeploy;
     public static Button climberRetract;
 
+    public static Button testingBall;
+
     public OI() {
         init();
         start();
@@ -58,5 +60,7 @@ public class OI extends AbstractOI {
 
         climberDeploy = manip.start; //HAS TO BE LEFT BUTTON
         climberRetract = manip.select; //HAS TO BE RIGHT BUTTON
+
+        testingBall = new FakeButton();
     }
 }

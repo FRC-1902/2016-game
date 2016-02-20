@@ -32,6 +32,7 @@ import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Relay;
 
 public class Robot extends RobotCore {
 
@@ -39,8 +40,8 @@ public class Robot extends RobotCore {
     public static IntakeSubsystem intakeSubsystem;
     public static ShooterSubsystem shooterSubsystem;
     public static ClimberSubsystem climberSubsystem;
-    public static PDP pdp = new PDP();
-
+    //public static PDP pdp = new PDP();
+    public static boolean logging = false;
 
     public VisionTargeting visionTargeting;
 
@@ -83,15 +84,16 @@ public class Robot extends RobotCore {
 
     @Override
     public void autonomousInit() {
-        OI.deleteAllTriggers(); //TODO: make sure this doesn't wind up deleting the command initialized right after this
-        OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
+        OI.deleteAllTriggers();
+        ShooterSubsystem.setSpotlight(true);
+        //OI.runCommand(new TestAutoCommand()); //TODO: Check if this works then change it to the real auto command
         super.autonomousInit();
     }
 
     @Override
     public void teleopInit() {
         super.teleopInit();
-        OI.deleteAllTriggers(); //TODO: Make sure this doesn't wind up deleting the commands initialized right after this
+        OI.deleteAllTriggers();
         initControlCommands();
     }
 
@@ -104,7 +106,11 @@ public class Robot extends RobotCore {
     @Override
     public void teleopPeriodic() {
         super.teleopPeriodic();
-        Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " + ShooterSubsystem.getEncoder().getRate());
+
+        //ShooterSubsystem.setIndexer(0.5);
+        //Log.d("Indexer current: " + ShooterSubsystem.getIndexer().getOutputCurrent());
+
+        //Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " + ShooterSubsystem.getEncoder().getRate());
     }
 
     @Override

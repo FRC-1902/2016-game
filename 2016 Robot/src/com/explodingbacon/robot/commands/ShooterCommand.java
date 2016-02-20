@@ -27,7 +27,9 @@ public class ShooterCommand extends Command {
             if (OI.shooterRev.get()) {
                 //ShooterSubsystem.setShooter(0.5);
 
-                ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.DEFAULT_SHOOT_RATE);
+                ShooterSubsystem.setSpotlight(true);
+
+                ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.calculateRateFromWatts());
 
                 if (ShooterSubsystem.shooterPID.isDone()) {
                     OI.manip.rumble(0.1f, 0.1f);
@@ -38,14 +40,18 @@ public class ShooterCommand extends Command {
             } else {
                 //ShooterSubsystem.setShooter(0);
 
+                ShooterSubsystem.setSpotlight(false);
+
                 ShooterSubsystem.shooterPID.setTarget(0);
                 OI.manip.rumble(0, 0);
             }
 
-            if (OI.shoot.getAny()) {
-                ShooterSubsystem.setIndexer(1);
-            } else {
-                ShooterSubsystem.setIndexer(0);
+            if(!OI.testingBall.get()) {
+                if (OI.shoot.getAny()) {
+                    ShooterSubsystem.setIndexer(1);
+                } else {
+                    ShooterSubsystem.setIndexer(0);
+                }
             }
         }
         /*

@@ -1,9 +1,6 @@
 package com.explodingbacon.robot.subsystems;
 
-import com.explodingbacon.bcnlib.actuators.Light;
-import com.explodingbacon.bcnlib.actuators.Motor;
-import com.explodingbacon.bcnlib.actuators.MotorGroup;
-import com.explodingbacon.bcnlib.actuators.Solenoid;
+import com.explodingbacon.bcnlib.actuators.*;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
@@ -18,16 +15,19 @@ public class ShooterSubsystem extends Subsystem {
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
 
     private static Light light = new Light(new Solenoid(Map.LIGHT));
+    private static Motor spotlight = new Motor(Relay.class, Map.SPOTLIGHT);
 
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
 
     public static final int INTAKE_RATE = -25000;
-    public static final int DEFAULT_SHOOT_RATE = 38000 + 2000 + 6000; //TODO: Tune
+    public static final int DEFAULT_SHOOT_RATE = 48000; //TODO: Tune
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
     private static boolean shouldShoot = false;
+
+    private static double currentBallWatts = -1;
 
     public ShooterSubsystem() {
         super();
@@ -39,7 +39,7 @@ public class ShooterSubsystem extends Subsystem {
         encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
         encoder.setReversed(true);
 
-        shooterPID = new PIDController(shooter, encoder, 0.0005, 0, 0.001, 0.3, 0.9); //P=0.00025
+        shooterPID = new PIDController(shooter, encoder, 0.0001, 0.0002, 0.0005, 0.3, 0.9); //i=.0002 d=.001
         shooterPID.setInverted(false); //Changed from true
         shooterPID.enable();
     }
@@ -91,12 +91,31 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     /**
-     * Calculates the spin rate required to launch a boulder into a goal that is "distance" away.
-     * @param distance How far away the goal is.
-     * @return The spin rate required to launch a boulder into a goal that is "distance" away.
+     * Gets the watts needed to move the current ball.
+     * @return The watts needed to move the current ball.
      */
-    public static double calculateShooterRate(double distance) {
-        return DEFAULT_SHOOT_RATE; //TODO: Actually calculate the needed shooter rate
+    public static double getBallWatts() {
+        return currentBallWatts;
+    }
+
+    /**
+     * Saves the watts needed to move the current ball, which is later used for shooting that ball.
+     * @param w The watts needed to move the current ball, which is later used for shooting that ball.
+     */
+    public static void setBallWatts(double w) {
+        currentBallWatts = w;
+    }
+
+    /**
+     * Calculates the rate needed to shoot the current ball based off the previously recorded watts needed to move the ball.
+     * @return The rate needed to shoot the current ball based off the previously recorded watts needed to move the ball.
+     */
+    public static double calculateRateFromWatts() {
+        if (currentBallWatts == -1 || !IntakeSubsystem.TEST_BALLS) {
+            return DEFAULT_SHOOT_RATE;
+        } else {
+            return DEFAULT_SHOOT_RATE; //TODO: formula for watts -> rate
+        }
     }
 
     /**
@@ -119,7 +138,7 @@ public class ShooterSubsystem extends Subsystem {
      * Gets the MotorGroup for the shooter Motors.
      * @return The MotorGroup for the shooter Motors.
      */
-    public static MotorGroup getShooterMotors() {
+    public static MotorGroup getShooter() {
         return shooter;
     }
 
@@ -127,7 +146,7 @@ public class ShooterSubsystem extends Subsystem {
      * Gets the indexer Motor.
      * @return The indexer Motor.
      */
-    public static Motor getIndexerMotor() {
+    public static Motor getIndexer() {
         return indexer;
     }
 
@@ -145,6 +164,14 @@ public class ShooterSubsystem extends Subsystem {
      */
     public static Light getLight() {
         return light;
+    }
+
+    /**
+     * Sets the status of the spotlight.
+     * @param b The status of the spotlight.
+     */
+    public static void setSpotlight(boolean b) {
+        spotlight.setPower(b ? 1 : 0);
     }
 
     @Override

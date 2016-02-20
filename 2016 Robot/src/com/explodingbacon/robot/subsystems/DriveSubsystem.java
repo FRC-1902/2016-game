@@ -1,18 +1,13 @@
 package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
-import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
-import com.explodingbacon.bcnlib.actuators.Solenoid;
-import com.explodingbacon.bcnlib.framework.Log;
-import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 
 import java.lang.reflect.Field;
 
@@ -71,7 +66,7 @@ public class DriveSubsystem extends Subsystem {
      * Gets the MotorGroup for the left drivetrain motors.
      * @return The MotorGroup for the left drivetrain motors.
      */
-    public static MotorGroup getLeftMotors() {
+    public static MotorGroup getLeft() {
         return leftMotors;
     }
 
@@ -79,7 +74,7 @@ public class DriveSubsystem extends Subsystem {
      * Gets the MotorGroup for the right drivetrain motors.
      * @return The MotorGroup for the right drivetrain motors.
      */
-    public static MotorGroup getRightMotors() {
+    public static MotorGroup getRight() {
         return rightMotors;
     }
 

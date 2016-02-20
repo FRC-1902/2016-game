@@ -20,12 +20,12 @@ public class ShakedownCommand extends Command {
     @Override
     public void onInit() {
         try {
-            shakedownGroup(DriveSubsystem.getLeftMotors(), DriveSubsystem.getLeftEncoder(), 0.5, 1); //Left drive
-            shakedownGroup(DriveSubsystem.getRightMotors(), DriveSubsystem.getRightEncoder(), 0.5, 1); //Right drive
-            shakedownGroup(ClimberSubsystem.getClimberMotors(), ClimberSubsystem.getEncoder(), 0.3, 0.5); //Climber
-            shakedownGroup((MotorGroup)new MotorGroup(IntakeSubsystem.getIntakeMotor()).setName("Intake"), null, 0.5, 1); //Intake
-            shakedownGroup(ShooterSubsystem.getShooterMotors(), ShooterSubsystem.getEncoder(), 0.5, 1); //Shooter
-            shakedownGroup((MotorGroup)new MotorGroup(ShooterSubsystem.getIndexerMotor()).setName("Indexer"), null, 0.5, 1); //Indexer
+            shakedownGroup(DriveSubsystem.getLeft(), DriveSubsystem.getLeftEncoder(), 0.5, 1); //Left drive
+            shakedownGroup(DriveSubsystem.getRight(), DriveSubsystem.getRightEncoder(), 0.5, 1); //Right drive
+            shakedownGroup(ClimberSubsystem.getClimber(), ClimberSubsystem.getEncoder(), 0.3, 0.5); //Climber
+            shakedownGroup((MotorGroup)new MotorGroup(IntakeSubsystem.getIntake()).setName("Intake"), null, 0.5, 1); //Intake
+            shakedownGroup(ShooterSubsystem.getShooter(), ShooterSubsystem.getEncoder(), 0.5, 1); //Shooter
+            shakedownGroup((MotorGroup)new MotorGroup(ShooterSubsystem.getIndexer()).setName("Indexer"), null, 0.5, 1); //Indexer
             Log.i(report);
         } catch (Exception e) {
             Log.e("ShakedownCommand error!");
@@ -33,6 +33,13 @@ public class ShakedownCommand extends Command {
         }
     }
 
+    /**
+     * Does a shakedown of a MotorGroup and it's affiliated Encoder (if there is one), and reports data on possible malfunctions.
+     * @param group The MotorGroup that is being shaken down.
+     * @param e The MotorGroup's encoder (make this null if there is no encoder)
+     * @param speed The speed the Motors should be run at while being tested.
+     * @param seconds How long each Motor should be tested.
+     */
     public void shakedownGroup(MotorGroup group, AbstractEncoder e, double speed, double seconds) {
         try {
             if (e != null) {

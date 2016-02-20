@@ -56,7 +56,7 @@ public class ClimberSubsystem extends Subsystem { //top is position 33,000, appr
      * Gets the MotorGroup for the climber motors.
      * @return The MotorGroup for the climber motors.
      */
-    public static MotorGroup getClimberMotors() {
+    public static MotorGroup getClimber() {
         return climber;
     }
 

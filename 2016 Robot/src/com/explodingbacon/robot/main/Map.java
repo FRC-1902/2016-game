@@ -23,6 +23,10 @@ public class Map {
     public static final int SHOOTER_MOTOR_1 = 10;
     public static final int SHOOTER_MOTOR_2 = 11; //has encoder
 
+    //Relay
+
+    public static final int SPOTLIGHT = 0;
+
     //PCM ports
 
     public static final int LIGHT = 0;
