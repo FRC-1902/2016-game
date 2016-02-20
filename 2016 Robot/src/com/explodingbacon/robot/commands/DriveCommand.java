@@ -2,11 +2,8 @@ package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.PIDController;
-import com.explodingbacon.bcnlib.sensors.ADXSensor;
-import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.Robot;
-import com.explodingbacon.robot.main.WPIRobot;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 
