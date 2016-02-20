@@ -11,7 +11,7 @@ public class IntakeSubsystem extends Subsystem {
     private static Motor intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
     private static DoubleSolenoid intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
 
-    public static final boolean TEST_BALLS = true;
+    public static final boolean TEST_BALLS = false;
 
     public IntakeSubsystem() {
         super();
