@@ -20,7 +20,7 @@ public class AutonomousCommand extends Command {
         DriveSubsystem.gyroTurn(60);
 
         /*
-        ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.calculateRateFromWatts());
+        ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.calculateRate());
 
         ShooterSubsystem.shooterPID.waitUntilDone();
 

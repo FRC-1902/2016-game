@@ -26,7 +26,7 @@ public class ShooterCommand extends Command {
 
         if (!OI.intakeMotorIn.get()) {
 
-            if (OI.shooterRev.get()) {
+            if (OI.shooterRevButtons.getAny()) {
                 ShooterSubsystem.rev();
 
             } else {

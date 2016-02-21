@@ -104,6 +104,9 @@ public class Robot extends RobotCore {
     @Override
     public void testInit() {
         OI.deleteAllTriggers();
+
+        DriveSubsystem.getLeft().testEachWait(0.7, 1);
+        DriveSubsystem.getRight().testEachWait(0.7, 1);
         //OI.runCommand(new ShakedownCommand());
     }
 

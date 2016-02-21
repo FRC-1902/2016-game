@@ -22,7 +22,9 @@ public class OI extends AbstractOI {
     public static Button intakeMotorIn;
     public static Button intakeMotorOut;
 
-    public static Button shooterRev;
+    public static Button shooterBadRev;
+    public static Button shooterGoodRev;
+    public static ButtonGroup shooterRevButtons;
 
     public static Button climberDeploy;
     public static Button climberRetract;
@@ -56,7 +58,9 @@ public class OI extends AbstractOI {
         intakeMotorIn = manip.x;
         intakeMotorOut = manip.y;
 
-        shooterRev = manip.triggers; //TODO: Only use this if there is not a delay from press to telling the motors to move
+        shooterBadRev = manip.leftTrigger;
+        shooterGoodRev = manip.rightTrigger;
+        shooterRevButtons = manip.triggers;
 
         climberDeploy = manip.start; //HAS TO BE LEFT BUTTON
         climberRetract = manip.select; //HAS TO BE RIGHT BUTTON

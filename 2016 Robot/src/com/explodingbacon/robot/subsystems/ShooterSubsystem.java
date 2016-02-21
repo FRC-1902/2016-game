@@ -22,7 +22,9 @@ public class ShooterSubsystem extends Subsystem {
     public static PIDController shooterPID;
 
     public static final int INTAKE_RATE = -25000;
-    public static final int DEFAULT_SHOOT_RATE = 55000;
+
+    public static final int BAD_BALL_SHOOT_RATE = 55000;
+    public static final int GOOD_BALL_SHOOT_RATE = 50000;
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
@@ -46,10 +48,13 @@ public class ShooterSubsystem extends Subsystem {
         shooterPID.enable();
     }
 
+    /**
+     * Revs up the Shooter.
+     */
     public static void rev() {
         setSpotlight(true);
 
-        shooterPID.setTarget(ShooterSubsystem.calculateRateFromWatts());
+        shooterPID.setTarget(ShooterSubsystem.calculateRate());
 
         shooterPID.setExtraCode(() -> {
             if (shooterPID.isDone()) {
@@ -60,12 +65,35 @@ public class ShooterSubsystem extends Subsystem {
         });
     }
 
+    /**
+     * Stops revving the Shooter.
+     */
     public static void stopRev() {
         setSpotlight(false);
 
         shooterPID.setTarget(0);
 
         shooterPID.setExtraCode(null);
+    }
+
+    /**
+     * Calculates the rate needed to shoot the current ball.
+     * @return The rate needed to shoot the current ball.
+     */
+    public static double calculateRate() {
+        if (OI.shooterBadRev.get()) {
+            return BAD_BALL_SHOOT_RATE;
+        } else if (OI.shooterGoodRev.get()) {
+            return GOOD_BALL_SHOOT_RATE;
+        } else {
+            return -1; //TODO: Return a helpful value?
+        }
+        /*
+        if (currentBallWatts == -1 || !IntakeSubsystem.TEST_BALLS) {
+            return DEFAULT_SHOOT_RATE;
+        } else {
+            return DEFAULT_SHOOT_RATE; //TODO: formula for watts -> rate
+        }*/
     }
 
     /**
@@ -131,17 +159,6 @@ public class ShooterSubsystem extends Subsystem {
         currentBallWatts = w;
     }
 
-    /**
-     * Calculates the rate needed to shoot the current ball based off the previously recorded watts needed to move the ball.
-     * @return The rate needed to shoot the current ball based off the previously recorded watts needed to move the ball.
-     */
-    public static double calculateRateFromWatts() {
-        if (currentBallWatts == -1 || !IntakeSubsystem.TEST_BALLS) {
-            return DEFAULT_SHOOT_RATE;
-        } else {
-            return DEFAULT_SHOOT_RATE; //TODO: formula for watts -> rate
-        }
-    }
 
     /**
      * Sets the speed of the Shooter indexer. The indexer is used to move the ball into the Shooter wheels.

@@ -34,7 +34,7 @@ public class IntakeCommand extends Command {
             testedCurrentBall = false; //If this block of code runs, we're intaking a new ball
         } else if (OI.intakeMotorOut.get()) {
             IntakeSubsystem.outtake();
-        } else if (!OI.shooterRev.get() && !OI.shoot.getAny() && !ShooterSubsystem.shouldVisionShoot()){
+        } else if (!OI.shooterRevButtons.getAny() && !OI.shoot.getAny() && !ShooterSubsystem.shouldVisionShoot()){
             IntakeSubsystem.stopIntake();
         }
 

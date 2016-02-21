@@ -18,18 +18,27 @@ public class IntakeSubsystem extends Subsystem {
         intakeOut.set(true);
     }
 
+    /**
+     * Starts intaking.
+     */
     public static void intake() {
         intakeMotor.setPower(1);
         ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
         ShooterSubsystem.setIndexerRaw(-1);
     }
 
+    /**
+     * Starts outtaking.
+     */
     public static void outtake() {
         intakeMotor.setPower(-1);
-        ShooterSubsystem.shooterPID.setTarget(0);
+        ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE * -1);
         ShooterSubsystem.setIndexerRaw(1);
     }
 
+    /**
+     * Stops the motors used for intaking/outtaking.
+     */
     public static void stopIntake() {
         intakeMotor.setPower(0);
         ShooterSubsystem.setIndexerRaw(0);
