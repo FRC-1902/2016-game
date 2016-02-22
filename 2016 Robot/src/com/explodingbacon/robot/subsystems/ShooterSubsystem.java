@@ -1,6 +1,8 @@
 package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.*;
+import com.explodingbacon.bcnlib.framework.Command;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
@@ -9,6 +11,9 @@ import com.explodingbacon.bcnlib.sensors.MotorEncoder;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
 import edu.wpi.first.wpilibj.CANTalon;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class ShooterSubsystem extends Subsystem {
 
@@ -23,8 +28,11 @@ public class ShooterSubsystem extends Subsystem {
 
     public static final int INTAKE_RATE = -25000;
 
-    public static final int BAD_BALL_SHOOT_RATE = 55000;
-    public static final int GOOD_BALL_SHOOT_RATE = 50000;
+    public static final int BAD_BALL_SHOOT_RATE = 50000;
+    public static final int MEDIUM_BALL_SHOOT_RATE = 50000;
+    public static final int GOOD_BALL_SHOOT_RATE = 38000;
+    public static final int BAD_BALL_LOW_RATE = 15000;
+    public static final int GOOD_BALL_LOW_RATE = 12500;
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
@@ -35,7 +43,9 @@ public class ShooterSubsystem extends Subsystem {
     public ShooterSubsystem() {
         super();
 
+        indexer.setStopOnNoUser();
         indexer.setReversed(true);
+
         shooter.setFiltered(100); //TODO: Remove?
 
         encoder = shooter.getMotors().get(1).getEncoder();
@@ -44,36 +54,44 @@ public class ShooterSubsystem extends Subsystem {
 
         shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
         shooterPID.setFinishedTolerance(1500);
-        shooterPID.setInverted(false); //Changed from true
+        shooterPID.setInputInverted(false); //Changed from true
         shooterPID.enable();
+
+        shooter.onNoUser(() -> shooterPID.setTarget(0));
     }
 
     /**
      * Revs up the Shooter.
      */
-    public static void rev() {
-        setSpotlight(true);
+    public static void rev(Command c) {
+        if (shooter.claim(c)) {
+            setSpotlight(true);
 
-        shooterPID.setTarget(ShooterSubsystem.calculateRate());
+            shooterPID.setTarget(ShooterSubsystem.calculateRate());
 
-        shooterPID.setExtraCode(() -> {
-            if (shooterPID.isDone()) {
-                OI.manip.rumble(0.1f, 0.1f);
-            } else {
-                OI.manip.rumble(0, 0);
-            }
-        });
+            shooterPID.setExtraCode(() -> {
+                if (shooterPID.isDone()) {
+                    OI.manip.rumble(0.1f, 0.1f);
+                } else {
+                    OI.manip.rumble(0, 0);
+                }
+            });
+        }
     }
 
     /**
      * Stops revving the Shooter.
      */
-    public static void stopRev() {
-        setSpotlight(false);
+    public static void stopRev(Command c) {
+        if (shooter.claim(c)) {
+            setSpotlight(false);
 
-        shooterPID.setTarget(0);
+            shooterPID.setTarget(0);
 
-        shooterPID.setExtraCode(null);
+            shooterPID.setExtraCode(null);
+
+            shooter.setUser(null);
+        }
     }
 
     /**
@@ -101,6 +119,7 @@ public class ShooterSubsystem extends Subsystem {
      */
     public static void queueVisionShoot() {
         setShouldVisionShoot(true);
+        Log.v("Queued vision shoot");
     }
 
     /**
@@ -110,7 +129,9 @@ public class ShooterSubsystem extends Subsystem {
         while (!shouldShoot) {
             try {
                 Thread.sleep(25);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                break;
+            }
         }
     }
 
@@ -118,7 +139,7 @@ public class ShooterSubsystem extends Subsystem {
      * Checks if the Shooter has been told to shoot.
      * @return If the Shooter has been told to shoot.
      */
-    public static boolean shouldVisionShoot() { return shouldShoot; }
+    public static boolean isVisionShootQueued() { return shouldShoot; }
 
     /**
      * Sets if the Shooter should shoot the boulder.
@@ -213,5 +234,10 @@ public class ShooterSubsystem extends Subsystem {
         //shooterPID.disable();
         shooter.setPower(0);
         indexer.setPower(0);
+    }
+
+    @Override
+    public List<Motor> getAllMotors() {
+        return Arrays.asList(shooter, indexer, spotlight);
     }
 }

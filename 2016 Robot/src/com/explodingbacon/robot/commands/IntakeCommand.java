@@ -1,6 +1,5 @@
 package com.explodingbacon.robot.commands;
 
-import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.controllers.FakeButton;
 import com.explodingbacon.bcnlib.framework.Command;
@@ -15,14 +14,10 @@ import java.util.List;
 
 public class IntakeCommand extends Command {
 
-    boolean currentState = false, wasPressed = false, testedCurrentBall = false;
+    boolean currentState = true, wasPressed = false, testedCurrentBall = false;
 
     List<Double> powerList;
     private final int AVERAGER_SIZE = 10; //The number of records to average
-
-    public IntakeCommand() {
-        requires(Robot.intakeSubsystem);
-    }
 
     @Override
     public void onInit() {}
@@ -30,12 +25,12 @@ public class IntakeCommand extends Command {
     @Override
     public void onLoop() {
         if (OI.intakeMotorIn.get() && !ShooterSubsystem.hasBall()) {
-            IntakeSubsystem.intake();
+            IntakeSubsystem.intake(this);
             testedCurrentBall = false; //If this block of code runs, we're intaking a new ball
         } else if (OI.intakeMotorOut.get()) {
-            IntakeSubsystem.outtake();
-        } else if (!OI.shooterRevButtons.getAny() && !OI.shoot.getAny() && !ShooterSubsystem.shouldVisionShoot()){
-            IntakeSubsystem.stopIntake();
+            IntakeSubsystem.outtake(this);
+        } else {
+            IntakeSubsystem.stopIntake(this);
         }
 
         boolean pressed = OI.intakeRetract.getAny();
@@ -45,10 +40,12 @@ public class IntakeCommand extends Command {
             IntakeSubsystem.setPosition(currentState);
         }
 
+        /*
         if (IntakeSubsystem.TEST_BALLS && !testedCurrentBall && ShooterSubsystem.hasBall()) {
             try {
                 ((FakeButton) OI.testingBall).set(true);
-                IntakeSubsystem.stopIntake();
+                IntakeSubsystem.stopIntake(this);
+                IntakeSubsystem.getIntake().setUser(this);
 
                 Motor indexer = ShooterSubsystem.getIndexer();
 
@@ -92,7 +89,8 @@ public class IntakeCommand extends Command {
                 e.printStackTrace();
             }
             ((FakeButton) OI.testingBall).set(false);
-        }
+            IntakeSubsystem.getIntake().setUser(null);
+        }*/
 
         wasPressed = pressed;
     }

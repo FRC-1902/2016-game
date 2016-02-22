@@ -21,10 +21,8 @@
  */
 package com.explodingbacon.robot.main;
 
-import com.explodingbacon.bcnlib.framework.DataLogger;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
-import com.explodingbacon.bcnlib.sensors.PDP;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.ClimberSubsystem;
@@ -42,9 +40,6 @@ public class Robot extends RobotCore {
     public static ClimberSubsystem climberSubsystem;
     //public static PDP pdp = new PDP();
     //public static DataLogger logger = new DataLogger();
-    public static boolean logging = false;
-
-    public VisionTargeting visionTargeting;
 
     public OI oi;
 
@@ -60,7 +55,7 @@ public class Robot extends RobotCore {
     public void robotInit() {
         super.robotInit();
         //Javascript.init();
-        //Vision.init();
+        Vision.init();
 
         driveSubsystem = new DriveSubsystem();
         intakeSubsystem = new IntakeSubsystem();
@@ -69,12 +64,6 @@ public class Robot extends RobotCore {
 
         oi = new OI();
 
-        /*
-        if (Vision.isInit()) {
-            visionTargeting = new VisionTargeting();
-            visionTargeting.start();
-        }
-        */
 
         //EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm the event system works
 
@@ -83,13 +72,32 @@ public class Robot extends RobotCore {
 
     public void initControlCommands() {
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand(), new ClimberCommand());
+        if (Vision.isInit()) {
+            OI.runCommand(new VisionTargeting());
+        }
     }
 
     @Override
     public void autonomousInit() {
         OI.deleteAllTriggers();
+
+        IntakeSubsystem.setPosition(false);
+        DriveSubsystem.shift(false);
+
         OI.runCommand(new AutonomousCommand());
+        //if (Vision.isInit()) OI.runCommand(new VisionTargeting());
         super.autonomousInit();
+    }
+
+    @Override
+    public void autonomousPeriodic() {
+
+        Log.t("Target: (" + DriveSubsystem.gLeft.getTarget() + ", " + DriveSubsystem.gRight.getTarget() + "); " +
+                "Current Value: (" + DriveSubsystem.gLeft.getCurrentSourceValue() + ", " + DriveSubsystem.gRight.getCurrentSourceValue() + "); " +
+                "Motor Setpoint: (" + DriveSubsystem.gLeft.getMotorPower() + ", " + DriveSubsystem.gRight.getMotorPower() + ")");
+
+
+        //DriveSubsystem.gLeft.log();
     }
 
     @Override
@@ -97,29 +105,28 @@ public class Robot extends RobotCore {
         super.teleopInit();
         OI.deleteAllTriggers();
         initControlCommands();
-
-        DriveSubsystem.getADX().reset();
+        ShooterSubsystem.getLight().enable();
     }
 
     @Override
     public void testInit() {
         OI.deleteAllTriggers();
 
-        DriveSubsystem.getLeft().testEachWait(0.7, 1);
-        DriveSubsystem.getRight().testEachWait(0.7, 1);
+        //OI.runCommand(new CalibrateDriveMotorsCommand());
+
+        //DriveSubsystem.getLeft().testEachWait(0.7, 1);
+        //DriveSubsystem.getRight().testEachWait(0.7, 1);
         //OI.runCommand(new ShakedownCommand());
+    }
+
+    @Override
+    public void testPeriodic() {
+
     }
 
     @Override
     public void teleopPeriodic() {
         super.teleopPeriodic();
-
-        //Log.d("Left enc: " + DriveSubsystem.getLeftEncoder().get() + ", Right enc: " + DriveSubsystem.getRightEncoder().get());
-
-        //Log.d("Angle: " + DriveSubsystem.getADX().getAngle());
-
-        //ShooterSubsystem.setIndexer(0.5);
-        //Log.d("Indexer current: " + ShooterSubsystem.getIndexer().getOutputCurrent());
 
         //Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " +
         // ShooterSubsystem.getEncoder().getRate() + ", Setpoint: " + ShooterSubsystem.shooterPID.getMotorPower());
@@ -127,6 +134,7 @@ public class Robot extends RobotCore {
 
     @Override
     public void disabledInit() {
+        //Log.i("Thread Count: " + Utils.getThreadCount());
         super.disabledInit();
         ShooterSubsystem.shooterPID.setTarget(0);
     }

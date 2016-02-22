@@ -9,7 +9,7 @@ import com.explodingbacon.robot.subsystems.ClimberSubsystem;
 public class ClimberCommand extends Command {
 
     public ClimberCommand() {
-        requires(Robot.climberSubsystem);
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.Robot;
@@ -20,10 +21,9 @@ public class DriveCommand extends Command {
     public double gyroKP = 1, gyroKI = 1, min = 0.1, max = 1;
 
     public PIDController left = new PIDController(null, DriveSubsystem.getADX(), gyroKP, gyroKI, 0, min, max);
-    public PIDController right = new PIDController(null, DriveSubsystem.getADX(), gyroKP, gyroKI, 0, min, max).setInverted(true);
+    public PIDController right = new PIDController(null, DriveSubsystem.getADX(), gyroKP, gyroKI, 0, min, max).setInputInverted(true);
 
     public DriveCommand() {
-        requires(Robot.driveSubsystem);
     }
 
     @Override
@@ -47,6 +47,7 @@ public class DriveCommand extends Command {
                         right.setTarget(angleStart);
                         right.enable();
                     }
+
                     leftTurn = left.getMotorPower() / 3;
                     rightTurn = right.getMotorPower() / 3;
 
@@ -56,14 +57,6 @@ public class DriveCommand extends Command {
             } else {
                 buttonWasTrue = false;
                 */
-            }
-
-            if (OI.lowShift.getAny()) {
-                DriveSubsystem.shift(false);
-                wasShiftingLow = true;
-            } else if (wasShiftingLow) {
-                DriveSubsystem.shift(true);
-                wasShiftingLow = false;
             }
 
             //DriveSubsystem.shiftIfResistance();
@@ -81,6 +74,12 @@ public class DriveCommand extends Command {
             joyY = Utils.deadzone(joyY, deadzone);
 
             DriveSubsystem.arcadeDrive(joyX, joyY);
+
+            if (OI.lowShift.getAny() /*|| (Math.abs(joyX) > 0.15 && Math.abs(joyY) < 0.1)*/) {
+                DriveSubsystem.shift(true);
+            } else {
+                DriveSubsystem.shift(false);
+            }
         }
     }
 

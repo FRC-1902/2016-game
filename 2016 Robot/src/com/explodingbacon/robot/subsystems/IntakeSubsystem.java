@@ -2,9 +2,14 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
+import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
+import com.sun.javafx.geom.ShapePair;
 import edu.wpi.first.wpilibj.CANTalon;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class IntakeSubsystem extends Subsystem {
 
@@ -16,33 +21,52 @@ public class IntakeSubsystem extends Subsystem {
     public IntakeSubsystem() {
         super();
         intakeOut.set(true);
+
+        intakeMotor.setStopOnNoUser();
     }
 
     /**
      * Starts intaking.
      */
-    public static void intake() {
-        intakeMotor.setPower(1);
-        ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
-        ShooterSubsystem.setIndexerRaw(-1);
+    public static void intake(Command c) {
+        if (intakeMotor.isUseableBy(c) && ShooterSubsystem.getIndexer().isUseableBy(c) && ShooterSubsystem.getShooter().isUseableBy(c)) {
+            intakeMotor.setPower(1);
+            ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
+            ShooterSubsystem.setIndexerRaw(-1);
+            setUsingAll(c);
+        }
     }
 
     /**
      * Starts outtaking.
      */
-    public static void outtake() {
-        intakeMotor.setPower(-1);
-        ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE * -1);
-        ShooterSubsystem.setIndexerRaw(1);
+    public static void outtake(Command c) {
+        if (intakeMotor.isUseableBy(c) && ShooterSubsystem.getShooter().isUseableBy(c)) {
+            intakeMotor.setPower(intakeOut.get() ? -1 : 1);
+            ShooterSubsystem.shooterPID.setTarget(-ShooterSubsystem.INTAKE_RATE);
+
+            intakeMotor.setUser(c);
+            ShooterSubsystem.getShooter().setUser(c);
+        }
     }
 
     /**
-     * Stops the motors used for intaking/outtaking.
+     * Stops using the intake-related Motors.
      */
-    public static void stopIntake() {
-        intakeMotor.setPower(0);
-        ShooterSubsystem.setIndexerRaw(0);
-        ShooterSubsystem.shooterPID.setTarget(0);
+    public static void stopIntake(Command c) {
+        if (intakeMotor.isUseableBy(c)) intakeMotor.setUser(null);
+        if (ShooterSubsystem.getShooter().isUseableBy(c)) ShooterSubsystem.getShooter().setUser(null);
+        if (ShooterSubsystem.getIndexer().isUseableBy(c)) ShooterSubsystem.getIndexer().setUser(null);
+    }
+
+    /**
+     * Changes the status of the Intake's use of intake-related Motors.
+     * @param c
+     */
+    private static void setUsingAll(Command c) {
+        intakeMotor.setUser(c);
+        ShooterSubsystem.getShooter().setUser(c);
+        ShooterSubsystem.getIndexer().setUser(c);
     }
 
     /**
@@ -73,5 +97,10 @@ public class IntakeSubsystem extends Subsystem {
     public void stop() {
         intakeMotor.setPower(0);
         intakeOut.set(false);
+    }
+
+    @Override
+    public List<Motor> getAllMotors() {
+        return Arrays.asList(intakeMotor);
     }
 }

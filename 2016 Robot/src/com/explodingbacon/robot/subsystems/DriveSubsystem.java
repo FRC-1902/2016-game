@@ -1,15 +1,21 @@
 package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
+import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
+import com.sun.deploy.security.ruleset.DefaultRule;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class DriveSubsystem extends Subsystem {
 
@@ -26,8 +32,13 @@ public class DriveSubsystem extends Subsystem {
     private static boolean driverControlled = true;
 
     private static double encoderkP = 0.13, encoderkI = 0, encoderkD = 0, encoderMin = 0.3, encoderMax = 0.5;
+    private static double gyrokP = 0.02, gyrokI = 0.03, gyrokD = 0, gyroMin = 0.05, gyroMax = 0.5;
 
-    private static double gyrokP = 0.01, gyrokI = 0.00025, gyrokD = 0, gyroMin = 0.2, gyroMax = 0.35;
+    public static PIDController eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
+    public static PIDController eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
+
+    public static PIDController gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+    public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
 
     public static final double GYRO_ANGLE_ERROR_FIX = 3; //The minimum angle error needed before the Robot auto-corrects
 
@@ -38,8 +49,10 @@ public class DriveSubsystem extends Subsystem {
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
 
-        shift(true);
+        gLeft.setFinishedTolerance(2);
+        gRight.setFinishedTolerance(2);
 
+        shift(true);
 
         /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
@@ -64,8 +77,8 @@ public class DriveSubsystem extends Subsystem {
     }*/
 
     /**
-     * Gets the MotorGroup for the left drivetrain motors.
-     * @return The MotorGroup for the left drivetrain motors.
+     * Gets the MotorGroup for the gLeft drivetrain motors.
+     * @return The MotorGroup for the gLeft drivetrain motors.
      */
     public static MotorGroup getLeft() {
         return leftMotors;
@@ -80,8 +93,8 @@ public class DriveSubsystem extends Subsystem {
     }
 
     /**
-     * Gets the left drive Encoder.
-     * @return The left drive Encoder.
+     * Gets the gLeft drive Encoder.
+     * @return The gLeft drive Encoder.
      */
     public static AbstractEncoder getLeftEncoder() {
         return leftEncoder;
@@ -129,7 +142,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Tank drive. Typically a driving style that uses two joysticks.
-     * @param l The speed of the left motors.
+     * @param l The speed of the gLeft motors.
      * @param r The speed of the right motors.
      */
     public static void tankDrive(double l, double r) {
@@ -159,28 +172,29 @@ public class DriveSubsystem extends Subsystem {
      * @param distance How many encoder clicks to drive.
      */
     public static void encoderDrive(double distance) { //TODO: uncomment
+        DriveSubsystem.setDriverControlled(false);
         leftEncoder.reset();
         rightEncoder.reset();
-        PIDController left = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
-        PIDController right = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInverted(true);
-        left.setTarget(distance);
-        right.setTarget(distance);
+
+        eLeft.setTarget(distance);
+        eRight.setTarget(distance);
         double startAngle = adx.getAngle();
-        left.enable();
-        right.enable();
-        while (!left.isDone() || !right.isDone()) {
+        eLeft.enable();
+        eRight.enable();
+        while (!eLeft.isDone() || !eRight.isDone()) {
             double angleError = adx.getAngle() - startAngle; //TODO: check if the sign on this is wrong or not
             if (Math.abs(angleError) > GYRO_ANGLE_ERROR_FIX) {
-                left.disable();
-                right.disable();
+                eLeft.disable();
+                eRight.disable();
                 gyroTurn(angleError);
-                left.enable();
-                right.enable();
+                eLeft.enable();
+                eRight.enable();
             }
             try {
                 Thread.sleep(25);
             } catch (Exception e) {}
         }
+        DriveSubsystem.setDriverControlled(true);
     }
 
     /**
@@ -188,20 +202,26 @@ public class DriveSubsystem extends Subsystem {
      * @param degrees How many degrees to turn.
      */
     public static void gyroTurn(double degrees) { //TODO: uncomment
+        DriveSubsystem.setDriverControlled(false);
+        DriveSubsystem.shift(false);
         adx.reset();
-        PIDController left = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
-        PIDController right = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax).setInverted(true);
-        left.setTarget(degrees);
-        right.setTarget(degrees);
-        left.enable();
-        right.enable();
+        gLeft.setTarget(degrees);
+        gRight.setTarget(degrees);
+
+        Log.d("Enabling PIDs to turn " + degrees + " degrees");
+
+        gLeft.enable();
+        gRight.enable();
 
         //Wait until both of the PIDs are done
-        left.waitUntilDone();
-        right.waitUntilDone();
+        gLeft.waitUntilDone();
+        gRight.waitUntilDone();
 
-        left.disable();
-        right.disable();
+        Log.d("Done turning " + degrees + "degrees");
+
+        gLeft.disable();
+        gRight.disable();
+        DriveSubsystem.setDriverControlled(true);
     }
 
     /**
@@ -242,5 +262,10 @@ public class DriveSubsystem extends Subsystem {
     public void stop() {
         leftMotors.setPower(0);
         rightMotors.setPower(0);
+    }
+
+    @Override
+    public List<Motor> getAllMotors() {
+        return Arrays.asList(leftMotors, rightMotors);
     }
 }

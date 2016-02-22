@@ -1,112 +1,122 @@
 package com.explodingbacon.robot.vision;
 
-import com.explodingbacon.bcnlib.framework.InternalSource;
+import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
-import com.explodingbacon.bcnlib.framework.PIDController;
-import com.explodingbacon.bcnlib.utils.CodeThread;
+import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.Camera;
+import com.explodingbacon.bcnlib.vision.Color;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
-import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj.vision.USBCamera;
-import java.awt.*;
 
-public class VisionTargeting extends CodeThread {
+public class VisionTargeting extends Command {
 
-    private Camera camera;
-    private USBCamera usb;
-    private PIDController left = null;
-    private PIDController right = null;
-    private InternalSource source = null;
+    private static Camera camera;
+    private static USBCamera usb;
+    private static boolean init = false;
+
+    private String imgDir = "/home/lvuser/";
+    private int picPairs = 0;
 
     public static final double PIXELS_ERROR_FIX = 50; //The minimum pixel error needed before the Robot auto-corrects
 
-    double kP = 1, kI = 1, min = 0.2, max = 0.35;
+    @Override
+    public void onInit() {
+        if (!init) {
 
-    private void init() {
-        camera = new Camera(0);
-        camera.getImage(); //You seem to have to call this once in order for it to work properly
+            Log.v("Init!");
+            camera = new Camera(0);
+            camera.getImage(); //You seem to have to call this once in order for it to work properly
 
-        usb = new USBCamera();
-        usb.setExposureManual(1); //TODO: see if this changes the appearance of the camera feed at all
 
-        source = new InternalSource();
-        left = new PIDController(DriveSubsystem.getLeft(), source, kP, kI, 0, min, max);
-        right = new PIDController(DriveSubsystem.getRight(), source, kP, kI, 0, min, max).setInverted(true);
+            //usb = new USBCamera();
+            //usb.setExposureManual(1); //TODO: see if this changes the appearance of the camera feed at all
+            init = true;
+
+        }
     }
 
     @Override
-    public void start() {
-        init();
-        super.start();
-    }
-
-    //TODO: Track hits and misses and save it to a file
-
-    @Override
-    public void code() {
+    public void onLoop() {
         try {
-            Contour goal = null;
-            Image i = null;
-            if (camera.isOpen()) {
-                i = camera.getImage();
-                goal = findGoal(i);
-            }
+            if (ShooterSubsystem.isVisionShootQueued()) {
+                Log.v("Found a queued shot.");
+                //ShooterSubsystem.rev(this);
+                boolean usedGoal = true;
+                while (true) { //TODO: make this break out eventually
 
-            //TODO: Check if shooting is responsive when it's in this thread (the Thread.sleep() calls SHOULD be fine, but check anyway)
+                    //TODO: loop at fps
 
-            if (camera.isOpen()) {
-                double target = i.getWidth() / 2;
-
-                if (goal != null) {
-                    double midX = goal.getMiddleX();
-                    double error = Math.abs(target - midX);
-                    if (error > PIXELS_ERROR_FIX) { //If we are off center by more than an acceptable amount of pixels, then auto-correct if we are shooting
-                        OI.drive.rumble(0, 0);
-                        if (ShooterSubsystem.shouldVisionShoot()) {
-                            DriveSubsystem.setDriverControlled(false);
-                            source.update(midX);
-                            left.setTarget(target);
-                            right.setTarget(target);
-                            left.enable();
-                            right.enable();
-                            while (!left.isDone() || !right.isDone()) {
-                                midX = goal.getMiddleX();
-                                source.update(midX);
-                                Thread.sleep(25);
-                            }
-                            left.disable();
-                            right.disable();
-                            DriveSubsystem.setDriverControlled(true);
+                    Image i = camera.getImage();
+                    Contour goal = findGoal(i);
+                    save(i, "image");
+                    save(filter(i), "filtered");
+                    if (goal != null) {
+                        Log.v("Goal detected.");
+                        picPairs++;
+                        double target = i.getWidth() / 2;
+                        double goalMid = goal.getMiddleX();
+                        double error = Math.abs(target - goalMid);
+                        double degrees = Utils.getDegreesToTurn(goalMid, target);
+                        Log.v("I'm " + degrees + " away from the goal");
+                        if (degrees > DriveSubsystem.GYRO_ANGLE_ERROR_FIX) {
+                            Log.v("Turning.");
+                            DriveSubsystem.gyroTurn(degrees);
+                        } else {
+                            Log.v("Lined up with the goal.");
+                            break;
                         }
-                    }
-                    if (!(error > PIXELS_ERROR_FIX)) { //We are lined up to shoot
-                        //OI.drive.rumble(0.1f, 0.1f);
-                        ShooterSubsystem.getLight().enable();
                     } else {
-                        ShooterSubsystem.getLight().stop();
+                        usedGoal = false;
+                        break;
                     }
                 }
-            }
-
-            //The robot will shoot the ball regardless of if it can see the target, but requires the shooter motors to be active
-            if (ShooterSubsystem.shouldVisionShoot() && ShooterSubsystem.shooterPID.isDone()) {
+                //ShooterSubsystem.shooterPID.waitUntilDone();
+                ShooterSubsystem.getIndexer().setUser(this);
                 ShooterSubsystem.setIndexerRaw(1);
-                Thread.sleep(500);
+                Thread.sleep(3000);
                 ShooterSubsystem.setIndexerRaw(0);
                 ShooterSubsystem.setShouldVisionShoot(false);
                 if (!camera.isOpen()) {
-                    Log.c("VISION", "Shooting blind due to the camera not working!");
-                } else if (goal == null) {
-                    Log.c("VISION", "Shooting a ball despite not being able to see a goal!");
+                    Log.v("Shot ball blindly due to the camera not working!");
+                } else if (!usedGoal) {
+                    Log.v("Shot a ball blindly due to not being able to see a goal!");
+                } else {
+                    Log.v("Shot a ball via VisionTargeting!");
                 }
             }
         } catch (Exception e) {
-            Log.e("VisionTargeting Exception!");
+            Log.e("VisionTargeting exception!");
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onStop() {}
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+
+    /**
+     * Saves the Image.
+     * @param i The Image to save.
+     * @param name The name of the file to save it as.
+     */
+    private void save(Image i, String name) {
+        i.saveAs(imgDir + picPairs + "_" + name + ".png");
+    }
+
+    /**
+     * Creates a filtered version of the Image. The filter is designed for easily identifying goals.
+     * @param i The Image to filter.
+     * @return A filtered version of the Image.
+     */
+    private Image filter(Image i) {
+        return i.colorRange(new Color(230, 230, 230), new Color(255, 255, 255));
     }
 
     /**
@@ -115,8 +125,7 @@ public class VisionTargeting extends CodeThread {
      * @return The Contour for the retroreflective tape around the Castle's high goal.
      */
     private Contour findGoal(Image i) {
-        Image filtered = i.colorRange(new Color(230, 230, 230), new Color(255, 255, 255));
-
+        Image filtered = filter(i);
         Contour biggest = null;
         for (Contour c : filtered.getContours()) {
             if (biggest == null) {
