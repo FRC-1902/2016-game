@@ -7,32 +7,30 @@ import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Color;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
+import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
-import edu.wpi.first.wpilibj.vision.USBCamera;
+import org.opencv.videoio.Videoio;
+
+import java.util.Arrays;
 
 public class VisionTargeting extends Command {
 
     private static Camera camera;
-    private static USBCamera usb;
     private static boolean init = false;
 
-    private String imgDir = "/home/lvuser/";
-    private int picPairs = 0;
+    private static double ANGLE_DEADZONE = 0.8;
+    private static double CAMERA_PIXELS_OFFSET = -11;
 
-    public static final double PIXELS_ERROR_FIX = 50; //The minimum pixel error needed before the Robot auto-corrects
+    private String imgDir = "/home/lvuser/";
 
     @Override
     public void onInit() {
         if (!init) {
 
-            Log.v("Init!");
-            camera = new Camera(0);
-            camera.getImage(); //You seem to have to call this once in order for it to work properly
+            Log.v("VisionTargeting initialized!");
+            camera = new Camera(0, true);
 
-
-            //usb = new USBCamera();
-            //usb.setExposureManual(1); //TODO: see if this changes the appearance of the camera feed at all
             init = true;
 
         }
@@ -42,46 +40,54 @@ public class VisionTargeting extends Command {
     public void onLoop() {
         try {
             if (ShooterSubsystem.isVisionShootQueued()) {
-                Log.v("Found a queued shot.");
+                Log.v("Beginning vision shoot...");
                 //ShooterSubsystem.rev(this);
                 boolean usedGoal = true;
-                while (true) { //TODO: make this break out eventually
 
-                    //TODO: loop at fps
+                //while (true) { //TODO: make this break out eventually
+                double startMillis = System.currentTimeMillis();
+                Image i = camera.getImage();
+                double imageGetMS = System.currentTimeMillis() - startMillis;
 
-                    Image i = camera.getImage();
-                    Contour goal = findGoal(i);
-                    save(i, "image");
-                    save(filter(i), "filtered");
-                    if (goal != null) {
-                        Log.v("Goal detected.");
-                        picPairs++;
-                        double target = i.getWidth() / 2;
-                        double goalMid = goal.getMiddleX();
-                        double error = Math.abs(target - goalMid);
-                        double degrees = Utils.getDegreesToTurn(goalMid, target);
-                        Log.v("I'm " + degrees + " away from the goal");
-                        if (degrees > DriveSubsystem.GYRO_ANGLE_ERROR_FIX) {
-                            Log.v("Turning.");
-                            DriveSubsystem.gyroTurn(degrees);
-                        } else {
-                            Log.v("Lined up with the goal.");
-                            break;
-                        }
+                Log.v("Took " + imageGetMS + "ms to get image.");
+
+                double target = (i.getWidth() / 2) + CAMERA_PIXELS_OFFSET;
+
+                Contour goal = findGoal(i, target);
+
+                drawIndicators(i, target, goal);
+
+                save(i, "image_start");
+
+                if (goal != null) {
+                    //Log.v("Goal detected.");
+                    double goalMid = goal.getMiddleX();
+                    double degrees = Utils.getDegreesToTurn(goalMid, target);
+                    Log.v(degrees + " degrees away from the goal");
+                    if (Math.abs(degrees) > ANGLE_DEADZONE) {
+                        DriveSubsystem.gyroTurn(degrees);
+                        Image end = camera.getImage();
+                        Contour endGoal = findGoal(end, target);
+                        if (endGoal != null) drawIndicators(end, target, endGoal);
+                        save(end, "image_end");
                     } else {
-                        usedGoal = false;
-                        break;
+                        Log.v("Already lined up with the goal, not moving.");
+                        //break;
                     }
+                } else {
+                    Log.v("Goal not detected!");
+                    usedGoal = false;
+                    //break;
                 }
+                //}
                 //ShooterSubsystem.shooterPID.waitUntilDone();
+                Log.v("Time to enabling shooter: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds");
                 ShooterSubsystem.getIndexer().setUser(this);
                 ShooterSubsystem.setIndexerRaw(1);
-                Thread.sleep(3000);
-                ShooterSubsystem.setIndexerRaw(0);
+                Thread.sleep(2000);
+                ShooterSubsystem.getIndexer().setUser(null);
                 ShooterSubsystem.setShouldVisionShoot(false);
-                if (!camera.isOpen()) {
-                    Log.v("Shot ball blindly due to the camera not working!");
-                } else if (!usedGoal) {
+                if (!usedGoal) {
                     Log.v("Shot a ball blindly due to not being able to see a goal!");
                 } else {
                     Log.v("Shot a ball via VisionTargeting!");
@@ -98,20 +104,38 @@ public class VisionTargeting extends Command {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return !Robot.getEnabled();
     }
 
     /**
      * Saves the Image.
+     *
      * @param i The Image to save.
      * @param name The name of the file to save it as.
      */
     private void save(Image i, String name) {
-        i.saveAs(imgDir + picPairs + "_" + name + ".png");
+        i.saveAs(imgDir + name + ".png");
+    }
+
+    /**
+     * Draws vision indicators onto an Image.
+     *
+     * @param i The Image for the indicators to be drawn onto.
+     * @param targetPos The X coordinate of the position the target should wind up in.
+     * @param goal The goal that is being targeted.
+     */
+    private void drawIndicators(Image i, double targetPos, Contour goal) {
+        if (goal != null) {
+            i.drawContours(Arrays.asList(goal), Color.RED); //Red outline of the goal
+            i.drawRectangle(goal.getBoundingBox(), Color.TEAL); //Blue rectangle of goal bounding box
+            i.drawLine(Utils.round(goal.getMiddleX()), Color.GREEN); //Green line of middle of goal
+        }
+        i.drawLine(Utils.round(targetPos), Color.BLUE); //Blue line of target position
     }
 
     /**
      * Creates a filtered version of the Image. The filter is designed for easily identifying goals.
+     *
      * @param i The Image to filter.
      * @return A filtered version of the Image.
      */
@@ -121,24 +145,30 @@ public class VisionTargeting extends Command {
 
     /**
      * Gets the Contour for the retroreflective tape around the Castle's high goal.
+     *
      * @param i The image the goal is in.
+     * @param target Where we'll want to be moving the goal to.
      * @return The Contour for the retroreflective tape around the Castle's high goal.
      */
-    private Contour findGoal(Image i) {
+    private Contour findGoal(Image i, double target) {
         Image filtered = filter(i);
-        Contour biggest = null;
+        Contour goal = null;
         for (Contour c : filtered.getContours()) {
-            if (biggest == null) {
-                biggest = c;
-            } else {
-                if (c.getArea() > biggest.getArea()) {
-                    biggest = c;
+            if (c.getWidth() < 300 && c.getWidth() > 10 && c.getHeight() < 300) {
+                if (goal == null) {
+                    goal = c;
+                } else {
+                    double cTargetError = Math.abs(c.getMiddleX() - target);
+                    double goalTargetError = Math.abs(goal.getMiddleX() - target);
+                    if (cTargetError < goalTargetError) {
+                        goal = c;
+                    }
                 }
             }
         }
 
-        biggest = biggest != null ? biggest.approxEdges(0.01) : null;
+        goal = goal != null ? goal.approxEdges(0.01) : null;
 
-        return biggest;
+        return goal;
     }
 }

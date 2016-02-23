@@ -33,12 +33,12 @@ public class DriveCommand extends Command {
     public void onLoop() {
         if (DriveSubsystem.isDriverControlled()) {
             double leftTurn = 0, rightTurn = 0;
+            /*
             if (OI.gyroForward.get()) { //TODO: uncomment this
-                /*
                 ADXSensor adx = DriveSubsystem.getADX();
                 if (!buttonWasTrue) angleStart = adx.getAngle();
                 double angleError = adx.getAngle() - angleStart; //TODO: Check if the sign is wrong
-                if (Math.abs(angleError) > DriveSubsystem.GYRO_ANGLE_ERROR_FIX) {
+                if (Math.abs(angleError) > DriveSubsystem.GYRO_ANGLE_TOLERANCE) {
                     if (!left.isEnabled()) {
                         left.setTarget(angleStart);
                         left.enable();
@@ -56,8 +56,8 @@ public class DriveCommand extends Command {
                 buttonWasTrue = true;
             } else {
                 buttonWasTrue = false;
-                */
             }
+            */
 
             //DriveSubsystem.shiftIfResistance();
 

@@ -25,8 +25,8 @@ public class ShooterCommand extends Command {
             ShooterSubsystem.stopRev(this);
         }
 
-        if (OI.shoot.getAny()) {
-            if (Vision.isInit() /*&& !OI.intakeMotorOut.get()*/) {
+        if (OI.shoot.getAny() || OI.shootNoVision.get()) {
+            if (Vision.isInit() && !OI.shootNoVision.get()) {
                 if (!ShooterSubsystem.isVisionShootQueued()) ShooterSubsystem.queueVisionShoot();
             } else {
                 if (ShooterSubsystem.getIndexer().isUseableBy(this)) {

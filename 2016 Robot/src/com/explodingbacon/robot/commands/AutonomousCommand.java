@@ -4,7 +4,6 @@ import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 
 public class AutonomousCommand extends Command {
 

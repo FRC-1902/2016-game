@@ -40,6 +40,8 @@ public class Map {
     public static final int CLIMBER_SOLENOID_A = 6;
     public static final int CLIMBER_SOLENOID_B = 3;
 
+    public static final int CLIMBER_LATCH = 7;
+
     //SENSORS
 
     public static final int RIGHT_DRIVE_ENCODER_A = 0;

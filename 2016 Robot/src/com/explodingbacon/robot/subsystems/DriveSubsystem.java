@@ -10,7 +10,6 @@ import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
-import com.sun.deploy.security.ruleset.DefaultRule;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
 
@@ -32,7 +31,7 @@ public class DriveSubsystem extends Subsystem {
     private static boolean driverControlled = true;
 
     private static double encoderkP = 0.13, encoderkI = 0, encoderkD = 0, encoderMin = 0.3, encoderMax = 0.5;
-    private static double gyrokP = 0.02, gyrokI = 0.03, gyrokD = 0, gyroMin = 0.05, gyroMax = 0.5;
+    private static double gyrokP = 0.05 * 1, gyrokI = 0.005, gyrokD = 0, gyroMin = 0.05, gyroMax = 0.5;
 
     public static PIDController eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
     public static PIDController eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
@@ -40,20 +39,17 @@ public class DriveSubsystem extends Subsystem {
     public static PIDController gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
     public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
 
-    public static final double GYRO_ANGLE_ERROR_FIX = 3; //The minimum angle error needed before the Robot auto-corrects
+    public static final double GYRO_ANGLE_TOLERANCE = 0.25;
 
-    public static final double LOW_GEAR_SHIFT_RATE = 1000; //TODO: Change this to be about the rate of maximum low gear speed
+    public static final double LOW_GEAR_SHIFT_RATE = 1000; //TODO: Change this and/or use this
 
     public DriveSubsystem() {
         super();
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
 
-        gLeft.setFinishedTolerance(2);
-        gRight.setFinishedTolerance(2);
-
-        shift(true);
-
+        gLeft.setFinishedTolerance(GYRO_ANGLE_TOLERANCE);
+        gRight.setFinishedTolerance(GYRO_ANGLE_TOLERANCE);
         /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
 
@@ -183,7 +179,7 @@ public class DriveSubsystem extends Subsystem {
         eRight.enable();
         while (!eLeft.isDone() || !eRight.isDone()) {
             double angleError = adx.getAngle() - startAngle; //TODO: check if the sign on this is wrong or not
-            if (Math.abs(angleError) > GYRO_ANGLE_ERROR_FIX) {
+            if (Math.abs(angleError) > GYRO_ANGLE_TOLERANCE) {
                 eLeft.disable();
                 eRight.disable();
                 gyroTurn(angleError);
@@ -217,7 +213,7 @@ public class DriveSubsystem extends Subsystem {
         gLeft.waitUntilDone();
         gRight.waitUntilDone();
 
-        Log.d("Done turning " + degrees + "degrees");
+        Log.d("Done turning " + degrees + " degrees");
 
         gLeft.disable();
         gRight.disable();

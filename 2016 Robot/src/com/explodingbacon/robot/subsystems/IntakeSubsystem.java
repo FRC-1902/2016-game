@@ -5,9 +5,7 @@ import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
-import com.sun.javafx.geom.ShapePair;
 import edu.wpi.first.wpilibj.CANTalon;
-
 import java.util.Arrays;
 import java.util.List;
 

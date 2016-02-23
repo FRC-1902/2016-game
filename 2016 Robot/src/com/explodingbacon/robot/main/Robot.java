@@ -23,6 +23,8 @@ package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
+import com.explodingbacon.bcnlib.sensors.PDP;
+import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.ClimberSubsystem;
@@ -30,7 +32,10 @@ import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import com.explodingbacon.robot.vision.VisionTargeting;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.vision.USBCamera;
 
 public class Robot extends RobotCore {
 
@@ -56,6 +61,12 @@ public class Robot extends RobotCore {
         super.robotInit();
         //Javascript.init();
         Vision.init();
+
+        /*
+        CameraServer camera = CameraServer.getInstance();
+        camera.setQuality(50);
+        camera.startAutomaticCapture(new USBCamera("cam0"));
+        //camera.startAutomaticCapture("cam0");*/
 
         driveSubsystem = new DriveSubsystem();
         intakeSubsystem = new IntakeSubsystem();
@@ -93,7 +104,8 @@ public class Robot extends RobotCore {
     public void autonomousPeriodic() {
 
         Log.t("Target: (" + DriveSubsystem.gLeft.getTarget() + ", " + DriveSubsystem.gRight.getTarget() + "); " +
-                "Current Value: (" + DriveSubsystem.gLeft.getCurrentSourceValue() + ", " + DriveSubsystem.gRight.getCurrentSourceValue() + "); " +
+                "Current Value: (" + Math.round(DriveSubsystem.gLeft.getCurrentSourceValue()*1000)/1000f + ", " +
+                                    Math.round(DriveSubsystem.gRight.getCurrentSourceValue()*1000)/1000f + "); " +
                 "Motor Setpoint: (" + DriveSubsystem.gLeft.getMotorPower() + ", " + DriveSubsystem.gRight.getMotorPower() + ")");
 
 
@@ -105,7 +117,9 @@ public class Robot extends RobotCore {
         super.teleopInit();
         OI.deleteAllTriggers();
         initControlCommands();
-        ShooterSubsystem.getLight().enable();
+
+        DriveSubsystem.shift(false);
+        ClimberSubsystem.setLatches(true);
     }
 
     @Override
@@ -113,6 +127,8 @@ public class Robot extends RobotCore {
         OI.deleteAllTriggers();
 
         //OI.runCommand(new CalibrateDriveMotorsCommand());
+
+        //ShooterSubsystem.getShooter().testEachWait(0.7, 1);
 
         //DriveSubsystem.getLeft().testEachWait(0.7, 1);
         //DriveSubsystem.getRight().testEachWait(0.7, 1);
@@ -127,6 +143,8 @@ public class Robot extends RobotCore {
     @Override
     public void teleopPeriodic() {
         super.teleopPeriodic();
+
+        Log.d("Climber position: " + ClimberSubsystem.getEncoder().get());
 
         //Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " +
         // ShooterSubsystem.getEncoder().getRate() + ", Setpoint: " + ShooterSubsystem.shooterPID.getMotorPower());

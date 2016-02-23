@@ -28,11 +28,11 @@ public class ShooterSubsystem extends Subsystem {
 
     public static final int INTAKE_RATE = -25000;
 
-    public static final int BAD_BALL_SHOOT_RATE = 50000;
-    public static final int MEDIUM_BALL_SHOOT_RATE = 50000;
-    public static final int GOOD_BALL_SHOOT_RATE = 38000;
-    public static final int BAD_BALL_LOW_RATE = 15000;
-    public static final int GOOD_BALL_LOW_RATE = 12500;
+    //public static final int BAD_BALL_SHOOT_RATE = 50000;
+    //public static final int MEDIUM_BALL_SHOOT_RATE = 50000;
+    public static final int GOOD_BALL_SHOOT_RATE = 36500; //38000 previously
+    //public static final int BAD_BALL_LOW_RATE = 15000;
+    //public static final int GOOD_BALL_LOW_RATE = 12500;
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
@@ -99,13 +99,7 @@ public class ShooterSubsystem extends Subsystem {
      * @return The rate needed to shoot the current ball.
      */
     public static double calculateRate() {
-        if (OI.shooterBadRev.get()) {
-            return BAD_BALL_SHOOT_RATE;
-        } else if (OI.shooterGoodRev.get()) {
-            return GOOD_BALL_SHOOT_RATE;
-        } else {
-            return -1; //TODO: Return a helpful value?
-        }
+        return GOOD_BALL_SHOOT_RATE;
         /*
         if (currentBallWatts == -1 || !IntakeSubsystem.TEST_BALLS) {
             return DEFAULT_SHOOT_RATE;
@@ -119,7 +113,6 @@ public class ShooterSubsystem extends Subsystem {
      */
     public static void queueVisionShoot() {
         setShouldVisionShoot(true);
-        Log.v("Queued vision shoot");
     }
 
     /**

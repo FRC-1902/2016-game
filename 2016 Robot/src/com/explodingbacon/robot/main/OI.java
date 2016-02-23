@@ -10,11 +10,11 @@ public class OI extends AbstractOI {
 
     //Driver buttons
 
-    public static Button gyroForward;
-
     public static ButtonGroup lowShift;
 
     public static ButtonGroup shoot;
+
+    public static Button shootNoVision;
 
     //Manipulator buttons
 
@@ -45,11 +45,11 @@ public class OI extends AbstractOI {
 
         //Driver controls
 
-        gyroForward = drive.one;
-
         lowShift = drive.bumpers;
 
         shoot = drive.triggers;
+
+        shootNoVision = drive.one;
 
         //Manipulator controls
 

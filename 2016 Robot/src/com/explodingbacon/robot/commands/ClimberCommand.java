@@ -21,10 +21,17 @@ public class ClimberCommand extends Command {
         if (ClimberSubsystem.isTouchDown()) {
             ClimberSubsystem.getEncoder().reset();
         }
+
         if (d.isUp()) {
             ClimberSubsystem.setPosition(true);
         } else if (d.isDown()) {
             ClimberSubsystem.setPosition(false);
+        }
+
+        if (d.isLeft()) {
+            ClimberSubsystem.setLatches(true);
+        } else if (d.isRight()) {
+            ClimberSubsystem.setLatches(false);
         }
 
         if (OI.climberDeploy.get()) {
