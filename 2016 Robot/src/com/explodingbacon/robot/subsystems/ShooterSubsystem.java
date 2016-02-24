@@ -21,7 +21,7 @@ public class ShooterSubsystem extends Subsystem {
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
 
     private static Light light = new Light(new Solenoid(Map.LIGHT));
-    private static Motor spotlight = new Motor(Relay.class, Map.SPOTLIGHT);
+    //private static Motor spotlight = new Motor(Relay.class, Map.SPOTLIGHT);
 
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
@@ -65,7 +65,7 @@ public class ShooterSubsystem extends Subsystem {
      */
     public static void rev(Command c) {
         if (shooter.claim(c)) {
-            setSpotlight(true);
+            //setSpotlight(true);
 
             shooterPID.setTarget(ShooterSubsystem.calculateRate());
 
@@ -84,7 +84,7 @@ public class ShooterSubsystem extends Subsystem {
      */
     public static void stopRev(Command c) {
         if (shooter.claim(c)) {
-            setSpotlight(false);
+            //setSpotlight(false);
 
             shooterPID.setTarget(0);
 
@@ -214,13 +214,11 @@ public class ShooterSubsystem extends Subsystem {
         return light;
     }
 
-    /**
-     * Sets the status of the spotlight.
-     * @param b The status of the spotlight.
-     */
+    /*
     public static void setSpotlight(boolean b) {
         spotlight.setPower(b ? 1 : 0);
     }
+    */
 
     @Override
     public void stop() {
@@ -231,6 +229,6 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public List<Motor> getAllMotors() {
-        return Arrays.asList(shooter, indexer, spotlight);
+        return Arrays.asList(shooter, indexer);
     }
 }

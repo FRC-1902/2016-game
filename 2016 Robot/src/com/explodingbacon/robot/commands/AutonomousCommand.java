@@ -4,6 +4,7 @@ import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
+import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 
 public class AutonomousCommand extends Command {
 
@@ -15,9 +16,16 @@ public class AutonomousCommand extends Command {
     public void onInit() {
         //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, return through low bar
 
-        double originAngle = DriveSubsystem.getADX().getAngle();
-        //DriveSubsystem.inchDrive(120);
-        DriveSubsystem.gyroTurn(7);
+        //double originAngle = DriveSubsystem.getADX().getAngle();
+
+
+        DriveSubsystem.inchDrive(12 * 10);
+        DriveSubsystem.gyroTurn(45);
+        ShooterSubsystem.queueVisionShoot();
+
+
+
+        //DriveSubsystem.gyroTurn(7);
 
         /*
         ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.calculateRate());

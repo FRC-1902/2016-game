@@ -21,6 +21,7 @@
  */
 package com.explodingbacon.robot.main;
 
+import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
 import com.explodingbacon.bcnlib.sensors.PDP;
@@ -43,7 +44,7 @@ public class Robot extends RobotCore {
     public static IntakeSubsystem intakeSubsystem;
     public static ShooterSubsystem shooterSubsystem;
     public static ClimberSubsystem climberSubsystem;
-    //public static PDP pdp = new PDP();
+    public static PDP pdp = new PDP();
     //public static DataLogger logger = new DataLogger();
 
     public OI oi;
@@ -75,10 +76,17 @@ public class Robot extends RobotCore {
 
         oi = new OI();
 
+        pdp.setLoggingTripping(false);
+
 
         //EventHandler.init(new TempEventHandler()); //TODO: Delete after we confirm the event system works
 
         Log.i("Battering Ham initialized!");
+    }
+
+    public void init() {
+        ShooterSubsystem.shooterPID.enable();
+        DriveSubsystem.shift(false);
     }
 
     public void initControlCommands() {
@@ -89,11 +97,24 @@ public class Robot extends RobotCore {
     }
 
     @Override
+    public void teleopInit() {
+        super.teleopInit();
+        OI.deleteAllTriggers();
+        initControlCommands();
+
+        init();
+
+        ShooterSubsystem.getLight().enable();
+        ClimberSubsystem.setLatches(true);
+    }
+
+    @Override
     public void autonomousInit() {
         OI.deleteAllTriggers();
 
+        init();
+
         IntakeSubsystem.setPosition(false);
-        DriveSubsystem.shift(false);
 
         OI.runCommand(new AutonomousCommand());
         //if (Vision.isInit()) OI.runCommand(new VisionTargeting());
@@ -103,48 +124,54 @@ public class Robot extends RobotCore {
     @Override
     public void autonomousPeriodic() {
 
-        Log.t("Target: (" + DriveSubsystem.gLeft.getTarget() + ", " + DriveSubsystem.gRight.getTarget() + "); " +
-                "Current Value: (" + Math.round(DriveSubsystem.gLeft.getCurrentSourceValue()*1000)/1000f + ", " +
-                                    Math.round(DriveSubsystem.gRight.getCurrentSourceValue()*1000)/1000f + "); " +
-                "Motor Setpoint: (" + DriveSubsystem.gLeft.getMotorPower() + ", " + DriveSubsystem.gRight.getMotorPower() + ")");
+        Log.t("Target: (" + DriveSubsystem.eLeft.getTarget() + ", " + DriveSubsystem.eRight.getTarget() + "); " +
+                "Current Value: (" + Math.round(DriveSubsystem.eLeft.getCurrentSourceValue()*1000)/1000f + ", " +
+                                    Math.round(DriveSubsystem.eRight.getCurrentSourceValue()*1000)/1000f + "); " +
+                "Motor Setpoint: (" + DriveSubsystem.eLeft.getMotorPower() + ", " + DriveSubsystem.eRight.getMotorPower() + ")");
 
 
         //DriveSubsystem.gLeft.log();
     }
 
     @Override
-    public void teleopInit() {
-        super.teleopInit();
-        OI.deleteAllTriggers();
-        initControlCommands();
-
-        DriveSubsystem.shift(false);
-        ClimberSubsystem.setLatches(true);
-    }
-
-    @Override
     public void testInit() {
         OI.deleteAllTriggers();
 
-        //OI.runCommand(new CalibrateDriveMotorsCommand());
+        for (Motor m : DriveSubsystem.getLeft().getMotors()) {
+            try {
+                m.setPower(1);
+                Thread.sleep(1000);
+                m.setPower(0);
+                Thread.sleep(1000);
+            } catch (Exception e) {}
+        }
 
-        //ShooterSubsystem.getShooter().testEachWait(0.7, 1);
+        for (Motor m : DriveSubsystem.getRight().getMotors()) {
+            try {
+                m.setPower(1);
+                Thread.sleep(1000);
+                m.setPower(0);
+                Thread.sleep(1000);
+            } catch (Exception e) {}
+        }
+        //ClimberSubsystem.climber.testEachWait(0.3, 1);
 
-        //DriveSubsystem.getLeft().testEachWait(0.7, 1);
-        //DriveSubsystem.getRight().testEachWait(0.7, 1);
         //OI.runCommand(new ShakedownCommand());
     }
 
     @Override
     public void testPeriodic() {
-
     }
 
     @Override
     public void teleopPeriodic() {
         super.teleopPeriodic();
 
-        Log.d("Climber position: " + ClimberSubsystem.getEncoder().get());
+        Log.d("Drive Encoders: (" + DriveSubsystem.getLeftEncoder().get() + ", " + DriveSubsystem.getRightEncoder().get() + ")");
+
+        //Log.d("Climber position: " + ClimberSubsystem.getEncoder().get() + ", current: " + pdp.getCurrent(2) + " & " + pdp.getCurrent(1));
+
+        //Log.d("Climber position: " + ClimberSubsystem.getEncoder().get() + ", touch down: " + ClimberSubsystem.isTouchDown());
 
         //Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " +
         // ShooterSubsystem.getEncoder().getRate() + ", Setpoint: " + ShooterSubsystem.shooterPID.getMotorPower());

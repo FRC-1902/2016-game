@@ -20,7 +20,7 @@ public class VisionTargeting extends Command {
     private static boolean init = false;
 
     private static double ANGLE_DEADZONE = 0.8;
-    private static double CAMERA_PIXELS_OFFSET = -11;
+    private static double CAMERA_PIXELS_OFFSET = 0; //was -11, then -8
 
     private String imgDir = "/home/lvuser/";
 
@@ -41,19 +41,25 @@ public class VisionTargeting extends Command {
         try {
             if (ShooterSubsystem.isVisionShootQueued()) {
                 Log.v("Beginning vision shoot...");
-                //ShooterSubsystem.rev(this);
+                boolean controllingShooter = false;
+                if (ShooterSubsystem.shooterPID.getTarget() == 0) {
+                    ShooterSubsystem.getShooter().setUser(this); //Forcibly take control of this
+                    ShooterSubsystem.rev(this);
+                    controllingShooter = true;
+                }
                 boolean usedGoal = true;
 
-                //while (true) { //TODO: make this break out eventually
                 double startMillis = System.currentTimeMillis();
                 Image i = camera.getImage();
                 double imageGetMS = System.currentTimeMillis() - startMillis;
 
-                Log.v("Took " + imageGetMS + "ms to get image.");
+                //Log.v("Took " + imageGetMS + "ms to get image.");
 
                 double target = (i.getWidth() / 2) + CAMERA_PIXELS_OFFSET;
 
                 Contour goal = findGoal(i, target);
+
+                //Log.d("Starting difference: " + (goal.getMiddleX() - target));
 
                 drawIndicators(i, target, goal);
 
@@ -65,28 +71,35 @@ public class VisionTargeting extends Command {
                     double degrees = Utils.getDegreesToTurn(goalMid, target);
                     Log.v(degrees + " degrees away from the goal");
                     if (Math.abs(degrees) > ANGLE_DEADZONE) {
-                        DriveSubsystem.gyroTurn(degrees);
+                        DriveSubsystem.gyroTurn(degrees, 5); //TODO: Tweak how long we should wait before giving up on the gyro turn
+                        /*
                         Image end = camera.getImage();
                         Contour endGoal = findGoal(end, target);
                         if (endGoal != null) drawIndicators(end, target, endGoal);
                         save(end, "image_end");
+                        */
                     } else {
                         Log.v("Already lined up with the goal, not moving.");
-                        //break;
                     }
                 } else {
                     Log.v("Goal not detected!");
                     usedGoal = false;
-                    //break;
                 }
-                //}
-                //ShooterSubsystem.shooterPID.waitUntilDone();
-                Log.v("Time to enabling shooter: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds");
+                if (!ShooterSubsystem.shooterPID.isDone()) {
+                    Log.v("Waiting to shoot until the shooter is up to speed.");
+                    ShooterSubsystem.shooterPID.waitUntilDone();
+                }
+                Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds");
                 ShooterSubsystem.getIndexer().setUser(this);
                 ShooterSubsystem.setIndexerRaw(1);
                 Thread.sleep(2000);
-                ShooterSubsystem.getIndexer().setUser(null);
                 ShooterSubsystem.setShouldVisionShoot(false);
+
+                ShooterSubsystem.getIndexer().setUser(null);
+                if (controllingShooter) {
+                    ShooterSubsystem.stopRev(this);
+                    ShooterSubsystem.getShooter().setUser(null);
+                }
                 if (!usedGoal) {
                     Log.v("Shot a ball blindly due to not being able to see a goal!");
                 } else {
@@ -158,9 +171,13 @@ public class VisionTargeting extends Command {
                 if (goal == null) {
                     goal = c;
                 } else {
+                    /*
                     double cTargetError = Math.abs(c.getMiddleX() - target);
                     double goalTargetError = Math.abs(goal.getMiddleX() - target);
                     if (cTargetError < goalTargetError) {
+                        goal = c;
+                    }*/
+                    if (c.getArea() > goal.getArea()) {
                         goal = c;
                     }
                 }
@@ -168,6 +185,10 @@ public class VisionTargeting extends Command {
         }
 
         goal = goal != null ? goal.approxEdges(0.01) : null;
+
+        if (goal != null) {
+            Log.d("Goal width is " + goal.getWidth() + ", height is " + goal.getHeight());
+        }
 
         return goal;
     }

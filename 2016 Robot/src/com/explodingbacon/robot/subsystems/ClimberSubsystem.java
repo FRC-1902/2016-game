@@ -18,7 +18,7 @@ import java.util.List;
 
 public class ClimberSubsystem extends Subsystem {
 
-    private static MotorGroup climber = (MotorGroup) new MotorGroup(CANTalon.class, Map.CLIMBER_MOTOR_1, Map.CLIMBER_MOTOR_2).setName("Climber");
+    public static MotorGroup climber = (MotorGroup) new MotorGroup(CANTalon.class, Map.CLIMBER_MOTOR_1, Map.CLIMBER_MOTOR_2).setName("Climber");
     private static DoubleSolenoid position = new DoubleSolenoid(Map.CLIMBER_SOLENOID_A, Map.CLIMBER_SOLENOID_B);
     public static Solenoid latches = new Solenoid(Map.CLIMBER_LATCH);
     private static MotorEncoder encoder;
@@ -30,8 +30,9 @@ public class ClimberSubsystem extends Subsystem {
     private static DigitalInput retracted = new DigitalInput(Map.CLIMBER_SWITCH_RETRACTED);
     public static DigitalInput deployed = new DigitalInput(Map.CLIMBER_SWITCH_DEPLOYED);
 
-    private static final int TOP_POS = 33000; //TODO: finalize
-    private static final int LATCH_POS = 15000; //TODO: finalize
+    private static final int TOP_POS = 33875; //TODO: finalize
+    private static final int CLIMB_POS = 27061;
+    private static final int LATCH_POS = 1574; //TODO: finalize
     private static final int BOTTOM_POS = 0;
 
     private static boolean moveMotors = false;
@@ -44,7 +45,7 @@ public class ClimberSubsystem extends Subsystem {
 
         pid = new PIDController(climber, encoder, 0.1, 0, 0, 0.1, 0.3);
         pid.setTarget(BOTTOM_POS);
-        pid.enable();
+        //pid.enable();
 
         position.set(false);
     }
@@ -69,6 +70,8 @@ public class ClimberSubsystem extends Subsystem {
             if (moveMotors) {
                 pid.setTarget(TOP_POS);
             }
+        } else {
+            Log.d("Tried deploying climber, but solenoids were not in the proper place");
         }
     }
 
@@ -89,6 +92,8 @@ public class ClimberSubsystem extends Subsystem {
                     } catch (Exception e) {}
                 }
             }
+        } else {
+            Log.d("Tried retracting climber, but solenoids were not in the proper place");
         }
     }
 

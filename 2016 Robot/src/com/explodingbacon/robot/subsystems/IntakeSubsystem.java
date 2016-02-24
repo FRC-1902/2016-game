@@ -40,8 +40,8 @@ public class IntakeSubsystem extends Subsystem {
      */
     public static void outtake(Command c) {
         if (intakeMotor.isUseableBy(c) && ShooterSubsystem.getShooter().isUseableBy(c)) {
-            intakeMotor.setPower(intakeOut.get() ? -1 : 1);
-            ShooterSubsystem.shooterPID.setTarget(-ShooterSubsystem.INTAKE_RATE);
+            intakeMotor.setPower(-1);
+            ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE * -0.75);
 
             intakeMotor.setUser(c);
             ShooterSubsystem.getShooter().setUser(c);
