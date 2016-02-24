@@ -2,15 +2,16 @@ package com.explodingbacon.robot.vision;
 
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
+import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Color;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
+import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
-import org.opencv.videoio.Videoio;
 
 import java.util.Arrays;
 
@@ -20,7 +21,7 @@ public class VisionTargeting extends Command {
     private static boolean init = false;
 
     private static double ANGLE_DEADZONE = 0.8;
-    private static double CAMERA_PIXELS_OFFSET = 0; //was -11, then -8
+    private static double CAMERA_PIXELS_OFFSET = 0; //was -11, then -8, now 0 due to not needing this (most likely)
 
     private String imgDir = "/home/lvuser/";
 
@@ -28,11 +29,10 @@ public class VisionTargeting extends Command {
     public void onInit() {
         if (!init) {
 
-            Log.v("VisionTargeting initialized!");
+            Log.v("Vision Targeting initialized!");
             camera = new Camera(0, true);
 
             init = true;
-
         }
     }
 
@@ -40,6 +40,7 @@ public class VisionTargeting extends Command {
     public void onLoop() {
         try {
             if (ShooterSubsystem.isVisionShootQueued()) {
+
                 Log.v("Beginning vision shoot...");
                 boolean controllingShooter = false;
                 if (ShooterSubsystem.shooterPID.getTarget() == 0) {
@@ -47,7 +48,9 @@ public class VisionTargeting extends Command {
                     ShooterSubsystem.rev(this);
                     controllingShooter = true;
                 }
+
                 boolean usedGoal = true;
+                boolean abort = false;
 
                 double startMillis = System.currentTimeMillis();
                 Image i = camera.getImage();
@@ -65,13 +68,22 @@ public class VisionTargeting extends Command {
 
                 save(i, "image_start");
 
+                if (isDriverAborting()) {
+                    abort = true;
+                    goal = null;
+                }
+
                 if (goal != null) {
                     //Log.v("Goal detected.");
                     double goalMid = goal.getMiddleX();
                     double degrees = Utils.getDegreesToTurn(goalMid, target);
                     Log.v(degrees + " degrees away from the goal");
                     if (Math.abs(degrees) > ANGLE_DEADZONE) {
-                        DriveSubsystem.gyroTurn(degrees, 5); //TODO: Tweak how long we should wait before giving up on the gyro turn
+                        if (!DriveSubsystem.gyroTurn(degrees, 5)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
+                            Log.v("Gyro turn timeout reached. Shoot aborting.");
+                            abort = true;
+                        }
+                        DriveSubsystem.setDriverControlled(false);
                         /*
                         Image end = camera.getImage();
                         Contour endGoal = findGoal(end, target);
@@ -82,34 +94,54 @@ public class VisionTargeting extends Command {
                         Log.v("Already lined up with the goal, not moving.");
                     }
                 } else {
-                    Log.v("Goal not detected!");
+                    if (!abort) Log.v("Goal not detected!");
                     usedGoal = false;
                 }
-                if (!ShooterSubsystem.shooterPID.isDone()) {
-                    Log.v("Waiting to shoot until the shooter is up to speed.");
-                    ShooterSubsystem.shooterPID.waitUntilDone();
-                }
-                Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds");
-                ShooterSubsystem.getIndexer().setUser(this);
-                ShooterSubsystem.setIndexerRaw(1);
-                Thread.sleep(2000);
-                ShooterSubsystem.setShouldVisionShoot(false);
 
-                ShooterSubsystem.getIndexer().setUser(null);
-                if (controllingShooter) {
-                    ShooterSubsystem.stopRev(this);
-                    ShooterSubsystem.getShooter().setUser(null);
+                if (isDriverAborting()) {
+                    abort = true;
                 }
-                if (!usedGoal) {
-                    Log.v("Shot a ball blindly due to not being able to see a goal!");
+
+                if (!abort) {
+                    if (!ShooterSubsystem.shooterPID.isDone()) {
+                        Log.v("Waiting to shoot until the shooter is up to speed.");
+                        ShooterSubsystem.shooterPID.waitUntilDone();
+                    }
+                    Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds.");
+                    ShooterSubsystem.getIndexer().setUser(this); //Forcibly take control of the indexer
+                    ShooterSubsystem.setIndexerRaw(1);
+                    Thread.sleep(2000);
+                }
+
+                ShooterSubsystem.setShouldVisionShoot(false);
+                ShooterSubsystem.getIndexer().setUser(null);
+                if (controllingShooter) ShooterSubsystem.stopRev(this);
+                if (!abort) {
+                    if (usedGoal) {
+                        Log.v("Shot a boulder using Vision Targeting.");
+                    } else {
+                        Log.v("Shot a boulder without Vision Targeting due to not being able to see a goal!");
+                    }
                 } else {
-                    Log.v("Shot a ball via VisionTargeting!");
+                    Log.v("Vision shoot aborted.");
                 }
             }
         } catch (Exception e) {
             Log.e("VisionTargeting exception!");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Checks if the driver is trying to abort the vision shot.
+     * @return If the driver is trying to abort the vision shot.
+     */
+    public boolean isDriverAborting() {
+        boolean aborting = !OI.shoot.getAny() && Robot.getMode() != Mode.AUTONOMOUS;
+        if (aborting) {
+            Log.d("Driver is aborting the vision shot!");
+        }
+        return aborting;
     }
 
     @Override

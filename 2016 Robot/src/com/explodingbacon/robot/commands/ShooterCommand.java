@@ -9,10 +9,8 @@ import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 
 public class ShooterCommand extends Command {
 
-    public ShooterCommand() {
-
-    }
     private boolean loggedSpeed = false;
+    private boolean shooterHeldSinceVisionShot = false; //TODO: dear god, get a better name for this
 
     @Override
     public void onInit() {}
@@ -25,9 +23,16 @@ public class ShooterCommand extends Command {
             ShooterSubsystem.stopRev(this);
         }
 
-        if (OI.shoot.getAny() || OI.shootNoVision.get() && Robot.getEnabled()) {
+        boolean shoot = OI.shoot.getAll();
+
+        if (!shoot) shooterHeldSinceVisionShot = false;
+
+        if (shoot || OI.shootNoVision.get() && Robot.getEnabled()) {
             if (Vision.isInit() && !OI.shootNoVision.get()) {
-                if (!ShooterSubsystem.isVisionShootQueued()) ShooterSubsystem.queueVisionShoot();
+                if (!ShooterSubsystem.isVisionShootQueued() && !shooterHeldSinceVisionShot) {
+                    ShooterSubsystem.queueVisionShoot();
+                    shooterHeldSinceVisionShot = true;
+                }
             } else {
                 if (ShooterSubsystem.getIndexer().isUseableBy(this)) {
                     ShooterSubsystem.setIndexerRaw(1);
@@ -41,6 +46,12 @@ public class ShooterCommand extends Command {
         } else {
             if (ShooterSubsystem.getIndexer().isUseableBy(this)) ShooterSubsystem.getIndexer().setUser(null);
             loggedSpeed = false;
+        }
+
+        if (ShooterSubsystem.hasBall()) {
+            ShooterSubsystem.getLight().enable();
+        } else {
+            ShooterSubsystem.getLight().stop();
         }
     }
 

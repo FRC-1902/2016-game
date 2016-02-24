@@ -21,24 +21,23 @@ public class ShooterSubsystem extends Subsystem {
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
 
     private static Light light = new Light(new Solenoid(Map.LIGHT));
-    //private static Motor spotlight = new Motor(Relay.class, Map.SPOTLIGHT);
 
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
 
     public static final int INTAKE_RATE = -25000;
 
+    public static final int GOOD_BALL_SHOOT_RATE = 36500;
+
+    //Random rates we were using/tuning at some point, keeping in case we ever need them
     //public static final int BAD_BALL_SHOOT_RATE = 50000;
     //public static final int MEDIUM_BALL_SHOOT_RATE = 50000;
-    public static final int GOOD_BALL_SHOOT_RATE = 36500; //38000 previously
     //public static final int BAD_BALL_LOW_RATE = 15000;
     //public static final int GOOD_BALL_LOW_RATE = 12500;
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
     private static boolean shouldShoot = false;
-
-    private static double currentBallWatts = -1;
 
     public ShooterSubsystem() {
         super();
@@ -55,9 +54,18 @@ public class ShooterSubsystem extends Subsystem {
         shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
         shooterPID.setFinishedTolerance(1500);
         shooterPID.setInputInverted(false); //Changed from true
-        shooterPID.enable();
 
         shooter.onNoUser(() -> shooterPID.setTarget(0));
+    }
+
+    @Override
+    public void enabledInit() {
+        ShooterSubsystem.shooterPID.enable();
+    }
+
+    @Override
+    public void disabledInit() {
+        ShooterSubsystem.shooterPID.setTarget(0);
     }
 
     /**
@@ -156,23 +164,6 @@ public class ShooterSubsystem extends Subsystem {
     public static boolean hasBall() {
         return hasBall.get();
     }
-
-    /**
-     * Gets the watts needed to move the current ball.
-     * @return The watts needed to move the current ball.
-     */
-    public static double getBallWatts() {
-        return currentBallWatts;
-    }
-
-    /**
-     * Saves the watts needed to move the current ball, which is later used for shooting that ball.
-     * @param w The watts needed to move the current ball, which is later used for shooting that ball.
-     */
-    public static void setBallWatts(double w) {
-        currentBallWatts = w;
-    }
-
 
     /**
      * Sets the speed of the Shooter indexer. The indexer is used to move the ball into the Shooter wheels.

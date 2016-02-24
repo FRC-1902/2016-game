@@ -69,6 +69,14 @@ public class DriveSubsystem extends Subsystem {
 
     }
 
+    @Override
+    public void enabledInit() {
+        shift(false);
+    }
+
+    @Override
+    public void disabledInit() {}
+
     /*
     public static String getField(Object o, String field) {
         try {
@@ -203,15 +211,22 @@ public class DriveSubsystem extends Subsystem {
         DriveSubsystem.setDriverControlled(true);
     }
 
-    public static void gyroTurn(double degrees) {
-        gyroTurn(degrees, -1);
+    /**
+     * Makes the robot turn a certain amount of degrees.
+     * @param degrees How many degrees to turn.
+     * @return True.
+     */
+    public static boolean gyroTurn(double degrees) {
+        return gyroTurn(degrees, -1);
     }
 
     /**
      * Makes the Robot turn a certain amount of degrees.
      * @param degrees How many degrees to turn.
+     * @param timeout How long to wait before giving up on the gyro turn.
+     * @return True is the turn was successful, false if the timeout was reached.
      */
-    public static void gyroTurn(double degrees, double timeout) {
+    public static boolean gyroTurn(double degrees, double timeout) {
         DriveSubsystem.setDriverControlled(false);
         DriveSubsystem.shift(false);
         adx.reset();
@@ -223,12 +238,15 @@ public class DriveSubsystem extends Subsystem {
         gLeft.enable();
         gRight.enable();
 
+        boolean result;
+
         //Wait until both of the PIDs are done
         if (timeout == -1) {
             gLeft.waitUntilDone();
             gRight.waitUntilDone();
+            result = true;
         } else {
-            gLeft.waitUntilDone(timeout); //TODO: Both PIDs should finish at the same time, so this should be safe.
+            result = gLeft.waitUntilDone(timeout); //TODO: Both PIDs should finish at the same time, so this should be safe.
         }
 
         Log.d("Done turning " + degrees + " degrees");
@@ -236,6 +254,8 @@ public class DriveSubsystem extends Subsystem {
         gLeft.disable();
         gRight.disable();
         DriveSubsystem.setDriverControlled(true);
+
+        return result;
     }
 
     /**

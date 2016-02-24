@@ -28,12 +28,6 @@ public class IntakeCommand extends Command {
             IntakeSubsystem.stopIntake(this);
         }
 
-        if (ShooterSubsystem.hasBall()) {
-            ShooterSubsystem.getLight().enable();
-        } else {
-            ShooterSubsystem.getLight().stop();
-        }
-
         boolean pressed = OI.intakeRetract.getAny();
 
         if(pressed && !wasPressed) {

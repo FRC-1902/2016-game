@@ -50,6 +50,12 @@ public class ClimberSubsystem extends Subsystem {
         position.set(false);
     }
 
+    @Override
+    public void enabledInit() {}
+
+    @Override
+    public void disabledInit() {}
+
     /**
      * Sets the position of the Climber.
      */

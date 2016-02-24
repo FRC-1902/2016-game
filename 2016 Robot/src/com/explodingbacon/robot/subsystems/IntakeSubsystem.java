@@ -3,8 +3,10 @@ package com.explodingbacon.robot.subsystems;
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Command;
+import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
+import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Arrays;
 import java.util.List;
@@ -18,10 +20,16 @@ public class IntakeSubsystem extends Subsystem {
 
     public IntakeSubsystem() {
         super();
-        intakeOut.set(true);
 
         intakeMotor.setStopOnNoUser();
     }
+
+    @Override
+    public void enabledInit() {
+        setPosition(true);
+    }
+
+    public void disabledInit() {}
 
     /**
      * Starts intaking.
