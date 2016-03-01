@@ -44,12 +44,17 @@ public class DriveSubsystem extends Subsystem {
     public static final double GYRO_STRAIGHT_TOLERANCE = 10;
     public static final double ENCODER_ANGLE_TOLERANCE = 1500;
 
+    public static final double LOW_PASS_SMOOTH = 30;
+
     public static final double LOW_GEAR_SHIFT_RATE = 1000; //TODO: Change this and/or use this
 
     public DriveSubsystem() {
         super();
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
+
+        leftMotors.setFiltered(LOW_PASS_SMOOTH);
+        rightMotors.setFiltered(LOW_PASS_SMOOTH);
 
         gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
         gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
@@ -149,6 +154,13 @@ public class DriveSubsystem extends Subsystem {
      */
     public static void setDriverControlled(boolean b) {
         driverControlled = b;
+        if (b) {
+            leftMotors.setFiltered(LOW_PASS_SMOOTH);
+            rightMotors.setFiltered(LOW_PASS_SMOOTH);
+        } else {
+            leftMotors.setFiltered(0);
+            rightMotors.setFiltered(0);
+        }
     }
 
     /**
