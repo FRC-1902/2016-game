@@ -10,7 +10,7 @@ import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 public class ShooterCommand extends Command {
 
     private boolean loggedSpeed = false;
-    private boolean shooterHeldSinceVisionShot = false; //TODO: dear god, get a better name for this
+    private boolean shooterHeldSinceVisionShot = false; //TODO: get a better name for this
 
     @Override
     public void onInit() {}
@@ -27,7 +27,7 @@ public class ShooterCommand extends Command {
 
         if (!shoot) shooterHeldSinceVisionShot = false;
 
-        if (shoot || OI.shootNoVision.get() && Robot.getEnabled()) {
+        if (shoot || OI.shootNoVision.get() && Robot.isEnabled()) {
             if (Vision.isInit() && !OI.shootNoVision.get()) {
                 if (!ShooterSubsystem.isVisionShootQueued() && !shooterHeldSinceVisionShot) {
                     ShooterSubsystem.queueVisionShoot();
@@ -35,8 +35,11 @@ public class ShooterCommand extends Command {
                 }
             } else {
                 if (ShooterSubsystem.getIndexer().isUseableBy(this)) {
+                    ShooterSubsystem.shootUsingIndexer(this);
+                    /*
                     ShooterSubsystem.setIndexerRaw(1);
                     ShooterSubsystem.getIndexer().setUser(this);
+                    */
                 }
             }
             if (!loggedSpeed) {
