@@ -6,7 +6,6 @@ import com.explodingbacon.bcnlib.controllers.Direction;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 

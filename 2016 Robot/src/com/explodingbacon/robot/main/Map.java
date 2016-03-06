@@ -15,8 +15,8 @@ public class Map {
 
     public static final int INTAKE_MOTOR = 15;
 
-    public static final int CLIMBER_MOTOR_1 = 13;
-    public static final int CLIMBER_MOTOR_2 = 14; //has encoder
+    public static final int CLIMBER_CABLE_WINCH_A = 13;
+    public static final int CLIMBER_CABLE_WINCH_B = 14; //has encoder
 
     public static final int SHOOTER_INDEXER = 12;
 
@@ -37,10 +37,10 @@ public class Map {
     public static final int INTAKE_SOLENOID_A = 4;
     public static final int INTAKE_SOLENOID_B = 1;
 
-    public static final int CLIMBER_SOLENOID_A = 6;
-    public static final int CLIMBER_SOLENOID_B = 3;
+    public static final int MANTIS_1_A = 6;
+    public static final int MANTIS_1_B = 3;
 
-    public static final int CLIMBER_LATCH = 7;
+    public static final int MANTIS_2 = 7;
 
     //SENSORS
 

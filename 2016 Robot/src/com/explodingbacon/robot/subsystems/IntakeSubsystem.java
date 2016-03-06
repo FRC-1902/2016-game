@@ -3,12 +3,11 @@ package com.explodingbacon.robot.subsystems;
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Command;
-import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
-import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.CANTalon;
-import java.util.Arrays;
+
+import java.util.Collections;
 import java.util.List;
 
 public class IntakeSubsystem extends Subsystem {
@@ -67,7 +66,8 @@ public class IntakeSubsystem extends Subsystem {
 
     /**
      * Changes the status of the Intake's use of intake-related Motors.
-     * @param c
+     *
+     * @param c The Command that will be using the intake-related Motors.
      */
     private static void setUsingAll(Command c) {
         intakeMotor.setUser(c);
@@ -77,6 +77,7 @@ public class IntakeSubsystem extends Subsystem {
 
     /**
      * Sets the position of the Intake.
+     *
      * @param b The position of the Intake.
      */
     public static void setPosition(boolean b) {
@@ -85,6 +86,7 @@ public class IntakeSubsystem extends Subsystem {
 
     /**
      * Gets the intake Motor.
+     *
      * @return The intake Motor.
      */
     public static Motor getIntake() {
@@ -93,6 +95,7 @@ public class IntakeSubsystem extends Subsystem {
 
     /**
      * Sets the speed of the Intake.
+     *
      * @param d The speed of the Intake.
      */
     public static void setRawSpeed(double d) {
@@ -107,6 +110,6 @@ public class IntakeSubsystem extends Subsystem {
 
     @Override
     public List<Motor> getAllMotors() {
-        return Arrays.asList(intakeMotor);
+        return Collections.singletonList(intakeMotor);
     }
 }

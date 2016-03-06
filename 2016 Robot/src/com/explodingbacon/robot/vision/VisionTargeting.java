@@ -13,7 +13,7 @@ import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.DriveSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class VisionTargeting extends Command {
 
@@ -31,9 +31,11 @@ public class VisionTargeting extends Command {
 
             Log.v("Vision Targeting initialized!");
             camera = new Camera(0, true);
+            camera.release();
 
             init = true;
         }
+        camera.open();
     }
 
     @Override
@@ -108,13 +110,16 @@ public class VisionTargeting extends Command {
                         ShooterSubsystem.shooterPID.waitUntilDone();
                     }
                     Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds.");
+                    ShooterSubsystem.shootUsingIndexer(this);
+                    /*
                     ShooterSubsystem.getIndexer().setUser(this); //Forcibly take control of the indexer
                     ShooterSubsystem.setIndexerRaw(1);
                     Thread.sleep(2000);
+                    */
                 }
 
                 ShooterSubsystem.setShouldVisionShoot(false);
-                ShooterSubsystem.getIndexer().setUser(null);
+                //ShooterSubsystem.getIndexer().setUser(null);
                 if (controllingShooter) ShooterSubsystem.stopRev(this);
                 if (!abort) {
                     if (usedGoal) {
@@ -134,6 +139,7 @@ public class VisionTargeting extends Command {
 
     /**
      * Checks if the driver is trying to abort the vision shot.
+     *
      * @return If the driver is trying to abort the vision shot.
      */
     public boolean isDriverAborting() {
@@ -149,7 +155,7 @@ public class VisionTargeting extends Command {
 
     @Override
     public boolean isFinished() {
-        return !Robot.getEnabled();
+        return !Robot.isEnabled();
     }
 
     /**
@@ -171,7 +177,7 @@ public class VisionTargeting extends Command {
      */
     private void drawIndicators(Image i, double targetPos, Contour goal) {
         if (goal != null) {
-            i.drawContours(Arrays.asList(goal), Color.RED); //Red outline of the goal
+            i.drawContours(Collections.singletonList(goal), Color.RED); //Red outline of the goal
             i.drawRectangle(goal.getBoundingBox(), Color.TEAL); //Blue rectangle of goal bounding box
             i.drawLine(Utils.round(goal.getMiddleX()), Color.GREEN); //Green line of middle of goal
         }
@@ -219,7 +225,7 @@ public class VisionTargeting extends Command {
         goal = goal != null ? goal.approxEdges(0.01) : null;
 
         if (goal != null) {
-            Log.d("Goal width is " + goal.getWidth() + ", height is " + goal.getHeight());
+            Log.d("Goal's width is " + goal.getWidth() + ", height is " + goal.getHeight());
         }
 
         return goal;

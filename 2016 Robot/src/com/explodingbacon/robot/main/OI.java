@@ -19,15 +19,12 @@ public class OI extends AbstractOI {
     //Manipulator buttons
 
     public static ButtonGroup intakeRetract;
-    public static Button intakeMotorIn;
-    public static Button intakeMotorOut;
+    public static Button intakeMotorIn, intakeMotorOut;
 
-    public static Button shooterBadRev;
-    public static Button shooterGoodRev;
+    public static Button shooterRev;
     public static ButtonGroup shooterRevButtons;
 
-    public static Button climberDeploy;
-    public static Button climberRetract;
+    public static Button hookMode, climb;
 
     public static Button testingBall;
 
@@ -58,12 +55,11 @@ public class OI extends AbstractOI {
         intakeMotorIn = manip.x;
         intakeMotorOut = manip.y;
 
-        shooterBadRev = manip.leftTrigger;
-        shooterGoodRev = manip.rightTrigger;
+        shooterRev = manip.triggers;
         shooterRevButtons = manip.triggers;
 
-        climberDeploy = manip.start; //HAS TO BE LEFT BUTTON
-        climberRetract = manip.select; //HAS TO BE RIGHT BUTTON
+        hookMode = manip.start; //TODO: check if this is the left
+        climb = manip.select;
 
         testingBall = new FakeButton();
     }

@@ -94,6 +94,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Gets the MotorGroup for the gLeft drivetrain motors.
+     *
      * @return The MotorGroup for the gLeft drivetrain motors.
      */
     public static MotorGroup getLeft() {
@@ -102,6 +103,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Gets the MotorGroup for the right drivetrain motors.
+     *
      * @return The MotorGroup for the right drivetrain motors.
      */
     public static MotorGroup getRight() {
@@ -109,7 +111,8 @@ public class DriveSubsystem extends Subsystem {
     }
 
     /**
-     * Gets the gLeft drive Encoder.
+     * Gets the left drive Encoder.
+     *
      * @return The gLeft drive Encoder.
      */
     public static AbstractEncoder getLeftEncoder() {
@@ -118,6 +121,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Gets the right drive Encoder.
+     *
      * @return The right drive Encoder.
      */
     public static AbstractEncoder getRightEncoder() {
@@ -126,6 +130,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Gets the ADXSensor (Gyroscope and Accelerometer)
+     *
      * @return The ADXSensor.
      */
     public static ADXSensor getADX() {
@@ -134,6 +139,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Shifts into either high gear or low gear.
+     *
      * @param high If the robot should shift into high gear.
      */
     public static void shift(boolean high) {
@@ -142,6 +148,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Checks if the DriveSubsystem is currently controllable by the driver.
+     *
      * @return If the DriveSubsystem is currently controllable by the driver.
      */
     public static boolean isDriverControlled() {
@@ -150,6 +157,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Sets if the DriveSubsystem can be controlled by the driver.
+     *
      * @param b If the DriveSubsystem can be controlled by the driver.
      */
     public static void setDriverControlled(boolean b) {
@@ -165,6 +173,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Tank drive. Typically a driving style that uses two joysticks.
+     *
      * @param l The speed of the gLeft motors.
      * @param r The speed of the right motors.
      */
@@ -175,6 +184,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Arcade drive. Typically a driving style that uses one Joystick.
+     *
      * @param x The X axis of the Joystick.
      * @param y The Y axis of the Joystick.
      */
@@ -184,6 +194,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Makes the Robot drive a certain amount of inches.
+     *
      * @param inches How many inches to drive.
      */
     public static void inchDrive(double inches) {
@@ -192,6 +203,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Makes the Robot drive a certain amount of encoder clicks.
+     *
      * @param distance How many encoder clicks to drive.
      */
     public static void encoderDrive(double distance) {
@@ -207,7 +219,7 @@ public class DriveSubsystem extends Subsystem {
         eLeft.enable();
         eRight.enable();
         while (!eLeft.isDone() || !eRight.isDone()) {
-            if(!Robot.getEnabled()) return;
+            if(!Robot.isEnabled()) return;
 
             try {
                 Thread.sleep(25);
@@ -225,6 +237,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Makes the robot turn a certain amount of degrees.
+     *
      * @param degrees How many degrees to turn.
      * @return True.
      */
@@ -234,6 +247,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Makes the Robot turn a certain amount of degrees.
+     *
      * @param degrees How many degrees to turn.
      * @param timeout How long to wait before giving up on the gyro turn.
      * @return True is the turn was successful, false if the timeout was reached.
@@ -272,6 +286,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Converts inches to drive encoder clicks.
+     *
      * @param inches The inches to be converted.
      * @return The encoder clicks equivalent to the inches provided.
      */
@@ -284,6 +299,7 @@ public class DriveSubsystem extends Subsystem {
 
     /**
      * Makes the robot shift into low gear if it is encountering resistance to the point that it cannot move.
+     *
      * It will shift back into high gear once it reaches full speed while in low gear.
      */
     public static void shiftIfResistance() {
@@ -300,6 +316,11 @@ public class DriveSubsystem extends Subsystem {
         previousRate = rate;
     }
 
+    /**
+     * Gets the highest current rate of rotation on the drive train.
+     *
+     * @return The highest current rate of rotation on the drive train.
+     */
     private static double getHighestAbsoluteRate() {
         return Math.max(Math.abs(leftEncoder.getRate()), Math.abs(rightEncoder.getRate()));
     }

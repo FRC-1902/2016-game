@@ -2,7 +2,6 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.*;
 import com.explodingbacon.bcnlib.framework.Command;
-import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
@@ -11,7 +10,6 @@ import com.explodingbacon.bcnlib.sensors.MotorEncoder;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
 import edu.wpi.first.wpilibj.CANTalon;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,7 +43,7 @@ public class ShooterSubsystem extends Subsystem {
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
 
-        shooter.setFiltered(100); //TODO: Remove?
+        shooter.setFiltered(100); //TODO: This code never actually did anything due to a bug with MotorGroups. If the shooter is being weird, REMEMBER THIS LINE IS HERE
 
         encoder = shooter.getMotors().get(1).getEncoder();
         encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
@@ -104,6 +102,7 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Calculates the rate needed to shoot the current ball.
+     *
      * @return The rate needed to shoot the current ball.
      */
     public static double calculateRate() {
@@ -138,12 +137,14 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Checks if the Shooter has been told to shoot.
+     *
      * @return If the Shooter has been told to shoot.
      */
     public static boolean isVisionShootQueued() { return shouldShoot; }
 
     /**
      * Sets if the Shooter should shoot the boulder.
+     *
      * @param b If the Shooter should shoot the boulder.
      */
     public static void setShouldVisionShoot(boolean b) { shouldShoot = b; }
@@ -151,6 +152,7 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Sets the speed of the Shooter.
+     *
      * @param d The speed of the Shooter.
      */
     public static void setShooterRaw(double d) {
@@ -159,6 +161,7 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Checks if the Shooter has a ball in it.
+     *
      * @return If the Shooter has a ball in it.
      */
     public static boolean hasBall() {
@@ -166,7 +169,24 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     /**
+     * Uses the indexer to push the ball into the shooter wheels, causing the ball to be shot.
+     *
+     * @param c The Command that is doing this action.
+     */
+    public static void shootUsingIndexer(Command c) {
+        if (indexer.claim(c)) {
+            setIndexerRaw(1);
+            try {
+                Thread.sleep(2000);
+            } catch (Exception e) {
+            }
+            indexer.setUser(null);
+        }
+    }
+
+    /**
      * Sets the speed of the Shooter indexer. The indexer is used to move the ball into the Shooter wheels.
+     *
      * @param d The speed of the Shooter indexer.
      */
     public static void setIndexerRaw(double d) {
@@ -175,6 +195,7 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Gets the MotorGroup for the shooter Motors.
+     *
      * @return The MotorGroup for the shooter Motors.
      */
     public static MotorGroup getShooter() {
@@ -183,6 +204,7 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Gets the indexer Motor.
+     *
      * @return The indexer Motor.
      */
     public static Motor getIndexer() {
@@ -191,6 +213,7 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Gets the Encoder on the Shooter.
+     *
      * @return Yhe Encoder on the Shooter.
      */
     public static MotorEncoder getEncoder() {
@@ -199,6 +222,7 @@ public class ShooterSubsystem extends Subsystem {
 
     /**
      * Gets the indicator light.
+     *
      * @return The indicator light.
      */
     public static Light getLight() {

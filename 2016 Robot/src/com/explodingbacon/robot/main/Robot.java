@@ -32,6 +32,9 @@ import com.explodingbacon.robot.subsystems.IntakeSubsystem;
 import com.explodingbacon.robot.subsystems.ShooterSubsystem;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends RobotCore {
 
@@ -40,6 +43,7 @@ public class Robot extends RobotCore {
     public static ShooterSubsystem shooterSubsystem;
     public static ClimberSubsystem climberSubsystem;
     public static PDP pdp = new PDP();
+    public static SendableChooser autoChooser;
     //public static DataLogger logger = new DataLogger();
 
     public OI oi;
@@ -66,6 +70,13 @@ public class Robot extends RobotCore {
 
         pdp.setLoggingTripping(false);
 
+        autoChooser = new SendableChooser();
+        autoChooser.initTable(NetworkTable.getTable("AutoTable"));
+        autoChooser.addDefault("One Boulder (22 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER);
+        autoChooser.addObject("Two Boulder (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER);
+        autoChooser.addObject("Nothing (0 Points, Anywhere)", AutonomousCommand.Type.NOTHING);
+        SmartDashboard.putData("Autonomous Chooser", autoChooser);
+
         Log.i("Battering Ham initialized!");
     }
 
@@ -88,7 +99,6 @@ public class Robot extends RobotCore {
         initTeleopCommands();
 
         ShooterSubsystem.getLight().enable();
-        ClimberSubsystem.setLatches(true);
     }
 
     @Override
