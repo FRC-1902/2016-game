@@ -34,7 +34,7 @@ public class ShooterCommand extends Command {
                     shooterHeldSinceVisionShot = true;
                 }
             } else {
-                if (ShooterSubsystem.getIndexer().isUseableBy(this)) {
+                if (ShooterSubsystem.getIndexer().isUsableBy(this)) {
                     ShooterSubsystem.shootUsingIndexer(this);
                     /*
                     ShooterSubsystem.setIndexerRaw(1);
@@ -47,7 +47,7 @@ public class ShooterCommand extends Command {
                 loggedSpeed = true;
             }
         } else {
-            if (ShooterSubsystem.getIndexer().isUseableBy(this)) ShooterSubsystem.getIndexer().setUser(null);
+            if (ShooterSubsystem.getIndexer().isUsableBy(this)) ShooterSubsystem.getIndexer().setUser(null);
             loggedSpeed = false;
         }
 
