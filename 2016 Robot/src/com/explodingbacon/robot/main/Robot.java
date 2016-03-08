@@ -26,10 +26,7 @@ import com.explodingbacon.bcnlib.framework.RobotCore;
 import com.explodingbacon.bcnlib.sensors.PDP;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
-import com.explodingbacon.robot.subsystems.ClimberSubsystem;
-import com.explodingbacon.robot.subsystems.DriveSubsystem;
-import com.explodingbacon.robot.subsystems.IntakeSubsystem;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.*;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
@@ -41,6 +38,7 @@ public class Robot extends RobotCore {
     public static DriveSubsystem driveSubsystem;
     public static IntakeSubsystem intakeSubsystem;
     public static ShooterSubsystem shooterSubsystem;
+    public static MantisSubsystem mantisSubsystem;
     public static ClimberSubsystem climberSubsystem;
     public static PDP pdp = new PDP();
     public static SendableChooser autoChooser;
@@ -64,6 +62,7 @@ public class Robot extends RobotCore {
         driveSubsystem = new DriveSubsystem();
         intakeSubsystem = new IntakeSubsystem();
         shooterSubsystem = new ShooterSubsystem();
+        mantisSubsystem = new MantisSubsystem();
         climberSubsystem = new ClimberSubsystem();
 
         oi = new OI();
@@ -81,7 +80,7 @@ public class Robot extends RobotCore {
     }
 
     public void initTeleopCommands() {
-        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand(), new ClimberCommand());
+        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand(), new MantisCommand(), new ClimberCommand());
         if (Vision.isInit()) {
             OI.runCommand(new VisionTargeting());
         }
@@ -135,12 +134,13 @@ public class Robot extends RobotCore {
     @Override
     public void autonomousPeriodic() {
         super.autonomousPeriodic();
+        /*
         Log.t("Target: (" + DriveSubsystem.eLeft.getTarget() + ", " + DriveSubsystem.eRight.getTarget() + "); " +
                 "Current Value: (" + Math.round(DriveSubsystem.eLeft.getCurrentSourceValue()*1000)/1000f + ", " +
                                     Math.round(DriveSubsystem.eRight.getCurrentSourceValue()*1000)/1000f + "); " +
                 "Motor Setpoint: (" + DriveSubsystem.eLeft.getMotorPower() + ", " + DriveSubsystem.eRight.getMotorPower() + ")");
 
-
+        */
         //DriveSubsystem.gLeft.log();
     }
 

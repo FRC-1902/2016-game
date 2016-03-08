@@ -136,16 +136,16 @@ public class ShooterSubsystem extends Subsystem {
     }
 
     /**
-     * Checks if the Shooter has been told to shoot.
+     * Checks if the Shooter has been told to shoot using Vision Tracking.
      *
-     * @return If the Shooter has been told to shoot.
+     * @return If the Shooter has been told to shoot using Vision Tracking.
      */
     public static boolean isVisionShootQueued() { return shouldShoot; }
 
     /**
-     * Sets if the Shooter should shoot the boulder.
+     * Sets if the Shooter should shoot the boulder using Vision Tracking.
      *
-     * @param b If the Shooter should shoot the boulder.
+     * @param b If the Shooter should shoot the boulder using Vision Tracking.
      */
     public static void setShouldVisionShoot(boolean b) { shouldShoot = b; }
 

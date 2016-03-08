@@ -42,6 +42,8 @@ public class Map {
 
     public static final int MANTIS_2 = 7;
 
+    public static final int CLIMBER_DEPLOY = 8;
+
     //SENSORS
 
     public static final int RIGHT_DRIVE_ENCODER_A = 0;
@@ -51,9 +53,4 @@ public class Map {
     public static final int LEFT_DRIVE_ENCODER_B = 2;
 
     public static final int SHOOTER_BALL_TOUCH = 4;
-
-    public static final int CLIMBER_DOWN_TOUCH = 5;
-
-    public static final int CLIMBER_SWITCH_RETRACTED = 6;
-    public static final int CLIMBER_SWITCH_DEPLOYED = 7;
 }

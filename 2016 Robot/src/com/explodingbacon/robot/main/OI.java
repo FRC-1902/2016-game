@@ -24,7 +24,7 @@ public class OI extends AbstractOI {
     public static Button shooterRev;
     public static ButtonGroup shooterRevButtons;
 
-    public static Button hookMode, climb;
+    public static Button deployClimber, climb;
 
     public static Button testingBall;
 
@@ -58,7 +58,7 @@ public class OI extends AbstractOI {
         shooterRev = manip.triggers;
         shooterRevButtons = manip.triggers;
 
-        hookMode = manip.start; //TODO: check if this is the left
+        deployClimber = manip.start; //TODO: check if this is the left
         climb = manip.select;
 
         testingBall = new FakeButton();
