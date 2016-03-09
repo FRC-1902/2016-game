@@ -72,7 +72,8 @@ public class Robot extends RobotCore {
         autoChooser = new SendableChooser();
         autoChooser.initTable(NetworkTable.getTable("AutoTable"));
         autoChooser.addDefault("One Boulder (22 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER);
-        autoChooser.addObject("Two Boulder (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER);
+        autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
+        //autoChooser.addObject("Two Boulder Neutral (30 Points, Neutral Zone facing defense)", AutonomousCommand.Type.TWO_BOULDER_NEUTRAL);
         autoChooser.addObject("Nothing (0 Points, Anywhere)", AutonomousCommand.Type.NOTHING);
         SmartDashboard.putData("Autonomous Chooser", autoChooser);
 

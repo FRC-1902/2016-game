@@ -23,7 +23,9 @@ public class VisionTargeting extends Command {
     private static double ANGLE_DEADZONE = 0.8;
     private static double CAMERA_PIXELS_OFFSET = 0; //was -11, then -8, now 0 due to not needing this (most likely)
 
-    private String imgDir = "/home/lvuser/";
+    private static Image i;
+
+    private static final String imgDir = "/home/lvuser/";
 
     @Override
     public void onInit() {
@@ -32,6 +34,9 @@ public class VisionTargeting extends Command {
             Log.v("Vision Targeting initialized!");
             camera = new Camera(0, true);
             camera.release();
+
+            i = new Image();
+            camera.getImage(i);
 
             init = true;
         }
@@ -55,10 +60,10 @@ public class VisionTargeting extends Command {
                 boolean abort = false;
 
                 double startMillis = System.currentTimeMillis();
-                Image i = camera.getImage();
+                camera.getImage(i); //Update our current image
                 double imageGetMS = System.currentTimeMillis() - startMillis;
 
-                //Log.v("Took " + imageGetMS + "ms to get image.");
+                Log.v("Took " + imageGetMS + "ms to get image.");
 
                 double target = (i.getWidth() / 2) + CAMERA_PIXELS_OFFSET;
 
@@ -66,9 +71,11 @@ public class VisionTargeting extends Command {
 
                 //Log.d("Starting difference: " + (goal.getMiddleX() - target));
 
-                drawIndicators(i, target, goal);
+                Image indicators = i.copy();
 
-                save(i, "image_start");
+                drawIndicators(indicators, target, goal);
+
+                save(indicators, "image_start");
 
                 if (isDriverAborting()) {
                     abort = true;
@@ -175,7 +182,7 @@ public class VisionTargeting extends Command {
      * @param targetPos The X coordinate of the position the target should wind up in.
      * @param goal The goal that is being targeted.
      */
-    private void drawIndicators(Image i, double targetPos, Contour goal) {
+    private static void drawIndicators(Image i, double targetPos, Contour goal) {
         if (goal != null) {
             i.drawContours(Collections.singletonList(goal), Color.RED); //Red outline of the goal
             i.drawRectangle(goal.getBoundingBox(), Color.TEAL); //Blue rectangle of goal bounding box
@@ -185,12 +192,27 @@ public class VisionTargeting extends Command {
     }
 
     /**
+     * Fake processes an Image and generates the indicator graphics on it. To be used for checking if certain images are
+     * being processed properly.
+     *
+     * @param imageName The name (and possibly directory) of the image.
+     * @param normalDir If the image is saved in the normal image directory.
+     */
+    public static void fakeProcess(String imageName, boolean normalDir) {
+        Image i = Image.fromFile((normalDir ? imgDir : "") + imageName);
+        double target = (i.getWidth() / 2) + CAMERA_PIXELS_OFFSET;
+        Contour goal = findGoal(i, target);
+        drawIndicators(i, target, goal);
+        i.saveAs(imgDir + imageName + "_processed.png");
+    }
+
+    /**
      * Creates a filtered version of the Image. The filter is designed for easily identifying goals.
      *
      * @param i The Image to filter.
      * @return A filtered version of the Image.
      */
-    private Image filter(Image i) {
+    private static Image filter(Image i) {
         return i.colorRange(new Color(230, 230, 230), new Color(255, 255, 255));
     }
 
@@ -201,7 +223,7 @@ public class VisionTargeting extends Command {
      * @param target Where we'll want to be moving the goal to.
      * @return The Contour for the retroreflective tape around the Castle's high goal.
      */
-    private Contour findGoal(Image i, double target) {
+    private static Contour findGoal(Image i, double target) {
         Image filtered = filter(i);
         Contour goal = null;
         for (Contour c : filtered.getContours()) {
