@@ -32,14 +32,14 @@ public class AutonomousCommand extends Command {
         try {
             type = (Type) Robot.autoChooser.getSelected();
             if (type == Type.ONE_BOULDER) { //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, stop touching low bar
-                //double originAngle = DriveSubsystem.getADX().getAngle();
-                ShooterSubsystem.rev(this);
                 DriveSubsystem.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+                ShooterSubsystem.rev(this);
                 DriveSubsystem.gyroTurn(COURTYARD_TO_CASTLE_ANGLE);
                 ShooterSubsystem.queueVisionShoot();
                 /*
                 Utils.waitFor(() -> !ShooterSubsystem.isVisionShootQueued());
-                double angleDiff = DriveSubsystem.getADX().getAngle() - originAngle; //TODO: check if sign is wrong
+                ShooterSubsystem.stopRev(this);
+                double angleDiff = DriveSubsystem.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE; //TODO: check if sign is wrong
                 DriveSubsystem.gyroTurn(angleDiff + 180);
                 DriveSubsystem.inchDrive(-80); //TODO: tune to get robot touching a defense
                 */
@@ -52,11 +52,12 @@ public class AutonomousCommand extends Command {
                 IntakeSubsystem.intake(this);
                 DriveSubsystem.inchDrive(SPYBOX_TO_SECOND_BALL_DISTANCE);
                 DriveSubsystem.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
+                ShooterSubsystem.rev(this);
                 DriveSubsystem.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
                 ShooterSubsystem.queueVisionShoot();
             } else if (type == Type.TWO_BOULDER_NEUTRAL) { //Go through low bar, turn, shoot, turn around and go through low bar, intake ball, go through low bar backwards, turn, shoot
-                ShooterSubsystem.rev(this);
                 DriveSubsystem.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+                ShooterSubsystem.rev(this);
                 DriveSubsystem.gyroTurn(COURTYARD_TO_CASTLE_ANGLE);
                 ShooterSubsystem.queueVisionShoot();
                 Utils.waitFor(() -> !ShooterSubsystem.isVisionShootQueued());
@@ -66,6 +67,7 @@ public class AutonomousCommand extends Command {
                 IntakeSubsystem.intake(this);
                 DriveSubsystem.inchDrive(SHOT_TO_SECOND_BALL_DISTANCE);
                 DriveSubsystem.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
+                ShooterSubsystem.rev(this);
                 DriveSubsystem.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
                 ShooterSubsystem.queueVisionShoot();
 
