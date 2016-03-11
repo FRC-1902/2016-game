@@ -87,7 +87,7 @@ public class ShooterSubsystem extends Subsystem {
      * Stops revving the Shooter.
      */
     public static void stopRev(Command c) {
-        if (shooter.claim(c)) {
+        if (shooter.isUsableBy(c)) {
             //setSpotlight(false);
 
             shooterPID.setTarget(0);

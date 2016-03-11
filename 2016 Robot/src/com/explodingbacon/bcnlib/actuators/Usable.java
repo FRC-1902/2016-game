@@ -9,7 +9,7 @@ import com.explodingbacon.bcnlib.framework.Log;
  * the first Command releases the Usable.
  *
  * @author Ryan Shavell
- * @version 2016.3.9
+ * @version 2016.3.10
  */
 
 public abstract class Usable {
@@ -18,20 +18,31 @@ public abstract class Usable {
     private Runnable onNoUser = null;
 
     /**
+     * Gets the current user of this Usable.
+     *
+     * @return The current user of this Usable.
+     */
+    public Class getUser() {
+        return user;
+    }
+
+    /**
      * Sets the current Command that is using this Usable.
      *
-     * @param c The Command that is using this Motor, or null if no command is using this Motor.
+     * @param c The Command that is using this Usable, or null if no command is using this Usable.
      */
     public void setUser(Command c) {
         if (c != null && !isUsableBy(c)) {
-            Log.w("A Command become the user of a Usable that was being used by a different Command!");
+            Log.w("\"" + c.getClass().getSimpleName() + "\" took control of a Usable that was being used by \"" + user.getSimpleName() + "\"!");
         }
-        user = c.getClass();
-        if (user == null && onNoUser != null) {
+        boolean userWasNull = user == null;
+        user = (c == null ? null : c.getClass());
+        if (user == null && !userWasNull && onNoUser != null) {
             try {
                 onNoUser.run();
+                Log.d("Usable.onNoUser was called!");
             } catch (Exception e) {
-                Log.e("Usable.onNoUser Runnable exception!");
+                Log.e("Usable.onNoUser exception!");
                 e.printStackTrace();
             }
         }

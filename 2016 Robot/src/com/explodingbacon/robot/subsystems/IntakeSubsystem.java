@@ -35,10 +35,10 @@ public class IntakeSubsystem extends Subsystem {
      */
     public static void intake(Command c) {
         if (intakeMotor.isUsableBy(c) && ShooterSubsystem.getIndexer().isUsableBy(c) && ShooterSubsystem.getShooter().isUsableBy(c)) {
+            setUsingAll(c);
             intakeMotor.setPower(1);
             ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
             ShooterSubsystem.setIndexerRaw(-1);
-            setUsingAll(c);
         }
     }
 

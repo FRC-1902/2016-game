@@ -40,17 +40,15 @@ public class DriveSubsystem extends Subsystem {
     public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
 
     public static final double GYRO_PID_TOLERANCE = 0.25;
-    public static final double GYRO_STRAIGHT_TOLERANCE = 10;
     public static final double ENCODER_ANGLE_TOLERANCE = 1500;
-
-    public static final double LOW_PASS_SMOOTH = 30;
-
-    public static final double LOW_GEAR_SHIFT_RATE = 1000; //TODO: Change this and/or use this
 
     public DriveSubsystem() {
         super();
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
+
+        leftMotors.setLoggingChanges(true);
+        rightMotors.setLoggingChanges(true);
 
         gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
         gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
@@ -283,27 +281,6 @@ public class DriveSubsystem extends Subsystem {
         return inches * (9.6 * 1024) / (Math.PI * 9);
     }
 
-    private static double previousRate = 0;
-    private static boolean resistanceShiftedToLow = false;
-
-    /**
-     * Makes the robot shift into low gear if it is encountering resistance to the point that it cannot move.
-     *
-     * It will shift back into high gear once it reaches full speed while in low gear.
-     */
-    public static void shiftIfResistance() {
-        double rate = getHighestAbsoluteRate();
-        if (previousRate > 10) { //TODO: Decide what the "we were moving before" rate is
-            if (rate < 5) { //TODO: Decide what "we are at a standstill" rate is
-                shift(false);
-                resistanceShiftedToLow = true;
-            } else if (resistanceShiftedToLow && rate >= LOW_GEAR_SHIFT_RATE) {
-                shift(true);
-                resistanceShiftedToLow = false;
-            }
-        }
-        previousRate = rate;
-    }
 
     /**
      * Gets the highest current rate of rotation on the drive train.

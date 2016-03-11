@@ -58,8 +58,8 @@ public class Robot extends RobotCore {
         driveSubsystem = new DriveSubsystem();
         intakeSubsystem = new IntakeSubsystem();
         shooterSubsystem = new ShooterSubsystem();
-        mantisSubsystem = new MantisSubsystem();
-        climberSubsystem = new ClimberSubsystem();
+        //mantisSubsystem = new MantisSubsystem();
+        //climberSubsystem = new ClimberSubsystem();
 
         oi = new OI();
 
@@ -77,7 +77,8 @@ public class Robot extends RobotCore {
     }
 
     public void initTeleopCommands() {
-        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand(), new MantisCommand(), new ClimberCommand());
+        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
+        //OI.runCommands(new MantisCommand(), new ClimberCommand());
         if (Vision.isInit()) {
             OI.runCommand(new VisionTargeting());
         }
