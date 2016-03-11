@@ -26,8 +26,8 @@ public class VisionTargeting extends Command {
     private static Image i;
 
     private static final String imgDir = "/home/lvuser/";
-
     private static final boolean REUSE_IMAGES = true;
+    private static final TargetType TARGET_TYPE = TargetType.CLOSEST_TO_MIDDLE;
 
     @Override
     public void onInit() {
@@ -234,14 +234,18 @@ public class VisionTargeting extends Command {
                 if (goal == null) {
                     goal = c;
                 } else {
-                    /*
-                    double cTargetError = Math.abs(c.getMiddleX() - target);
-                    double goalTargetError = Math.abs(goal.getMiddleX() - target);
-                    if (cTargetError < goalTargetError) {
-                        goal = c;
-                    }*/
-                    if (c.getArea() > goal.getArea()) {
-                        goal = c;
+                    if (TARGET_TYPE == TargetType.CLOSEST_TO_MIDDLE) {
+                        double cTargetError = Math.abs(c.getMiddleX() - target);
+                        double goalTargetError = Math.abs(goal.getMiddleX() - target);
+                        if (cTargetError < goalTargetError) {
+                            goal = c;
+                        }
+                    } else if (TARGET_TYPE == TargetType.BIGGEST){
+                        if (c.getArea() > goal.getArea()) {
+                            goal = c;
+                        }
+                    } else {
+                        Log.e("Unsupported TargetType \"" + TARGET_TYPE + "\" selected in VisionTargeting!");
                     }
                 }
             }
@@ -254,5 +258,10 @@ public class VisionTargeting extends Command {
         }
 
         return goal;
+    }
+
+    public enum TargetType {
+        BIGGEST,
+        CLOSEST_TO_MIDDLE
     }
 }
