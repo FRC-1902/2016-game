@@ -6,9 +6,10 @@ import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.utils.Utils;
-import com.explodingbacon.robot.subsystems.DriveSubsystem;
-import com.explodingbacon.robot.subsystems.IntakeSubsystem;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.Drive;
+import com.explodingbacon.robot.subsystems.Intake;
+import com.explodingbacon.robot.subsystems.Shooter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +20,11 @@ public class ShakedownCommand extends Command {
     @Override
     public void onInit() {
         try {
-            shakedownGroup(DriveSubsystem.getLeft(), DriveSubsystem.getLeftEncoder(), 0.5, 1); //Left drive
-            shakedownGroup(DriveSubsystem.getRight(), DriveSubsystem.getRightEncoder(), 0.5, 1); //Right drive
-            shakedownGroup((MotorGroup)new MotorGroup(IntakeSubsystem.getIntake()).setName("Intake"), null, 0.5, 1); //Intake
-            shakedownGroup(ShooterSubsystem.getShooter(), ShooterSubsystem.getEncoder(), 0.5, 1); //Shooter
-            shakedownGroup((MotorGroup)new MotorGroup(ShooterSubsystem.getIndexer()).setName("Indexer"), null, 0.5, 1); //Indexer
+            shakedownGroup(Drive.getLeft(), Drive.getLeftEncoder(), 0.5, 1); //Left drive
+            shakedownGroup(Drive.getRight(), Drive.getRightEncoder(), 0.5, 1); //Right drive
+            shakedownGroup((MotorGroup)new MotorGroup(Intake.getIntake()).setName("Intake"), null, 0.5, 1); //Intake
+            shakedownGroup(Shooter.getShooter(), Shooter.getEncoder(), 0.5, 1); //Shooter
+            shakedownGroup((MotorGroup)new MotorGroup(Shooter.getIndexer()).setName("Indexer"), null, 0.5, 1); //Indexer
             Log.i(report);
         } catch (Exception e) {
             Log.e("ShakedownCommand error!");

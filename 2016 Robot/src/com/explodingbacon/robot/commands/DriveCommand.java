@@ -4,7 +4,7 @@ import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.subsystems.DriveSubsystem;
+import com.explodingbacon.robot.subsystems.Drive;
 
 public class DriveCommand extends Command {
 
@@ -18,8 +18,8 @@ public class DriveCommand extends Command {
 
     public double gyroKP = 1, gyroKI = 1, min = 0.1, max = 1;
 
-    public PIDController left = new PIDController(null, DriveSubsystem.getADX(), gyroKP, gyroKI, 0, min, max);
-    public PIDController right = new PIDController(null, DriveSubsystem.getADX(), gyroKP, gyroKI, 0, min, max).setInputInverted(true);
+    public PIDController left = new PIDController(null, Drive.getADX(), gyroKP, gyroKI, 0, min, max);
+    public PIDController right = new PIDController(null, Drive.getADX(), gyroKP, gyroKI, 0, min, max).setInputInverted(true);
 
     public DriveCommand() {
     }
@@ -29,14 +29,14 @@ public class DriveCommand extends Command {
 
     @Override
     public void onLoop() {
-        if (DriveSubsystem.isDriverControlled()) {
+        if (Drive.isDriverControlled()) {
             double leftTurn = 0, rightTurn = 0;
             /*
             if (OI.gyroForward.get()) { //TODO: uncomment this
-                ADXSensor adx = DriveSubsystem.getADX();
+                ADXSensor adx = Drive.getADX();
                 if (!buttonWasTrue) angleStart = adx.getAngle();
                 double angleError = adx.getAngle() - angleStart; //TODO: Check if the sign is wrong
-                if (Math.abs(angleError) > DriveSubsystem.GYRO_ANGLE_TOLERANCE) {
+                if (Math.abs(angleError) > Drive.GYRO_ANGLE_TOLERANCE) {
                     if (!left.isEnabled()) {
                         left.setTarget(angleStart);
                         left.enable();
@@ -57,7 +57,7 @@ public class DriveCommand extends Command {
             }
             */
 
-            //DriveSubsystem.shiftIfResistance();
+            //Drive.shiftIfResistance();
 
             double joyX;
             double joyY;
@@ -71,12 +71,12 @@ public class DriveCommand extends Command {
             joyX = Utils.deadzone(joyX, deadzone);
             joyY = Utils.deadzone(joyY, deadzone);
 
-            DriveSubsystem.arcadeDrive(joyX, joyY);
+            Drive.arcadeDrive(joyX, joyY);
 
             if (OI.lowShift.getAny() /*|| (Math.abs(joyX) > 0.15 && Math.abs(joyY) < 0.1)*/) {
-                DriveSubsystem.shift(true);
+                Drive.shift(true);
             } else {
-                DriveSubsystem.shift(false);
+                Drive.shift(false);
             }
         }
     }

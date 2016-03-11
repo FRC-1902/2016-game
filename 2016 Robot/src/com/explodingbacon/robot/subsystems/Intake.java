@@ -10,14 +10,14 @@ import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Collections;
 import java.util.List;
 
-public class IntakeSubsystem extends Subsystem {
+public class Intake extends Subsystem {
 
     private static Motor intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
     private static DoubleSolenoid intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
 
     public static final boolean TEST_BALLS = false;
 
-    public IntakeSubsystem() {
+    public Intake() {
         super();
 
         intakeMotor.setStopOnNoUser();
@@ -34,11 +34,11 @@ public class IntakeSubsystem extends Subsystem {
      * Starts intaking.
      */
     public static void intake(Command c) {
-        if (intakeMotor.isUsableBy(c) && ShooterSubsystem.getIndexer().isUsableBy(c) && ShooterSubsystem.getShooter().isUsableBy(c)) {
+        if (intakeMotor.isUsableBy(c) && Shooter.getIndexer().isUsableBy(c) && Shooter.getShooter().isUsableBy(c)) {
             setUsingAll(c);
             intakeMotor.setPower(1);
-            ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
-            ShooterSubsystem.setIndexerRaw(-1);
+            Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE);
+            Shooter.setIndexerRaw(-1);
         }
     }
 
@@ -46,12 +46,12 @@ public class IntakeSubsystem extends Subsystem {
      * Starts outtaking.
      */
     public static void outtake(Command c) {
-        if (intakeMotor.isUsableBy(c) && ShooterSubsystem.getShooter().isUsableBy(c)) {
+        if (intakeMotor.isUsableBy(c) && Shooter.getShooter().isUsableBy(c)) {
             intakeMotor.setPower(-1);
-            ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE * -0.75);
+            Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE * -0.75);
 
             intakeMotor.setUser(c);
-            ShooterSubsystem.getShooter().setUser(c);
+            Shooter.getShooter().setUser(c);
         }
     }
 
@@ -60,8 +60,8 @@ public class IntakeSubsystem extends Subsystem {
      */
     public static void stopIntake(Command c) {
         if (intakeMotor.isUsableBy(c)) intakeMotor.setUser(null);
-        if (ShooterSubsystem.getShooter().isUsableBy(c)) ShooterSubsystem.getShooter().setUser(null);
-        if (ShooterSubsystem.getIndexer().isUsableBy(c)) ShooterSubsystem.getIndexer().setUser(null);
+        if (Shooter.getShooter().isUsableBy(c)) Shooter.getShooter().setUser(null);
+        if (Shooter.getIndexer().isUsableBy(c)) Shooter.getIndexer().setUser(null);
     }
 
     /**
@@ -71,8 +71,8 @@ public class IntakeSubsystem extends Subsystem {
      */
     private static void setUsingAll(Command c) {
         intakeMotor.setUser(c);
-        ShooterSubsystem.getShooter().setUser(c);
-        ShooterSubsystem.getIndexer().setUser(c);
+        Shooter.getShooter().setUser(c);
+        Shooter.getIndexer().setUser(c);
     }
 
     /**

@@ -7,13 +7,14 @@ import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
+import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
 import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Arrays;
 import java.util.List;
 
-public class ShooterSubsystem extends Subsystem {
+public class Shooter extends Subsystem {
 
     private static MotorGroup shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
@@ -35,9 +36,9 @@ public class ShooterSubsystem extends Subsystem {
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
-    private static boolean shouldShoot = false;
+    private static boolean shouldVisionShoot = false;
 
-    public ShooterSubsystem() {
+    public Shooter() {
         super();
 
         indexer.setStopOnNoUser();
@@ -56,12 +57,12 @@ public class ShooterSubsystem extends Subsystem {
 
     @Override
     public void enabledInit() {
-        ShooterSubsystem.shooterPID.enable();
+        Shooter.shooterPID.enable();
     }
 
     @Override
     public void disabledInit() {
-        ShooterSubsystem.shooterPID.setTarget(0);
+        Shooter.shooterPID.setTarget(0);
     }
 
     /**
@@ -71,7 +72,7 @@ public class ShooterSubsystem extends Subsystem {
         if (shooter.claim(c)) {
             //setSpotlight(true);
 
-            shooterPID.setTarget(ShooterSubsystem.calculateRate());
+            shooterPID.setTarget(Shooter.calculateRate());
 
             shooterPID.setExtraCode(() -> {
                 if (shooterPID.isDone()) {
@@ -106,7 +107,7 @@ public class ShooterSubsystem extends Subsystem {
     public static double calculateRate() {
         return GOOD_BALL_SHOOT_RATE;
         /*
-        if (currentBallWatts == -1 || !IntakeSubsystem.TEST_BALLS) {
+        if (currentBallWatts == -1 || !Intake.TEST_BALLS) {
             return DEFAULT_SHOOT_RATE;
         } else {
             return DEFAULT_SHOOT_RATE; //TODO: formula for watts -> rate
@@ -124,13 +125,7 @@ public class ShooterSubsystem extends Subsystem {
      * Waits until the Shooter shoots the boulder.
      */
     public static void waitForVisionShoot() {
-        while (!shouldShoot) {
-            try {
-                Thread.sleep(25);
-            } catch (Exception e) {
-                break;
-            }
-        }
+        Utils.waitFor(() -> !shouldVisionShoot);
     }
 
     /**
@@ -138,14 +133,14 @@ public class ShooterSubsystem extends Subsystem {
      *
      * @return If the Shooter has been told to shoot using Vision Tracking.
      */
-    public static boolean isVisionShootQueued() { return shouldShoot; }
+    public static boolean isVisionShootQueued() { return shouldVisionShoot; }
 
     /**
      * Sets if the Shooter should shoot the boulder using Vision Tracking.
      *
      * @param b If the Shooter should shoot the boulder using Vision Tracking.
      */
-    public static void setShouldVisionShoot(boolean b) { shouldShoot = b; }
+    public static void setShouldVisionShoot(boolean b) { shouldVisionShoot = b; }
 
 
     /**

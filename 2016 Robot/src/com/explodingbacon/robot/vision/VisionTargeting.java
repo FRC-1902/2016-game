@@ -10,8 +10,8 @@ import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.main.Robot;
-import com.explodingbacon.robot.subsystems.DriveSubsystem;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.Drive;
+import com.explodingbacon.robot.subsystems.Shooter;
 
 import java.util.Collections;
 
@@ -48,13 +48,13 @@ public class VisionTargeting extends Command {
     @Override
     public void onLoop() {
         try {
-            if (ShooterSubsystem.isVisionShootQueued()) {
+            if (Shooter.isVisionShootQueued()) {
 
                 Log.v("Beginning vision shoot...");
                 boolean controllingShooter = false;
-                if (ShooterSubsystem.shooterPID.getTarget() == 0) {
-                    ShooterSubsystem.getShooter().setUser(this); //Forcibly take control of this
-                    ShooterSubsystem.rev(this);
+                if (Shooter.shooterPID.getTarget() == 0) {
+                    Shooter.getShooter().setUser(this); //Forcibly take control of this
+                    Shooter.rev(this);
                     controllingShooter = true;
                 }
 
@@ -91,11 +91,11 @@ public class VisionTargeting extends Command {
                     double degrees = Utils.getDegreesToTurn(goalMid, target);
                     Log.v(degrees + " degrees away from the goal");
                     if (Math.abs(degrees) > ANGLE_DEADZONE) {
-                        if (!DriveSubsystem.gyroTurn(degrees, 5)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
+                        if (!Drive.gyroTurn(degrees, 5)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
                             Log.v("Gyro turn timeout reached. Shoot aborting.");
                             abort = true;
                         }
-                        DriveSubsystem.setDriverControlled(false);
+                        Drive.setDriverControlled(false);
                         /*
                         Image end = camera.getImage();
                         Contour endGoal = findGoal(end, target);
@@ -115,22 +115,22 @@ public class VisionTargeting extends Command {
                 }
 
                 if (!abort) {
-                    if (!ShooterSubsystem.shooterPID.isDone()) {
+                    if (!Shooter.shooterPID.isDone()) {
                         Log.v("Waiting to shoot until the shooter is up to speed.");
-                        ShooterSubsystem.shooterPID.waitUntilDone();
+                        Shooter.shooterPID.waitUntilDone();
                     }
                     Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds.");
-                    ShooterSubsystem.shootUsingIndexer(this);
+                    Shooter.shootUsingIndexer(this);
                     /*
-                    ShooterSubsystem.getIndexer().setUser(this); //Forcibly take control of the indexer
-                    ShooterSubsystem.setIndexerRaw(1);
+                    Shooter.getIndexer().setUser(this); //Forcibly take control of the indexer
+                    Shooter.setIndexerRaw(1);
                     Thread.sleep(2000);
                     */
                 }
 
-                ShooterSubsystem.setShouldVisionShoot(false);
-                //ShooterSubsystem.getIndexer().setUser(null);
-                if (controllingShooter) ShooterSubsystem.stopRev(this);
+                Shooter.setShouldVisionShoot(false);
+                //Shooter.getIndexer().setUser(null);
+                if (controllingShooter) Shooter.stopRev(this);
                 if (!abort) {
                     if (usedGoal) {
                         Log.v("Shot a boulder using Vision Targeting.");

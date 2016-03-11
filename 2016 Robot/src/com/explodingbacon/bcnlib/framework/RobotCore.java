@@ -151,6 +151,33 @@ public abstract class RobotCore {
     }
 
     /**
+     * Checks if this Robot is in Teleop mode.
+     *
+     * @return If this Robot is in Teleop mode.
+     */
+    public static boolean isTeleop() {
+        return getMode() == Mode.TELEOP;
+    }
+
+    /**
+     * Checks if this Robot is in Autonomous mode.
+     *
+     * @return If this Robot is in Autonomous mode.
+     */
+    public static boolean isAutonomous() {
+        return getMode() == Mode.AUTONOMOUS;
+    }
+
+    /**
+     * Checks if this Robot is in Test mode.
+     *
+     * @return If this Robot is in Test mode.
+     */
+    public static boolean isTest() {
+        return getMode() == Mode.TEST;
+    }
+
+    /**
      * Gets the current voltage of the robot's battery.
      * @return The current voltage of the robot's battery.
      */

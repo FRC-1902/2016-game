@@ -2,8 +2,8 @@ package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.subsystems.IntakeSubsystem;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.Intake;
+import com.explodingbacon.robot.subsystems.Shooter;
 
 import java.util.List;
 
@@ -19,30 +19,30 @@ public class IntakeCommand extends Command {
 
     @Override
     public void onLoop() {
-        if (OI.intakeMotorIn.get() && !ShooterSubsystem.hasBall()) {
-            IntakeSubsystem.intake(this);
+        if (OI.intakeMotorIn.get() && !Shooter.hasBall()) {
+            Intake.intake(this);
             testedCurrentBall = false; //If this block of code runs, we're intaking a new ball
         } else if (OI.intakeMotorOut.get()) {
-            IntakeSubsystem.outtake(this);
+            Intake.outtake(this);
         } else {
-            IntakeSubsystem.stopIntake(this);
+            Intake.stopIntake(this);
         }
 
         boolean pressed = OI.intakeRetract.getAny();
 
         if(pressed && !wasPressed) {
             currentState = !currentState;
-            IntakeSubsystem.setPosition(currentState);
+            Intake.setPosition(currentState);
         }
 
         /*
-        if (IntakeSubsystem.TEST_BALLS && !testedCurrentBall && ShooterSubsystem.hasBall()) {
+        if (Intake.TEST_BALLS && !testedCurrentBall && Shooter.hasBall()) {
             try {
                 ((FakeButton) OI.testingBall).set(true);
-                IntakeSubsystem.stopIntake(this);
-                IntakeSubsystem.getIntake().setUser(this);
+                Intake.stopIntake(this);
+                Intake.getIntake().setUser(this);
 
-                Motor indexer = ShooterSubsystem.getIndexer();
+                Motor indexer = Shooter.getIndexer();
 
                 indexer.setPower(0);
 
@@ -56,7 +56,7 @@ public class IntakeCommand extends Command {
 
                 indexer.setPower(-.6); //Intake
 
-                while(!ShooterSubsystem.hasBall()) { //Log intake powers until we have the ball
+                while(!Shooter.hasBall()) { //Log intake powers until we have the ball
                     powerList.add(indexer.getWatts());
                     Thread.sleep(25);
                 }
@@ -75,7 +75,7 @@ public class IntakeCommand extends Command {
 
                 double avgPower = total / counter; //Average them
 
-                ShooterSubsystem.setBallWatts(avgPower); //Pass the average to ShooterSubsystem
+                Shooter.setBallWatts(avgPower); //Pass the average to Shooter
                 Log.d("Average power: " + avgPower + " watts");
 
                 testedCurrentBall = true;
@@ -84,7 +84,7 @@ public class IntakeCommand extends Command {
                 e.printStackTrace();
             }
             ((FakeButton) OI.testingBall).set(false);
-            IntakeSubsystem.getIntake().setUser(null);
+            Intake.getIntake().setUser(null);
         }*/
 
         wasPressed = pressed;

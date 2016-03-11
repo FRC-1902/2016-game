@@ -3,11 +3,10 @@ package com.explodingbacon.robot.commands;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.Mode;
-import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.Robot;
-import com.explodingbacon.robot.subsystems.DriveSubsystem;
-import com.explodingbacon.robot.subsystems.IntakeSubsystem;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.Drive;
+import com.explodingbacon.robot.subsystems.Intake;
+import com.explodingbacon.robot.subsystems.Shooter;
 
 public class AutonomousCommand extends Command {
 
@@ -32,50 +31,54 @@ public class AutonomousCommand extends Command {
         try {
             type = (Type) Robot.autoChooser.getSelected();
             if (type == Type.ONE_BOULDER) { //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, stop touching low bar
-                DriveSubsystem.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
-                ShooterSubsystem.rev(this);
-                DriveSubsystem.gyroTurn(COURTYARD_TO_CASTLE_ANGLE);
-                ShooterSubsystem.queueVisionShoot();
-                Utils.waitFor(() -> !ShooterSubsystem.isVisionShootQueued());
-                ShooterSubsystem.stopRev(this);
+                Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+                if (Robot.isAutonomous()) {
+                    Shooter.rev(this);
+                    Drive.gyroTurn(COURTYARD_TO_CASTLE_ANGLE, 6); //TODO: tune this timeout time
+                    if (Robot.isAutonomous()) {
+                        Shooter.queueVisionShoot();
+                        Shooter.waitForVisionShoot();
+                    }
+                    Shooter.stopRev(this);
                 /*
-                double angleDiff = DriveSubsystem.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE; //TODO: check if sign is wrong
-                DriveSubsystem.gyroTurn(angleDiff + 180);
-                DriveSubsystem.inchDrive(-80); //TODO: tune to get robot touching a defense
+                double angleDiff = Drive.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE; //TODO: check if sign is wrong
+                Drive.gyroTurn(angleDiff + 180);
+                Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
                 */
+                }
             } else if (type == Type.TWO_BOULDER_SPY) { //Shoot ball from spy box, go through low bar, get boulder, return through and shoot second boulder
-                ShooterSubsystem.rev(this);
+                Shooter.rev(this);
                 Thread.sleep(2000); //TODO: tune
-                ShooterSubsystem.shootUsingIndexer(this);
-                ShooterSubsystem.stopRev(this);
-                DriveSubsystem.gyroTurn(90);
-                IntakeSubsystem.intake(this);
-                DriveSubsystem.inchDrive(SPYBOX_TO_SECOND_BALL_DISTANCE);
-                DriveSubsystem.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
-                IntakeSubsystem.stopIntake(this);
-                ShooterSubsystem.rev(this);
-                DriveSubsystem.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
-                ShooterSubsystem.queueVisionShoot();
-                Utils.waitFor(() -> !ShooterSubsystem.isVisionShootQueued());
-                ShooterSubsystem.stopRev(this);
+                Shooter.shootUsingIndexer(this);
+                Shooter.stopRev(this);
+                Drive.gyroTurn(90);
+                Intake.intake(this);
+                Drive.inchDrive(SPYBOX_TO_SECOND_BALL_DISTANCE);
+                Drive.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
+                Intake.stopIntake(this);
+                Shooter.rev(this);
+                Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
+                Shooter.queueVisionShoot();
+                Shooter.waitForVisionShoot();
+                Shooter.stopRev(this);
             } else if (type == Type.TWO_BOULDER_NEUTRAL) { //Go through low bar, turn, shoot, turn around and go through low bar, intake ball, go through low bar backwards, turn, shoot
-                DriveSubsystem.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
-                ShooterSubsystem.rev(this);
-                DriveSubsystem.gyroTurn(COURTYARD_TO_CASTLE_ANGLE);
-                ShooterSubsystem.queueVisionShoot();
-                Utils.waitFor(() -> !ShooterSubsystem.isVisionShootQueued());
-                ShooterSubsystem.stopRev(this);
-                double turnAmount = 180 - (DriveSubsystem.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE); //TODO: check this math
-                DriveSubsystem.gyroTurn(-turnAmount);
-                IntakeSubsystem.intake(this);
-                DriveSubsystem.inchDrive(SHOT_TO_SECOND_BALL_DISTANCE);
-                DriveSubsystem.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
-                IntakeSubsystem.stopIntake(this);
-                ShooterSubsystem.rev(this);
-                DriveSubsystem.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
-                ShooterSubsystem.queueVisionShoot();
-                Utils.waitFor(() -> !ShooterSubsystem.isVisionShootQueued());
-                ShooterSubsystem.stopRev(this);
+                Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+                Shooter.rev(this);
+                Drive.gyroTurn(COURTYARD_TO_CASTLE_ANGLE);
+                Shooter.queueVisionShoot();
+                Shooter.waitForVisionShoot();
+                Shooter.stopRev(this);
+                double turnAmount = 180 - (Drive.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE); //TODO: check this math
+                Drive.gyroTurn(-turnAmount);
+                Intake.intake(this);
+                Drive.inchDrive(SHOT_TO_SECOND_BALL_DISTANCE);
+                Drive.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
+                Intake.stopIntake(this);
+                Shooter.rev(this);
+                Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
+                Shooter.queueVisionShoot();
+                Shooter.waitForVisionShoot();
+                Shooter.stopRev(this);
 
             } else if (type == Type.NOTHING) {
                 Log.i("Doing nothing in auto!");

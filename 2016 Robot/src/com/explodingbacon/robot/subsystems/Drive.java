@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.Talon;
 import java.util.Arrays;
 import java.util.List;
 
-public class DriveSubsystem extends Subsystem {
+public class Drive extends Subsystem {
 
     private static MotorGroup leftMotors = (MotorGroup) new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
     private static MotorGroup rightMotors = (MotorGroup) new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
@@ -42,7 +42,7 @@ public class DriveSubsystem extends Subsystem {
     public static final double GYRO_PID_TOLERANCE = 0.25;
     public static final double ENCODER_ANGLE_TOLERANCE = 1500;
 
-    public DriveSubsystem() {
+    public Drive() {
         super();
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
@@ -141,18 +141,18 @@ public class DriveSubsystem extends Subsystem {
     }
 
     /**
-     * Checks if the DriveSubsystem is currently controllable by the driver.
+     * Checks if the Drive is currently controllable by the driver.
      *
-     * @return If the DriveSubsystem is currently controllable by the driver.
+     * @return If the Drive is currently controllable by the driver.
      */
     public static boolean isDriverControlled() {
         return driverControlled;
     }
 
     /**
-     * Sets if the DriveSubsystem can be controlled by the driver.
+     * Sets if the Drive can be controlled by the driver.
      *
-     * @param b If the DriveSubsystem can be controlled by the driver.
+     * @param b If the Drive can be controlled by the driver.
      */
     public static void setDriverControlled(boolean b) {
         driverControlled = b;
@@ -194,8 +194,8 @@ public class DriveSubsystem extends Subsystem {
      * @param distance How many encoder clicks to drive.
      */
     public static void encoderDrive(double distance) {
-        DriveSubsystem.setDriverControlled(false);
-        DriveSubsystem.shift(false);
+        Drive.setDriverControlled(false);
+        Drive.shift(false);
         Log.t("EncoderDriving " + distance + " clicks");
         leftEncoder.reset();
         rightEncoder.reset();
@@ -215,11 +215,14 @@ public class DriveSubsystem extends Subsystem {
             }
         }
 
+        eLeft.disable();
+        eRight.disable();
+
         Log.d("Done with straight portion, adjusting angle.");
 
         gyroTurn(adx.getAngle() - startAngle);
 
-        DriveSubsystem.setDriverControlled(true);
+        Drive.setDriverControlled(true);
     }
 
     /**
@@ -240,8 +243,8 @@ public class DriveSubsystem extends Subsystem {
      * @return True is the turn was successful, false if the timeout was reached.
      */
     public static boolean gyroTurn(double degrees, double timeout) {
-        DriveSubsystem.setDriverControlled(false);
-        DriveSubsystem.shift(false);
+        Drive.setDriverControlled(false);
+        Drive.shift(false);
         adx.reset();
         gLeft.setTarget(degrees);
         gRight.setTarget(degrees);
@@ -266,7 +269,7 @@ public class DriveSubsystem extends Subsystem {
 
         gLeft.disable();
         gRight.disable();
-        DriveSubsystem.setDriverControlled(true);
+        Drive.setDriverControlled(true);
 
         return result;
     }

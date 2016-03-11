@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Collections;
 import java.util.List;
 
-public class ClimberSubsystem extends Subsystem {
+public class Climber extends Subsystem {
 
     private static MotorGroup cableWinch = (MotorGroup) new MotorGroup(CANTalon.class, Map.CLIMBER_CABLE_WINCH_A, Map.CLIMBER_CABLE_WINCH_B).setName("Climber Winch");
     private static MotorEncoder encoder;
@@ -19,7 +19,7 @@ public class ClimberSubsystem extends Subsystem {
 
     private static final int STOP_CLIMBING_POSITION = 9001; //TODO: tune
 
-    public ClimberSubsystem() {
+    public Climber() {
         encoder = cableWinch.getMotors().get(1).getEncoder();
     }
 

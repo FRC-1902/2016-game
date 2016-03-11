@@ -35,11 +35,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends RobotCore {
 
-    public static DriveSubsystem driveSubsystem;
-    public static IntakeSubsystem intakeSubsystem;
-    public static ShooterSubsystem shooterSubsystem;
-    public static MantisSubsystem mantisSubsystem;
-    public static ClimberSubsystem climberSubsystem;
+    public static Drive drive;
+    public static Intake intake;
+    public static Shooter shooter;
+    public static Mantis mantis;
+    public static Climber climber;
     public static PDP pdp = new PDP();
     public static SendableChooser autoChooser;
     //public static DataLogger logger = new DataLogger();
@@ -55,11 +55,11 @@ public class Robot extends RobotCore {
         super.robotInit();
         Vision.init();
 
-        driveSubsystem = new DriveSubsystem();
-        intakeSubsystem = new IntakeSubsystem();
-        shooterSubsystem = new ShooterSubsystem();
-        //mantisSubsystem = new MantisSubsystem();
-        //climberSubsystem = new ClimberSubsystem();
+        drive = new Drive();
+        intake = new Intake();
+        shooter = new Shooter();
+        //mantis = new Mantis();
+        //climber = new Climber();
 
         oi = new OI();
 
@@ -68,7 +68,7 @@ public class Robot extends RobotCore {
         autoChooser = new SendableChooser();
         autoChooser.initTable(NetworkTable.getTable("AutoTable"));
         autoChooser.addDefault("One Boulder (22 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER);
-        autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
+        //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Neutral (30 Points, Neutral Zone facing defense)", AutonomousCommand.Type.TWO_BOULDER_NEUTRAL);
         autoChooser.addObject("Nothing (0 Points, Anywhere)", AutonomousCommand.Type.NOTHING);
         SmartDashboard.putData("Autonomous Chooser", autoChooser);
@@ -95,7 +95,7 @@ public class Robot extends RobotCore {
         super.teleopInit();
         initTeleopCommands();
 
-        ShooterSubsystem.getLight().enable();
+        Shooter.getLight().enable();
     }
 
     @Override
@@ -122,24 +122,24 @@ public class Robot extends RobotCore {
     }
 
     @Override
-    public void teleopPeriodic() {
+    public void teleopPeriodic() { //TODO: make sure the classmate does not go into sleep mode during matches
         super.teleopPeriodic();
 
-        //Log.d("Target: " + ShooterSubsystem.shooterPID.getTarget() + ", Shooter Rate: " +
-        // ShooterSubsystem.getEncoder().getRate() + ", Setpoint: " + ShooterSubsystem.shooterPID.getMotorPower());
+        //Log.d("Target: " + Shooter.shooterPID.getTarget() + ", Shooter Rate: " +
+        // Shooter.getEncoder().getRate() + ", Setpoint: " + Shooter.shooterPID.getMotorPower());
     }
 
     @Override
     public void autonomousPeriodic() {
         super.autonomousPeriodic();
         /*
-        Log.t("Target: (" + DriveSubsystem.eLeft.getTarget() + ", " + DriveSubsystem.eRight.getTarget() + "); " +
-                "Current Value: (" + Math.round(DriveSubsystem.eLeft.getCurrentSourceValue()*1000)/1000f + ", " +
-                                    Math.round(DriveSubsystem.eRight.getCurrentSourceValue()*1000)/1000f + "); " +
-                "Motor Setpoint: (" + DriveSubsystem.eLeft.getMotorPower() + ", " + DriveSubsystem.eRight.getMotorPower() + ")");
+        Log.t("Target: (" + Drive.eLeft.getTarget() + ", " + Drive.eRight.getTarget() + "); " +
+                "Current Value: (" + Math.round(Drive.eLeft.getCurrentSourceValue()*1000)/1000f + ", " +
+                                    Math.round(Drive.eRight.getCurrentSourceValue()*1000)/1000f + "); " +
+                "Motor Setpoint: (" + Drive.eLeft.getMotorPower() + ", " + Drive.eRight.getMotorPower() + ")");
 
         */
-        //DriveSubsystem.gLeft.log();
+        //Drive.gLeft.log();
     }
 
     @Override

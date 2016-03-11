@@ -5,7 +5,7 @@ import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.Shooter;
 
 public class ShooterCommand extends Command {
 
@@ -18,9 +18,9 @@ public class ShooterCommand extends Command {
     @Override
     public void onLoop() {
         if (OI.shooterRevButtons.getAny()) {
-            ShooterSubsystem.rev(this);
+            Shooter.rev(this);
         } else {
-            ShooterSubsystem.stopRev(this);
+            Shooter.stopRev(this);
         }
 
         boolean shoot = OI.shoot.getAll();
@@ -29,32 +29,32 @@ public class ShooterCommand extends Command {
 
         if (shoot || OI.shootNoVision.get() && Robot.isEnabled()) {
             if (Vision.isInit() && !OI.shootNoVision.get()) {
-                if (!ShooterSubsystem.isVisionShootQueued() && !shooterHeldSinceVisionShot) {
-                    ShooterSubsystem.queueVisionShoot();
+                if (!Shooter.isVisionShootQueued() && !shooterHeldSinceVisionShot) {
+                    Shooter.queueVisionShoot();
                     shooterHeldSinceVisionShot = true;
                 }
             } else {
-                if (ShooterSubsystem.getIndexer().isUsableBy(this)) {
-                    ShooterSubsystem.shootUsingIndexer(this);
+                if (Shooter.getIndexer().isUsableBy(this)) {
+                    Shooter.shootUsingIndexer(this);
                     /*
-                    ShooterSubsystem.setIndexerRaw(1);
-                    ShooterSubsystem.getIndexer().setUser(this);
+                    Shooter.setIndexerRaw(1);
+                    Shooter.getIndexer().setUser(this);
                     */
                 }
             }
             if (!loggedSpeed) {
-                Log.d("Shooter Speed: " + ShooterSubsystem.shooterPID.getCurrentSourceValue());
+                Log.d("Shooter Speed: " + Shooter.shooterPID.getCurrentSourceValue());
                 loggedSpeed = true;
             }
         } else {
-            if (ShooterSubsystem.getIndexer().isUsableBy(this)) ShooterSubsystem.getIndexer().setUser(null);
+            if (Shooter.getIndexer().isUsableBy(this)) Shooter.getIndexer().setUser(null);
             loggedSpeed = false;
         }
 
-        if (ShooterSubsystem.hasBall()) {
-            ShooterSubsystem.getLight().enable();
+        if (Shooter.hasBall()) {
+            Shooter.getLight().enable();
         } else {
-            ShooterSubsystem.getLight().stop();
+            Shooter.getLight().stop();
         }
     }
 

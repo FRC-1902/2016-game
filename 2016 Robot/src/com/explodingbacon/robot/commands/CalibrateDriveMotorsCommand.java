@@ -6,8 +6,8 @@ import com.explodingbacon.bcnlib.controllers.Direction;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.subsystems.DriveSubsystem;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.Drive;
+import com.explodingbacon.robot.subsystems.Shooter;
 
 public class CalibrateDriveMotorsCommand extends Command {
 
@@ -15,9 +15,9 @@ public class CalibrateDriveMotorsCommand extends Command {
     private Light light;
 
     public CalibrateDriveMotorsCommand() {
-        left = DriveSubsystem.getLeft();
-        right = DriveSubsystem.getRight();
-        light = ShooterSubsystem.getLight();
+        left = Drive.getLeft();
+        right = Drive.getRight();
+        light = Shooter.getLight();
     }
 
     private void tune(Motor m) {

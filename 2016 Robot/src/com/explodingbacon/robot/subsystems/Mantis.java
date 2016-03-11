@@ -7,7 +7,7 @@ import com.explodingbacon.robot.main.Map;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MantisSubsystem extends Subsystem {
+public class Mantis extends Subsystem {
 
     private static SolenoidInterface bottom = new DoubleSolenoid(Map.MANTIS_1_A, Map.MANTIS_1_B);
     private static SolenoidInterface top = new Solenoid(Map.MANTIS_2);
