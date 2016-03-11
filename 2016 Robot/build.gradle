@@ -13,6 +13,7 @@ repositories {
 
     flatDir {
         dirs '/lib'
+        dirs '/src/main/resources'
     }
 }
 

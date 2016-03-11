@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: edu.wpi.first.wpilibj.RobotBase
+Robot-Class: com.explodingbacon.robot.main.WPIRobot
+
+
