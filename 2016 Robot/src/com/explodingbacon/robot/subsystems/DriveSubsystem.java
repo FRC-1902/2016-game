@@ -13,7 +13,6 @@ import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -52,9 +51,6 @@ public class DriveSubsystem extends Subsystem {
         super();
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
-
-        leftMotors.setFiltered(LOW_PASS_SMOOTH);
-        rightMotors.setFiltered(LOW_PASS_SMOOTH);
 
         gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
         gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
@@ -162,13 +158,6 @@ public class DriveSubsystem extends Subsystem {
      */
     public static void setDriverControlled(boolean b) {
         driverControlled = b;
-        if (b) {
-            leftMotors.setFiltered(LOW_PASS_SMOOTH);
-            rightMotors.setFiltered(LOW_PASS_SMOOTH);
-        } else {
-            leftMotors.setFiltered(0);
-            rightMotors.setFiltered(0);
-        }
     }
 
     /**

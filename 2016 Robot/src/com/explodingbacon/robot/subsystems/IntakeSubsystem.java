@@ -34,7 +34,7 @@ public class IntakeSubsystem extends Subsystem {
      * Starts intaking.
      */
     public static void intake(Command c) {
-        if (intakeMotor.isUseableBy(c) && ShooterSubsystem.getIndexer().isUseableBy(c) && ShooterSubsystem.getShooter().isUseableBy(c)) {
+        if (intakeMotor.isUsableBy(c) && ShooterSubsystem.getIndexer().isUsableBy(c) && ShooterSubsystem.getShooter().isUsableBy(c)) {
             intakeMotor.setPower(1);
             ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE);
             ShooterSubsystem.setIndexerRaw(-1);
@@ -46,7 +46,7 @@ public class IntakeSubsystem extends Subsystem {
      * Starts outtaking.
      */
     public static void outtake(Command c) {
-        if (intakeMotor.isUseableBy(c) && ShooterSubsystem.getShooter().isUseableBy(c)) {
+        if (intakeMotor.isUsableBy(c) && ShooterSubsystem.getShooter().isUsableBy(c)) {
             intakeMotor.setPower(-1);
             ShooterSubsystem.shooterPID.setTarget(ShooterSubsystem.INTAKE_RATE * -0.75);
 
@@ -59,9 +59,9 @@ public class IntakeSubsystem extends Subsystem {
      * Stops using the intake-related Motors.
      */
     public static void stopIntake(Command c) {
-        if (intakeMotor.isUseableBy(c)) intakeMotor.setUser(null);
-        if (ShooterSubsystem.getShooter().isUseableBy(c)) ShooterSubsystem.getShooter().setUser(null);
-        if (ShooterSubsystem.getIndexer().isUseableBy(c)) ShooterSubsystem.getIndexer().setUser(null);
+        if (intakeMotor.isUsableBy(c)) intakeMotor.setUser(null);
+        if (ShooterSubsystem.getShooter().isUsableBy(c)) ShooterSubsystem.getShooter().setUser(null);
+        if (ShooterSubsystem.getIndexer().isUsableBy(c)) ShooterSubsystem.getIndexer().setUser(null);
     }
 
     /**

@@ -46,10 +46,6 @@ public class Robot extends RobotCore {
 
     public OI oi;
 
-    public Robot() {
-        super();
-    }
-
     public Robot(IterativeRobot r) {
         super(r);
     }

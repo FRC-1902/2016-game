@@ -43,8 +43,6 @@ public class ShooterSubsystem extends Subsystem {
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
 
-        shooter.setFiltered(100); //TODO: This code never actually did anything due to a bug with MotorGroups. If the shooter is being weird, REMEMBER THIS LINE IS HERE
-
         encoder = shooter.getMotors().get(1).getEncoder();
         encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
         encoder.setReversed(true);
