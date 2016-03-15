@@ -26,8 +26,9 @@ public class VisionTargeting extends Command {
     private static Image i;
 
     private static final String imgDir = "/home/lvuser/";
+
     private static final boolean REUSE_IMAGES = true;
-    private static final TargetType TARGET_TYPE = TargetType.CLOSEST_TO_MIDDLE;
+    private static final TargetType TARGET_TYPE = TargetType.CLOSEST_TO_BOTTOM;
 
     @Override
     public void onInit() {
@@ -35,14 +36,14 @@ public class VisionTargeting extends Command {
 
             Log.v("Vision Targeting initialized!");
             camera = new Camera(0, true);
-            camera.release();
-
-            i = new Image();
-            camera.getImage(i);
+            i = camera.getImage();
 
             init = true;
         }
-        camera.open();
+        //camera.open();
+        try {
+            Thread.sleep(500);
+        } catch (Exception e) {}
     }
 
     @Override
@@ -93,9 +94,9 @@ public class VisionTargeting extends Command {
                     if (Math.abs(degrees) > ANGLE_DEADZONE) {
                         if (!Drive.gyroTurn(degrees, 5)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
                             Log.v("Gyro turn timeout reached. Shoot aborting.");
+                            Drive.setDriverControlled(true);
                             abort = true;
                         }
-                        Drive.setDriverControlled(false);
                         /*
                         Image end = camera.getImage();
                         Contour endGoal = findGoal(end, target);
@@ -153,7 +154,7 @@ public class VisionTargeting extends Command {
      * @return If the driver is trying to abort the vision shot.
      */
     public boolean isDriverAborting() {
-        boolean aborting = !OI.shoot.getAny() && Robot.getMode() != Mode.AUTONOMOUS;
+        boolean aborting = OI.shootAbort.get() && Robot.getMode() != Mode.AUTONOMOUS;
         if (aborting) {
             Log.d("Driver is aborting the vision shot!");
         }
@@ -234,13 +235,20 @@ public class VisionTargeting extends Command {
                 if (goal == null) {
                     goal = c;
                 } else {
-                    if (TARGET_TYPE == TargetType.CLOSEST_TO_MIDDLE) {
+                    if (TARGET_TYPE == TargetType.CLOSEST_TO_TARGET) {
                         double cTargetError = Math.abs(c.getMiddleX() - target);
                         double goalTargetError = Math.abs(goal.getMiddleX() - target);
                         if (cTargetError < goalTargetError) {
                             goal = c;
                         }
-                    } else if (TARGET_TYPE == TargetType.BIGGEST){
+                    } else if (TARGET_TYPE == TargetType.CLOSEST_TO_BOTTOM) {
+                        double height = i.getHeight();
+                        double cTargetError = Math.abs(c.getMiddleY() - height);
+                        double goalTargetError = Math.abs(goal.getMiddleY() - height);
+                        if (cTargetError < goalTargetError) {
+                            goal = c;
+                        }
+                    } else if (TARGET_TYPE == TargetType.BIGGEST) {
                         if (c.getArea() > goal.getArea()) {
                             goal = c;
                         }
@@ -262,6 +270,7 @@ public class VisionTargeting extends Command {
 
     public enum TargetType {
         BIGGEST,
-        CLOSEST_TO_MIDDLE
+        CLOSEST_TO_TARGET,
+        CLOSEST_TO_BOTTOM
     }
 }

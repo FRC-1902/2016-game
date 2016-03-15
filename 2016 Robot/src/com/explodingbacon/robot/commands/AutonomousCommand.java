@@ -7,13 +7,14 @@ import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.Drive;
 import com.explodingbacon.robot.subsystems.Intake;
 import com.explodingbacon.robot.subsystems.Shooter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutonomousCommand extends Command {
 
     Type type;
 
     //Auto values used in most of/all the autos
-    private static final double NEUTRAL_TO_SHOOT_DISTANCE = 10 * 12; //TODO: tune
+    private static final double NEUTRAL_TO_SHOOT_DISTANCE = 13 * 12; //TODO: tune
     private static final double COURTYARD_TO_CASTLE_ANGLE = 30; //TODO: tune
 
     //Two ball auto values
@@ -30,22 +31,35 @@ public class AutonomousCommand extends Command {
         double millis = System.currentTimeMillis();
         try {
             type = (Type) Robot.autoChooser.getSelected();
-            if (type == Type.ONE_BOULDER) { //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, stop touching low bar
+            Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
+            if (type == Type.CROSS) { //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, stop touching low bar
                 Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+                Thread.sleep(500);
+                Drive.inchDrive(3 * 12);
+                /*
                 if (Robot.isAutonomous()) {
                     Shooter.rev(this);
-                    Drive.gyroTurn(COURTYARD_TO_CASTLE_ANGLE, 6); //TODO: tune this timeout time
+                    Drive.gyroTurn(12, 6); //TODO: tune this timeout time
                     if (Robot.isAutonomous()) {
                         Shooter.queueVisionShoot();
                         Shooter.waitForVisionShoot();
                     }
                     Shooter.stopRev(this);
-                /*
-                double angleDiff = Drive.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE; //TODO: check if sign is wrong
-                Drive.gyroTurn(angleDiff + 180);
-                Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
-                */
-                }
+                    /*
+                    double angleDiff = Drive.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE; //TODO: check if sign is wrong
+                    Drive.gyroTurn(angleDiff + 180);
+                    Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
+                    */
+                //}
+            } else if (type == Type.ONE_BOULDER_SPY) {
+                Shooter.rev(this);
+                Shooter.waitForRev();
+                Shooter.shootUsingIndexer(this);
+                Shooter.stopRev(this);
+                Drive.gyroTurn(91.5);
+                Drive.inchDrive(23 * 12);
+                Thread.sleep(500);
+                Drive.inchDrive(-(15 * 12));
             } else if (type == Type.TWO_BOULDER_SPY) { //Shoot ball from spy box, go through low bar, get boulder, return through and shoot second boulder
                 Shooter.rev(this);
                 Thread.sleep(2000); //TODO: tune
@@ -87,6 +101,7 @@ public class AutonomousCommand extends Command {
             } else {
                 Log.e("Autonomous type \"" + type.toString() + "\" does not have any code!");
             }
+            Drive.setDriverControlled(true);
         } catch (Exception e) {
             Log.e("AutonomousCommand exception!");
             e.printStackTrace();
@@ -95,10 +110,12 @@ public class AutonomousCommand extends Command {
     }
 
     @Override
-    public void onLoop() {}
+    public void onLoop() {
+    }
 
     @Override
-    public void onStop() {}
+    public void onStop() {
+    }
 
     @Override
     public boolean isFinished() {
@@ -106,7 +123,8 @@ public class AutonomousCommand extends Command {
     }
 
     public enum Type {
-        ONE_BOULDER,
+        CROSS,
+        ONE_BOULDER_SPY,
         TWO_BOULDER_SPY,
         TWO_BOULDER_NEUTRAL,
         NOTHING

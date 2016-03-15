@@ -25,7 +25,7 @@ public class Camera {
         try {
             cam = new VideoCapture(index);
             autoUpdate = b;
-            Thread.sleep(500);
+            Thread.sleep(1000);
             if (autoUpdate) {
                 updateThread = new Thread(() -> {
                     //Log.d("Camera autoupdate thread init");
@@ -36,6 +36,9 @@ public class Camera {
                                     Log.d("Camera.grab() returned false!");
                                 }
                             }
+                            try {
+                                Thread.sleep(10);
+                            } catch(Exception e) {}
                         }
                     }
                 });
@@ -68,13 +71,13 @@ public class Camera {
     }
 
     /**
-     * Gets the current Image on this Camera.
+     * Updates an Image with the current Image on this Camera.
      *
-     * @param i An existing Image object. Recycle this from previous Camera.getImage() calls when you can.
+     * @param i The Image to be updated.
      */
     public void getImage(Image i) {
+        Mat m = i.getMat();
         synchronized (CAMERA_USE) {
-            Mat m = i.getMat();
             if (autoUpdate) {
                 cam.retrieve(m);
             } else {
@@ -84,6 +87,17 @@ public class Camera {
                 cam.release();
             }
         }
+    }
+
+    /**
+     * Gets a new Image from this Camera.
+     *
+     * @return A new Image from this Camera.
+     */
+    public Image getImage() {
+        Image i = new Image();
+        getImage(i);
+        return i;
     }
 
     /**

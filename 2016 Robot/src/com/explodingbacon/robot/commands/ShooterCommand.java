@@ -10,7 +10,6 @@ import com.explodingbacon.robot.subsystems.Shooter;
 public class ShooterCommand extends Command {
 
     private boolean loggedSpeed = false;
-    private boolean shooterHeldSinceVisionShot = false; //TODO: get a better name for this
 
     @Override
     public void onInit() {}
@@ -25,13 +24,10 @@ public class ShooterCommand extends Command {
 
         boolean shoot = OI.shoot.getAll();
 
-        if (!shoot) shooterHeldSinceVisionShot = false;
-
         if (shoot || OI.shootNoVision.get() && Robot.isEnabled()) {
             if (Vision.isInit() && !OI.shootNoVision.get()) {
-                if (!Shooter.isVisionShootQueued() && !shooterHeldSinceVisionShot) {
+                if (!Shooter.isVisionShootQueued()) {
                     Shooter.queueVisionShoot();
-                    shooterHeldSinceVisionShot = true;
                 }
             } else {
                 if (Shooter.getIndexer().isUsableBy(this)) {

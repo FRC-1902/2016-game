@@ -4,6 +4,7 @@ import com.explodingbacon.bcnlib.actuators.FakeMotor;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.utils.Utils;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 /**
  * All-encompassing PID controller that can be used for rate and for position controllers. Set any tuning parameter to 0 to
@@ -16,13 +17,13 @@ public class PIDController implements Runnable { //TODO: Check this
     private Motor m;
     private PIDSource s;
     private double kP, kI, kD;
-    private double p, i, d, lastP = 0, min, max;
+    private double p, i, d, lastP = 0, min, max, startingSign;
     private double t = 0;
     private double tolerance = 1000;
     private Thread thread;
     private Runnable whenFinished = null;
     private Runnable extraCode = null;
-    private boolean enabled = false, inverted = false, done = false;
+    private boolean enabled = false, inverted = false, done = false, shouldInstaKill = false;
 
 
     /**
@@ -89,6 +90,12 @@ public class PIDController implements Runnable { //TODO: Check this
         reset();
         enabled = true;
         done = false;
+
+        p = t - s.getForPID();
+
+        if (inverted) p *= -1;
+
+        startingSign = Utils.sign(p);
     }
 
     /**
@@ -196,6 +203,10 @@ public class PIDController implements Runnable { //TODO: Check this
         this.tolerance = tolerance;
     }
 
+    public void setShouldInstaKill(Boolean b) {
+        shouldInstaKill = b;
+    }
+
     /**
      * Checks if this PIDController is done.
      * @return If this PIDController is done.
@@ -297,6 +308,8 @@ public class PIDController implements Runnable { //TODO: Check this
 
                 done = Math.abs(p) <= tolerance;
 
+                if((Utils.sign(p) != startingSign) && shouldInstaKill) disable();
+
                 if (done && whenFinished != null) {
                     try {
                         whenFinished.run();
@@ -307,7 +320,8 @@ public class PIDController implements Runnable { //TODO: Check this
                 }
             } else {
                 done = true;
-                disable();
+                if(enabled)
+                    disable();
             }
 
             try {

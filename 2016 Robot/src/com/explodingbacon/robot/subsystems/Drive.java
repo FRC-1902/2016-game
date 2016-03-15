@@ -13,6 +13,8 @@ import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,8 +32,8 @@ public class Drive extends Subsystem {
 
     private static boolean driverControlled = true;
 
-    private static double encoderkP = 0.0001, encoderkI = 0, encoderkD = 0, encoderMin = 0.2, encoderMax = 0.5; //33300=8ft
-    private static double gyrokP = 0.07, gyrokI = 0.005, gyrokD = 0.01, gyroMin = 0.05, gyroMax = 0.5;
+    private static double encoderkP = 0.0001, encoderkI = 0, encoderkD = 0, encoderMin = 0.2, encoderMax = 1; //33300=8ft, encoderMax was 0.5
+    private static double gyrokP = 0.025, gyrokI = 0.005, gyrokD = 0.03, gyroMin = 0.05, gyroMax = 0.5;
 
     public static PIDController eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
     public static PIDController eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
@@ -47,14 +49,20 @@ public class Drive extends Subsystem {
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
 
-        leftMotors.setLoggingChanges(true);
-        rightMotors.setLoggingChanges(true);
+        //leftMotors.setLoggingChanges(true);
+        //rightMotors.setLoggingChanges(true);
 
         gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
         gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
 
         eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
         eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
+
+        /*
+        SmartDashboard.putNumber("Gyro kP", gyrokP);
+        SmartDashboard.putNumber("Gyro kI", gyrokI);
+        SmartDashboard.putNumber("Gyro kD", gyrokD);
+        */
 
         /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
@@ -194,7 +202,7 @@ public class Drive extends Subsystem {
      * @param distance How many encoder clicks to drive.
      */
     public static void encoderDrive(double distance) {
-        Drive.setDriverControlled(false);
+        //Drive.setDriverControlled(false);
         Drive.shift(false);
         Log.t("EncoderDriving " + distance + " clicks");
         leftEncoder.reset();

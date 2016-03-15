@@ -53,7 +53,7 @@ public class Robot extends RobotCore {
     @Override
     public void robotInit() {
         super.robotInit();
-        Vision.init();
+        //Vision.init();
 
         drive = new Drive();
         intake = new Intake();
@@ -66,12 +66,15 @@ public class Robot extends RobotCore {
         pdp.setLoggingTripping(false);
 
         autoChooser = new SendableChooser();
-        autoChooser.initTable(NetworkTable.getTable("AutoTable"));
-        autoChooser.addDefault("One Boulder (22 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER);
+        autoChooser.initTable(NetworkTable.getTable("TableThing"));
+        autoChooser.addDefault("Cross (10 points, Neutral Zone facing defense)", AutonomousCommand.Type.CROSS);
+        autoChooser.addDefault("One Boulder with Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Neutral (30 Points, Neutral Zone facing defense)", AutonomousCommand.Type.TWO_BOULDER_NEUTRAL);
         autoChooser.addObject("Nothing (0 Points, Anywhere)", AutonomousCommand.Type.NOTHING);
         SmartDashboard.putData("Autonomous Chooser", autoChooser);
+
+        SmartDashboard.putNumber("Auto Delay", 3);
 
         Log.i("Battering Ham initialized!");
     }
@@ -94,6 +97,7 @@ public class Robot extends RobotCore {
     public void teleopInit() {
         super.teleopInit();
         initTeleopCommands();
+        Drive.setDriverControlled(true);
 
         Shooter.getLight().enable();
     }
@@ -127,6 +131,21 @@ public class Robot extends RobotCore {
 
         //Log.d("Target: " + Shooter.shooterPID.getTarget() + ", Shooter Rate: " +
         // Shooter.getEncoder().getRate() + ", Setpoint: " + Shooter.shooterPID.getMotorPower());
+
+        /*
+        if(OI.manip.a.get()) {
+            drive.gLeft.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
+                    SmartDashboard.getNumber("Gyro kD"));
+            drive.gRight.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
+                    SmartDashboard.getNumber("Gyro kD"));
+
+            while(OI.manip.a.get());
+        }
+
+        if(OI.manip.b.get()) {
+            drive.gyroTurn(90, 10);
+        }
+        */
     }
 
     @Override

@@ -188,6 +188,16 @@ public class MotorGroup extends Motor {
         }
         if (d != power && logChanges) {
             Log.d("MotorGroup \"" + getName() + "\"'s power has been set to \"" + d + "\".");
+
+            /*
+            if(d == 0) {
+                try {
+                    throw new RuntimeException();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            */
         }
         power = d;
     }

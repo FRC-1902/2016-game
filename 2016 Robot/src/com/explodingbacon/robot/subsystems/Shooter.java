@@ -27,9 +27,9 @@ public class Shooter extends Subsystem {
     public static final int INTAKE_RATE = -25000;
 
     public static final int GOOD_BALL_SHOOT_RATE = 36500;
+    public static final int BAD_BALL_SHOOT_RATE = 50000;
 
     //Random rates we were using/tuning at some point, keeping in case we ever need them
-    //public static final int BAD_BALL_SHOOT_RATE = 50000;
     //public static final int MEDIUM_BALL_SHOOT_RATE = 50000;
     //public static final int BAD_BALL_LOW_RATE = 15000;
     //public static final int GOOD_BALL_LOW_RATE = 12500;
@@ -84,6 +84,10 @@ public class Shooter extends Subsystem {
         }
     }
 
+    public static void waitForRev() {
+        shooterPID.waitUntilDone();
+    }
+
     /**
      * Stops revving the Shooter.
      */
@@ -105,13 +109,10 @@ public class Shooter extends Subsystem {
      * @return The rate needed to shoot the current ball.
      */
     public static double calculateRate() {
+        if (OI.shooterRevBad.get()) {
+            return BAD_BALL_SHOOT_RATE;
+        }
         return GOOD_BALL_SHOOT_RATE;
-        /*
-        if (currentBallWatts == -1 || !Intake.TEST_BALLS) {
-            return DEFAULT_SHOOT_RATE;
-        } else {
-            return DEFAULT_SHOOT_RATE; //TODO: formula for watts -> rate
-        }*/
     }
 
     /**

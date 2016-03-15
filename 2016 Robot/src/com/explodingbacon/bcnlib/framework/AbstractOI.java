@@ -89,7 +89,6 @@ public abstract class AbstractOI extends CodeThread {
      * Deletes all the Command triggers and stops any Commands they may have started.
      */
     public static void deleteAllTriggers() {
-        Log.d("AbstractOI.deleteAllTriggers() called");
         synchronized (TRIGGERS_RW) {
             for (Trigger t : triggers) {
                 t.c.forceStop();
@@ -97,7 +96,6 @@ public abstract class AbstractOI extends CodeThread {
             }
             triggers.clear();
         }
-        Log.d("AbstractOI.deleteAllTriggers() done");
     }
 
     /**

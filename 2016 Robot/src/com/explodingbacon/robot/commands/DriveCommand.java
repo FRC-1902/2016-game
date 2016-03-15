@@ -30,43 +30,11 @@ public class DriveCommand extends Command {
     @Override
     public void onLoop() {
         if (Drive.isDriverControlled()) {
-            double leftTurn = 0, rightTurn = 0;
-            /*
-            if (OI.gyroForward.get()) { //TODO: uncomment this
-                ADXSensor adx = Drive.getADX();
-                if (!buttonWasTrue) angleStart = adx.getAngle();
-                double angleError = adx.getAngle() - angleStart; //TODO: Check if the sign is wrong
-                if (Math.abs(angleError) > Drive.GYRO_ANGLE_TOLERANCE) {
-                    if (!left.isEnabled()) {
-                        left.setTarget(angleStart);
-                        left.enable();
-                    }
-                    if (!right.isEnabled()) {
-                        right.setTarget(angleStart);
-                        right.enable();
-                    }
+            double joyX, joyY;
 
-                    leftTurn = left.getMotorPower() / 3;
-                    rightTurn = right.getMotorPower() / 3;
+            joyX = OI.drive.getX();
+            joyY = OI.drive.getY();
 
-                }
-
-                buttonWasTrue = true;
-            } else {
-                buttonWasTrue = false;
-            }
-            */
-
-            //Drive.shiftIfResistance();
-
-            double joyX;
-            double joyY;
-
-            joyX = OI.drive.getX() + leftTurn;
-            joyY = OI.drive.getY() + rightTurn;
-
-            //joyX = OI.drive.getX();
-            //joyY = OI.drive.getRawAxis(3);
 
             joyX = Utils.deadzone(joyX, deadzone);
             joyY = Utils.deadzone(joyY, deadzone);

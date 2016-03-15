@@ -14,14 +14,14 @@ public class OI extends AbstractOI {
 
     public static ButtonGroup shoot;
 
-    public static Button shootNoVision;
+    public static Button shootNoVision, shootAbort;
 
     //Manipulator buttons
 
     public static ButtonGroup intakeRetract;
     public static Button intakeMotorIn, intakeMotorOut;
 
-    public static Button shooterRev;
+    public static Button shooterRev, shooterRevBad;
     public static ButtonGroup shooterRevButtons;
 
     public static Button deployClimber, climb;
@@ -48,6 +48,8 @@ public class OI extends AbstractOI {
 
         shootNoVision = drive.one;
 
+        shootAbort = drive.two;
+
         //Manipulator controls
 
         intakeRetract = manip.bumpers;
@@ -55,7 +57,8 @@ public class OI extends AbstractOI {
         intakeMotorIn = manip.x;
         intakeMotorOut = manip.y;
 
-        shooterRev = manip.triggers;
+        shooterRev = manip.rightTrigger;
+        shooterRevBad = manip.leftTrigger;
         shooterRevButtons = manip.triggers;
 
         deployClimber = manip.start; //TODO: check if this is the left
