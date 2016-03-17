@@ -1,9 +1,10 @@
 package com.explodingbacon.bcnlib.vision;
 
 import com.explodingbacon.bcnlib.framework.Log;
-import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
+
+import java.util.function.Consumer;
 
 /**
  * A wrapper class for OpenCV's VideoCapture object.
@@ -19,8 +20,10 @@ public class Camera {
     private final Object CAMERA_USE = new Object();
     private final Object IMAGE_USE = new Object();
     private Image image;
+    private Consumer<Image> onEachFrame = null;
 
     private boolean autoUpdate;
+    private boolean updatingEnabled = true;
     private Thread updateThread = null;
 
     public Camera(int i, boolean b) {
@@ -34,11 +37,12 @@ public class Camera {
                 updateThread = new Thread(() -> {
                     //Log.d("Camera autoupdate thread init");
                     while (true) {
-                        if (cam.isOpened()) {
+                        if (cam.isOpened() && updatingEnabled) {
                             synchronized (CAMERA_USE) {
                                 if (cam.isOpened()) { //Do this again because synchronized can cause delays
                                     synchronized (IMAGE_USE) {
                                         cam.read(image.getMat());
+                                        if (onEachFrame != null) onEachFrame.accept(image.copy());
                                     }
                                 }
                             }
@@ -53,6 +57,25 @@ public class Camera {
             Log.e("Camera init exception!");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Checks if the auto updating for this Camera is enabled. This is NOT used to check if the Camera is in auto
+     * updating mode. Use isAutoUpdating() for that.
+     *
+     * @return If the auto updating for this Camera is enabled.
+     */
+    public boolean isUpdatingEnabled() {
+        return updatingEnabled;
+    }
+
+    /**
+     * Sets if the auto updating for this Camera is enabled.
+     *
+     * @param u The new status of the auto updating.
+     */
+    public void setUpdatingEnabled(boolean u) {
+        updatingEnabled = u;
     }
 
     /**
@@ -74,13 +97,22 @@ public class Camera {
     }
 
     /**
+     * Sets the code that runs every time a frame is processed. Set this to null if you want no code to run.
+     *
+     * @param c The code to be run.
+     */
+    public void onEachFrame(Consumer<Image> c) {
+        onEachFrame = c;
+    }
+
+    /**
      * Gets the current Image on this Camera.
      *
      * @return The current Image on this Camera.
      */
     public Image getImage() {
         synchronized (IMAGE_USE) {
-            return image;
+            return image.copy();
         }
     }
 
@@ -110,7 +142,7 @@ public class Camera {
     }
 
     /**
-     * Sets the FPS of this Camera.
+     * Sets the FPS of this Camera. TODO: Figure out why this doesn't work. This should help: http://stackoverflow.com/questions/7039575/how-to-set-camera-fps-in-opencv-cv-cap-prop-fps-is-a-fake
      *
      * @param d The new FPS.
      * @return If the operation was successful.
@@ -145,9 +177,7 @@ public class Camera {
      * @return The value of an OpenCV property.
      */
     public double getRaw(int propid) {
-        synchronized (CAMERA_USE) {
-            return cam.get(propid);
-        }
+        return cam.get(propid);
     }
 
     /**

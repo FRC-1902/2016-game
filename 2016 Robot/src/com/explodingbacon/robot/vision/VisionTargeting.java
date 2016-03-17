@@ -33,8 +33,10 @@ public class VisionTargeting extends Command {
 
             Log.v("Vision Targeting initialized!");
             camera = new Camera(0, true);
-            camera.setFPS(5);
-            camera.setExposure(-9); //TODO: tune?
+
+            camera.setUpdatingEnabled(false);
+            camera.setExposure(-9); //TODO: tune
+            camera.setUpdatingEnabled(true);
 
             init = true;
         }
