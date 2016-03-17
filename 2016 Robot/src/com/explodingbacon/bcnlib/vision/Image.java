@@ -12,7 +12,7 @@ import java.util.List;
  * A wrapper class for OpenCV's Mat object.
  *
  * @author Ryan Shavell
- * @version 2016.3.7
+ * @version 2016.3.16
  */
 
 public class Image {
@@ -93,6 +93,17 @@ public class Image {
         Mat newM = new Mat();
         Core.inRange(m, low.toScalar(), high.toScalar(), newM);
         return new Image(newM);
+    }
+
+    /**
+     * Creates a copy of this Image that is in HSV instead of BGR.
+     *
+     * @return A copy of this Image that is in HSV instead of BGR.
+     */
+    public Image toHSV() { //TODO: Test this
+        Image newI = copy();
+        Imgproc.cvtColor(m, newI.getMat(), Imgproc.COLOR_BGR2HSV);
+        return newI;
     }
 
     /**

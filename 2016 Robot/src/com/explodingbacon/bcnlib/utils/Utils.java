@@ -11,7 +11,7 @@ import java.util.function.BooleanSupplier;
  * A Utility class that contains helpful functions that don't really fit in any other classes.
  *
  * @author Ryan Shavell
- * @version 2016.3.7
+ * @version 2016.3.16
  */
 
 public class Utils {
@@ -73,7 +73,7 @@ public class Utils {
 
     private static double IMAGE_WIDTH = 640;
     private static double GOAL_TARGET_WIDTH = 20.5; //Width in inches of object being referenced
-    private static double FOV = 59.7; //Was 31.25 and 50
+    private static double FOV = 51.62; //Old was 59.7
 
     /**
      * Gets how many degrees the Robot needs to turn to get x in the center of the camera's vision.

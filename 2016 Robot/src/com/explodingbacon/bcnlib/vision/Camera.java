@@ -3,25 +3,29 @@ package com.explodingbacon.bcnlib.vision;
 import com.explodingbacon.bcnlib.framework.Log;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 /**
  * A wrapper class for OpenCV's VideoCapture object.
  *
  * @author Ryan Shavell
- * @version 2016.3.8
+ * @version 2016.3.16
  */
 
 public class Camera {
 
     private VideoCapture cam;
-    private int index = 0;
+    private int index;
     private final Object CAMERA_USE = new Object();
+    private final Object IMAGE_USE = new Object();
+    private Image image;
 
     private boolean autoUpdate;
     private Thread updateThread = null;
 
     public Camera(int i, boolean b) {
         index = i;
+        image = new Image();
         try {
             cam = new VideoCapture(index);
             autoUpdate = b;
@@ -30,15 +34,14 @@ public class Camera {
                 updateThread = new Thread(() -> {
                     //Log.d("Camera autoupdate thread init");
                     while (true) {
-                        synchronized (CAMERA_USE) {
-                            if (cam.isOpened()) {
-                                if (!cam.grab()) {
-                                    Log.d("Camera.grab() returned false!");
+                        if (cam.isOpened()) {
+                            synchronized (CAMERA_USE) {
+                                if (cam.isOpened()) { //Do this again because synchronized can cause delays
+                                    synchronized (IMAGE_USE) {
+                                        cam.read(image.getMat());
+                                    }
                                 }
                             }
-                            try {
-                                Thread.sleep(10);
-                            } catch(Exception e) {}
                         }
                     }
                 });
@@ -71,33 +74,14 @@ public class Camera {
     }
 
     /**
-     * Updates an Image with the current Image on this Camera.
+     * Gets the current Image on this Camera.
      *
-     * @param i The Image to be updated.
-     */
-    public void getImage(Image i) {
-        Mat m = i.getMat();
-        synchronized (CAMERA_USE) {
-            if (autoUpdate) {
-                cam.retrieve(m);
-            } else {
-                cam.open(index);
-                cam.grab();
-                cam.retrieve(m);
-                cam.release();
-            }
-        }
-    }
-
-    /**
-     * Gets a new Image from this Camera.
-     *
-     * @return A new Image from this Camera.
+     * @return The current Image on this Camera.
      */
     public Image getImage() {
-        Image i = new Image();
-        getImage(i);
-        return i;
+        synchronized (IMAGE_USE) {
+            return image;
+        }
     }
 
     /**
@@ -111,7 +95,47 @@ public class Camera {
      * Releases this Camera.
      */
     public void release() {
-        cam.release();
+        synchronized (CAMERA_USE) {
+            cam.release();
+        }
+    }
+
+    /**
+     * Gets the FPS of this Camera.
+     *
+     * @return The FPS of this Camera.
+     */
+    public double getFPS() {
+        return getRaw(Videoio.CAP_PROP_FPS);
+    }
+
+    /**
+     * Sets the FPS of this Camera.
+     *
+     * @param d The new FPS.
+     * @return If the operation was successful.
+     */
+    public boolean setFPS(double d) {
+        return setRaw(Videoio.CAP_PROP_FPS, d);
+    }
+
+    /**
+     * Gets the exposure of this Camera.
+     *
+     * @return The exposure of this Camera.
+     */
+    public double getExposure() {
+        return getRaw(Videoio.CAP_PROP_EXPOSURE);
+    }
+
+    /**
+     * Sets the exposure of this Camera.
+     *
+     * @param d The new exposure.
+     * @return If the operation was successful.
+     */
+    public boolean setExposure(double d) {
+        return setRaw(Videoio.CAP_PROP_EXPOSURE, d);
     }
 
     /**
@@ -121,7 +145,9 @@ public class Camera {
      * @return The value of an OpenCV property.
      */
     public double getRaw(int propid) {
-        return cam.get(propid);
+        synchronized (CAMERA_USE) {
+            return cam.get(propid);
+        }
     }
 
     /**
@@ -132,6 +158,8 @@ public class Camera {
      * @return If changing the property was successful.
      */
     public boolean setRaw(int propid, double val) {
-        return cam.set(propid, val);
+        synchronized (CAMERA_USE) {
+            return cam.set(propid, val);
+        }
     }
 }

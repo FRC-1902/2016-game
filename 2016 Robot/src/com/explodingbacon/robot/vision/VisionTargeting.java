@@ -23,11 +23,8 @@ public class VisionTargeting extends Command {
     private static double ANGLE_DEADZONE = 0.8;
     private static double CAMERA_PIXELS_OFFSET = 0; //was -11, then -8, now 0 due to not needing this (most likely)
 
-    private static Image i;
-
     private static final String imgDir = "/home/lvuser/";
 
-    private static final boolean REUSE_IMAGES = true;
     private static final TargetType TARGET_TYPE = TargetType.CLOSEST_TO_BOTTOM;
 
     @Override
@@ -36,7 +33,8 @@ public class VisionTargeting extends Command {
 
             Log.v("Vision Targeting initialized!");
             camera = new Camera(0, true);
-            i = camera.getImage();
+            camera.setFPS(5);
+            camera.setExposure(-9); //TODO: tune?
 
             init = true;
         }
@@ -63,8 +61,8 @@ public class VisionTargeting extends Command {
                 boolean abort = false;
 
                 double startMillis = System.currentTimeMillis();
-                if (!REUSE_IMAGES) i = new Image();
-                camera.getImage(i); //Update our current image
+
+                Image i = camera.getImage(); //Get our current image
                 double imageGetMS = System.currentTimeMillis() - startMillis;
 
                 Log.v("Took " + imageGetMS + "ms to get image.");
