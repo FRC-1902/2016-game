@@ -19,7 +19,7 @@ public class Camera {
     private int index;
     private final Object CAMERA_USE = new Object();
     private final Object IMAGE_USE = new Object();
-    private Image image;
+    private Image image = new Image();
     private Consumer<Image> onEachFrame = null;
 
     private boolean autoUpdate;
@@ -28,7 +28,6 @@ public class Camera {
 
     public Camera(int i, boolean b) {
         index = i;
-        image = new Image();
         try {
             cam = new VideoCapture(index);
             autoUpdate = b;
