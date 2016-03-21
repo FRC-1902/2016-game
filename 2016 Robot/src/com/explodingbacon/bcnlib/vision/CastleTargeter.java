@@ -27,7 +27,7 @@ public class CastleTargeter implements Targeter {
      */
     @Override
     public Image filter(Image i, Object... args) { //filter(image)
-        return i.colorRange(new Color(230, 230, 230), new Color(255, 255, 255));
+        return i.inRange(new Color(230, 230, 230), new Color(255, 255, 255));
     }
 
     /**

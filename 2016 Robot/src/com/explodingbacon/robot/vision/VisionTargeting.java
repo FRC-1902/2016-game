@@ -217,7 +217,7 @@ public class VisionTargeting extends Command {
      * @return A filtered version of the Image.
      */
     private static Image filter(Image i) {
-        return i.colorRange(new Color(230, 230, 230), new Color(255, 255, 255));
+        return i.inRange(new Color(230, 230, 230), new Color(255, 255, 255));
     }
 
     /**
