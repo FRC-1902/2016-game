@@ -44,6 +44,8 @@ public class Map {
 
     public static final int CLIMBER_DEPLOY = 8;
 
+    public static final int CLIMBER_POSITION = 9;
+
     //SENSORS
 
     public static final int RIGHT_DRIVE_ENCODER_A = 0;

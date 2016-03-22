@@ -25,17 +25,17 @@ public class VisionTargeting extends Command {
 
     private static final String imgDir = "/home/lvuser/";
 
-    private static final TargetType TARGET_TYPE = TargetType.CLOSEST_TO_BOTTOM;
+    private static final TargetType TARGET_TYPE = TargetType.BIGGEST; //TODO: Find/make a better TargetType for castle tracking than this?
 
     @Override
     public void onInit() {
         if (!init) {
 
             Log.v("Vision Targeting initialized!");
-            camera = new Camera(0, true);
+            camera = new Camera(0, false); //TODO: If things are breaking a lot, make this true again
 
             camera.setUpdatingEnabled(false);
-            camera.setExposure(-9); //TODO: tune
+            camera.setExposure(-11); //TODO: tune
             camera.setUpdatingEnabled(true);
 
             init = true;
@@ -64,7 +64,7 @@ public class VisionTargeting extends Command {
 
                 double startMillis = System.currentTimeMillis();
 
-                Image i = camera.getImage(); //Get our current image
+                Image i = camera.getImage();
                 double imageGetMS = System.currentTimeMillis() - startMillis;
 
                 Log.v("Took " + imageGetMS + "ms to get image.");
@@ -92,7 +92,7 @@ public class VisionTargeting extends Command {
                     double degrees = Utils.getDegreesToTurn(goalMid, target);
                     Log.v(degrees + " degrees away from the goal");
                     if (Math.abs(degrees) > ANGLE_DEADZONE) {
-                        if (!Drive.gyroTurn(degrees, 5)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
+                        if (!Drive.gyroTurn(degrees, 6)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
                             Log.v("Gyro turn timeout reached. Shoot aborting.");
                             Drive.setDriverControlled(true);
                             abort = true;
@@ -231,7 +231,7 @@ public class VisionTargeting extends Command {
         Image filtered = filter(i);
         Contour goal = null;
         for (Contour c : filtered.getContours()) {
-            if (c.getWidth() < 300 && c.getWidth() > 10 && c.getHeight() < 300) {
+            if (c.getWidth() < 300 && c.getWidth() > 20 && c.getHeight() < 300 && c.getHeight() > 20) { //TODO: These 20's used to be 10's. If things are bad, go back to 10's
                 if (goal == null) {
                     goal = c;
                 } else {

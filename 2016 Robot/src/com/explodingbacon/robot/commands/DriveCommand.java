@@ -10,20 +10,6 @@ public class DriveCommand extends Command {
 
     public double deadzone = 0.08;
 
-    public double angleStart = 0;
-    public boolean buttonWasTrue = false;
-    public double previousRate = 0;
-
-    public boolean wasShiftingLow = false;
-
-    public double gyroKP = 1, gyroKI = 1, min = 0.1, max = 1;
-
-    public PIDController left = new PIDController(null, Drive.getADX(), gyroKP, gyroKI, 0, min, max);
-    public PIDController right = new PIDController(null, Drive.getADX(), gyroKP, gyroKI, 0, min, max).setInputInverted(true);
-
-    public DriveCommand() {
-    }
-
     @Override
     public void onInit() {}
 

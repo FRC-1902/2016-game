@@ -30,7 +30,6 @@ public class Shooter extends Subsystem {
     public static final int BAD_BALL_SHOOT_RATE = 50000;
 
     //Random rates we were using/tuning at some point, keeping in case we ever need them
-    //public static final int MEDIUM_BALL_SHOOT_RATE = 50000;
     //public static final int BAD_BALL_LOW_RATE = 15000;
     //public static final int GOOD_BALL_LOW_RATE = 12500;
 
@@ -67,12 +66,21 @@ public class Shooter extends Subsystem {
 
     /**
      * Revs up the Shooter.
+     * @param c The Command calling this function.
      */
     public static void rev(Command c) {
-        if (shooter.claim(c)) {
-            //setSpotlight(true);
+        rev(c, calculateRate());
+    }
 
-            shooterPID.setTarget(Shooter.calculateRate());
+    /**
+     * Revs up the Shooter to a certain speed.
+     *
+     * @param c The Command calling this function.
+     * @param speed The speed the shooter should rev up to.
+     */
+    public static void rev(Command c, double speed) {
+        if (shooter.claim(c)) {
+            shooterPID.setTarget(speed);
 
             shooterPID.setExtraCode(() -> {
                 if (shooterPID.isDone()) {
@@ -84,6 +92,9 @@ public class Shooter extends Subsystem {
         }
     }
 
+    /**
+     * Makes the Thread wait until the shooter is up to speed.
+     */
     public static void waitForRev() {
         shooterPID.waitUntilDone();
     }

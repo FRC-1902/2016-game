@@ -15,7 +15,8 @@ public class Climber extends Subsystem {
 
     private static MotorGroup cableWinch = (MotorGroup) new MotorGroup(CANTalon.class, Map.CLIMBER_CABLE_WINCH_A, Map.CLIMBER_CABLE_WINCH_B).setName("Climber Winch");
     private static MotorEncoder encoder;
-    private static Solenoid deploy = new Solenoid(Map.CLIMBER_DEPLOY);
+    private static Solenoid position = new Solenoid(Map.CLIMBER_POSITION); //TODO: Get correct port and check if this is should be DoubleSolenoid
+    private static Solenoid deploy = new Solenoid(Map.CLIMBER_DEPLOY); //TODO: Get correct port and check if this is should be DoubleSolenoid
 
     private static final int STOP_CLIMBING_POSITION = 9001; //TODO: tune
 
@@ -30,6 +31,15 @@ public class Climber extends Subsystem {
     public void disabledInit() {}
 
     /**
+     * Sets the position of the Climber.
+     *
+     * @param b True = up, false = down.
+     */
+    public static void setPosition(boolean b) {
+        position.set(b);
+    }
+
+    /**
      * Deploys the Climber.
      */
     public static void deploy() {
@@ -42,7 +52,7 @@ public class Climber extends Subsystem {
     public static void climb() {
         encoder.reset();
         cableWinch.setPower(0.5);
-        Utils.waitFor(() -> encoder.get() > STOP_CLIMBING_POSITION);
+        Utils.waitFor(() -> encoder.get() > STOP_CLIMBING_POSITION); //TODO: check if we can trust this
         cableWinch.setPower(0);
     }
 

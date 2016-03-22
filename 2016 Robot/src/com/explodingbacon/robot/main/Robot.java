@@ -38,7 +38,6 @@ public class Robot extends RobotCore {
     public static Drive drive;
     public static Intake intake;
     public static Shooter shooter;
-    public static Mantis mantis;
     public static Climber climber;
     public static PDP pdp = new PDP();
     public static SendableChooser autoChooser;
@@ -58,7 +57,6 @@ public class Robot extends RobotCore {
         drive = new Drive();
         intake = new Intake();
         shooter = new Shooter();
-        //mantis = new Mantis();
         //climber = new Climber();
 
         oi = new OI();
@@ -68,6 +66,7 @@ public class Robot extends RobotCore {
         autoChooser = new SendableChooser();
         autoChooser.initTable(NetworkTable.getTable("TableThing"));
         autoChooser.addDefault("Cross (10 points, Neutral Zone facing defense)", AutonomousCommand.Type.CROSS);
+        autoChooser.addDefault("Cross with High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
         autoChooser.addDefault("One Boulder with Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Neutral (30 Points, Neutral Zone facing defense)", AutonomousCommand.Type.TWO_BOULDER_NEUTRAL);
@@ -81,7 +80,7 @@ public class Robot extends RobotCore {
 
     public void initTeleopCommands() {
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
-        //OI.runCommands(new MantisCommand(), new ClimberCommand());
+        //OI.runCommand(new ClimberCommand());
         if (Vision.isInit()) {
             OI.runCommand(new VisionTargeting());
         }

@@ -32,13 +32,14 @@ public class AutonomousCommand extends Command {
         try {
             type = (Type) Robot.autoChooser.getSelected();
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
-            if (type == Type.CROSS) { //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, stop touching low bar
+            if (type == Type.CROSS) {
+                Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+            }
+            if (type == Type.ONE_BOULDER_NEUTRAL) { //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, stop touching low bar
                 Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
                 Thread.sleep(500);
-                Drive.inchDrive(3 * 12);
-                /*
                 if (Robot.isAutonomous()) {
-                    Shooter.rev(this);
+                    Shooter.rev(this, Shooter.BAD_BALL_SHOOT_RATE); //TODO: make this the most commonly used shooter speed
                     Drive.gyroTurn(12, 6); //TODO: tune this timeout time
                     if (Robot.isAutonomous()) {
                         Shooter.queueVisionShoot();
@@ -50,7 +51,7 @@ public class AutonomousCommand extends Command {
                     Drive.gyroTurn(angleDiff + 180);
                     Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
                     */
-                //}
+                }
             } else if (type == Type.ONE_BOULDER_SPY) {
                 Shooter.rev(this);
                 Shooter.waitForRev();
@@ -124,6 +125,7 @@ public class AutonomousCommand extends Command {
 
     public enum Type {
         CROSS,
+        ONE_BOULDER_NEUTRAL,
         ONE_BOULDER_SPY,
         TWO_BOULDER_SPY,
         TWO_BOULDER_NEUTRAL,
