@@ -107,25 +107,14 @@ public class Image {
     }
 
     /**
-     * Returns an Image that represents all the edges in this Image.
-     *
-     * @return An Image that represents all the edges in this Image.
-     */
-    public Image findEdges() {
-        Image copy = copy();
-        Imgproc.Canny(m, copy.getMat(), 50, 150);
-        return copy;
-    }
-
-    /**
      * Creates an identical copy of this Image.
      *
      * @return An identical copy of this Image.
      */
     public Image copy() {
-        Mat copy = new Mat();
-        m.copyTo(copy);
-        return new Image(copy);
+        Image i = new Image();
+        m.copyTo(i.getMat());
+        return i;
     }
 
     /**

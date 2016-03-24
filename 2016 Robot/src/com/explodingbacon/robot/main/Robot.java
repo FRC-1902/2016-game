@@ -28,19 +28,21 @@ import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.*;
 import com.explodingbacon.robot.vision.VisionTargeting;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import sun.nio.ch.Net;
 
 public class Robot extends RobotCore {
 
     public static Drive drive;
     public static Intake intake;
     public static Shooter shooter;
-    public static Climber climber;
-    public static PDP pdp = new PDP();
+    //public static Climber climber;
     public static SendableChooser autoChooser;
+    public static SendableChooser posChooser;
     //public static DataLogger logger = new DataLogger();
 
     public OI oi;
@@ -52,7 +54,7 @@ public class Robot extends RobotCore {
     @Override
     public void robotInit() {
         super.robotInit();
-        //Vision.init();
+        Vision.init();
 
         drive = new Drive();
         intake = new Intake();
@@ -61,19 +63,35 @@ public class Robot extends RobotCore {
 
         oi = new OI();
 
-        pdp.setLoggingTripping(false);
-
         autoChooser = new SendableChooser();
         autoChooser.initTable(NetworkTable.getTable("TableThing"));
         autoChooser.addDefault("Cross (10 points, Neutral Zone facing defense)", AutonomousCommand.Type.CROSS);
-        autoChooser.addDefault("Cross with High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
-        autoChooser.addDefault("One Boulder with Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
+        autoChooser.addDefault("Neutral Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
+        autoChooser.addDefault("Spy High Goal w/ Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Neutral (30 Points, Neutral Zone facing defense)", AutonomousCommand.Type.TWO_BOULDER_NEUTRAL);
         autoChooser.addObject("Nothing (0 Points, Anywhere)", AutonomousCommand.Type.NOTHING);
         SmartDashboard.putData("Autonomous Chooser", autoChooser);
 
+        posChooser = new SendableChooser();
+        posChooser.initTable(NetworkTable.getTable("TableThing"));
+        //TODO: tune all of these angles
+        posChooser.addDefault("1", 20);
+        posChooser.addObject("2", 12);
+        posChooser.addObject("3", 0);
+        posChooser.addObject("4", -12);
+        posChooser.addObject("5", -20);
+        SmartDashboard.putData("Defense Position Chooser", posChooser);
+
         SmartDashboard.putNumber("Auto Delay", 3);
+
+        /*
+        SmartDashboard.putNumber("Camera Exposure", VisionTargeting.EXPOSURE_DEFAULT);
+
+        CameraServer server = CameraServer.getInstance();
+        server.setQuality(50);
+        server.startAutomaticCapture("cam" + Map.CAMERA_ID);
+        */
 
         Log.i("Battering Ham initialized!");
     }
@@ -99,6 +117,8 @@ public class Robot extends RobotCore {
         Drive.setDriverControlled(true);
 
         Shooter.getLight().enable();
+
+        //SmartDashboard.putNumber("Turn Amnt", 90);
     }
 
     @Override
@@ -133,16 +153,16 @@ public class Robot extends RobotCore {
 
         /*
         if(OI.manip.a.get()) {
-            drive.gLeft.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
+            Drive.gLeft.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
                     SmartDashboard.getNumber("Gyro kD"));
-            drive.gRight.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
+            Drive.gRight.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
                     SmartDashboard.getNumber("Gyro kD"));
 
             while(OI.manip.a.get());
         }
 
         if(OI.manip.b.get()) {
-            drive.gyroTurn(90, 10);
+            Drive.gyroTurn(SmartDashboard.getNumber("Turn Amnt"), 10);
         }
         */
     }
@@ -168,5 +188,13 @@ public class Robot extends RobotCore {
     @Override
     public void disabledPeriodic() {
         super.disabledPeriodic();
+        /*
+        double sdExposure = SmartDashboard.getNumber("Camera Exposure");
+        if (VisionTargeting.currentExposure != sdExposure)) {
+            VisionTargeting.camera.setExposure(sdExposure);
+            VisionTargeting.currentExposure = sdExposure;
+            Log.i("Camera exposure updated!");
+        }
+        */
     }
 }

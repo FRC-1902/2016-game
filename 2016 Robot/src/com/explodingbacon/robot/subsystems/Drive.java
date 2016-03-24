@@ -58,11 +58,11 @@ public class Drive extends Subsystem {
         eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
         eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
 
-        /*
+
         SmartDashboard.putNumber("Gyro kP", gyrokP);
         SmartDashboard.putNumber("Gyro kI", gyrokI);
         SmartDashboard.putNumber("Gyro kD", gyrokD);
-        */
+
 
         /*
         Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();

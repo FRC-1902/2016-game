@@ -48,28 +48,28 @@ public abstract class RobotCore {
      * Runs when teleoperated mode starts.
      */
     public void teleopInit() {
-        Log.d("Teleop init!");
+        //Log.d("Teleop init!");
     }
 
     /**
      * Runs when autonomous mode starts.
      */
     public void autonomousInit() {
-        Log.d("Autonomous init!");
+        //Log.d("Autonomous init!");
     }
 
     /**
      * Runs when test mode starts.
      */
     public void testInit() {
-        Log.d("Test init!");
+        //Log.d("Test init!");
     }
 
     /**
      * Runs when the Robot is disabled.
      */
     public void disabledInit() {
-        Log.d("Disabled init!");
+        //Log.d("Disabled init!");
         subsystems.forEach(Subsystem::disabledInit);
         for (Motor m : Motor.getAllMotors()) {
             m.setUser(null);

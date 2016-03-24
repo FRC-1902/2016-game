@@ -8,10 +8,12 @@ import com.explodingbacon.bcnlib.vision.Camera;
 import com.explodingbacon.bcnlib.vision.Color;
 import com.explodingbacon.bcnlib.vision.Contour;
 import com.explodingbacon.bcnlib.vision.Image;
+import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.Drive;
 import com.explodingbacon.robot.subsystems.Shooter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Collections;
 
@@ -20,27 +22,36 @@ public class VisionTargeting extends Command {
     private static Camera camera;
     private static boolean init = false;
 
-    private static double ANGLE_DEADZONE = 0.8;
-    private static double CAMERA_PIXELS_OFFSET = 0; //was -11, then -8, now 0 due to not needing this (most likely)
+    private static final double ANGLE_DEADZONE = 0.8;
+    private static final double CAMERA_PIXELS_OFFSET = 0;
+    private static final double EXPOSURE_DEFAULT = -13; //TODO: tune
+
+    private static Image goalSample;
 
     private static final String imgDir = "/home/lvuser/";
 
-    private static final TargetType TARGET_TYPE = TargetType.BIGGEST; //TODO: Find/make a better TargetType for castle tracking than this?
+    private static final TargetType TARGET_TYPE = TargetType.SHAPE;
 
     @Override
     public void onInit() {
         if (!init) {
+            camera = new Camera(0, true);
+            // Log.d("Made camera!");
+
+            /*
+            camera.setUpdatingEnabled(false);
+            boolean b = camera.setExposure(EXPOSURE_DEFAULT);
+            camera.setUpdatingEnabled(true);
+            */
+
+            goalSample = Image.fromFile(imgDir + "goal_sample.png").inRange(new Color(244, 244, 244), new Color(255, 255, 255));
+            //Log.d("Goal sample gotten!");
 
             Log.v("Vision Targeting initialized!");
-            camera = new Camera(0, false); //TODO: If things are breaking a lot, make this true again
-
-            camera.setUpdatingEnabled(false);
-            camera.setExposure(-11); //TODO: tune
-            camera.setUpdatingEnabled(true);
 
             init = true;
         }
-        //camera.open();
+
         try {
             Thread.sleep(500);
         } catch (Exception e) {}
@@ -75,11 +86,17 @@ public class VisionTargeting extends Command {
 
                 //Log.d("Starting difference: " + (goal.getMiddleX() - target));
 
+                /*
+                save(i, "image_raw");
+
                 Image indicators = i.copy();
 
                 drawIndicators(indicators, target, goal);
 
-                save(indicators, "image_start");
+                save(indicators, "image_target");
+                Log.d("Saved images!");
+
+                */
 
                 if (isDriverAborting()) {
                     abort = true;
@@ -90,6 +107,7 @@ public class VisionTargeting extends Command {
                     //Log.v("Goal detected.");
                     double goalMid = goal.getMiddleX();
                     double degrees = Utils.getDegreesToTurn(goalMid, target);
+                    Log.d("Calculated degrees to turn");
                     Log.v(degrees + " degrees away from the goal");
                     if (Math.abs(degrees) > ANGLE_DEADZONE) {
                         if (!Drive.gyroTurn(degrees, 6)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
@@ -195,20 +213,7 @@ public class VisionTargeting extends Command {
         i.drawLine(Utils.round(targetPos), Color.BLUE); //Blue line of target position
     }
 
-    /**
-     * Fake processes an Image and generates the indicator graphics on it. To be used for checking if certain images are
-     * being processed properly.
-     *
-     * @param imageName The name (and possibly directory) of the image.
-     * @param normalDir If the image is saved in the normal image directory.
-     */
-    public static void fakeProcess(String imageName, boolean normalDir) {
-        Image i = Image.fromFile((normalDir ? imgDir : "") + imageName);
-        double target = (i.getWidth() / 2) + CAMERA_PIXELS_OFFSET;
-        Contour goal = findGoal(i, target);
-        drawIndicators(i, target, goal);
-        i.saveAs(imgDir + imageName + "_processed.png");
-    }
+    private static final Color min = new Color(28, 220, 187), max = new Color(255, 255, 255); //max = new Color(206, 255, 240)
 
     /**
      * Creates a filtered version of the Image. The filter is designed for easily identifying goals.
@@ -217,7 +222,7 @@ public class VisionTargeting extends Command {
      * @return A filtered version of the Image.
      */
     private static Image filter(Image i) {
-        return i.inRange(new Color(230, 230, 230), new Color(255, 255, 255));
+        return i.inRange(min, max);
     }
 
     /**
@@ -252,6 +257,12 @@ public class VisionTargeting extends Command {
                         if (c.getArea() > goal.getArea()) {
                             goal = c;
                         }
+                    } else if (TARGET_TYPE == TargetType.SHAPE) {
+                        double comp;
+                        if ((comp = c.compareTo(goalSample)) > goal.compareTo(goalSample)) {
+                            goal = c;
+                            Log.i("Goal compare rating: " + comp);
+                        }
                     } else {
                         Log.e("Unsupported TargetType \"" + TARGET_TYPE + "\" selected in VisionTargeting!");
                     }
@@ -271,6 +282,7 @@ public class VisionTargeting extends Command {
     public enum TargetType {
         BIGGEST,
         CLOSEST_TO_TARGET,
-        CLOSEST_TO_BOTTOM
+        CLOSEST_TO_BOTTOM,
+        SHAPE
     }
 }

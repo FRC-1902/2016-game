@@ -96,7 +96,7 @@ public class Utils {
         double distance = x - target; //TODO: check if sign is correct
         if (distance != 0) {
             double percent = distance / IMAGE_WIDTH;
-            Log.d("Distance: " + distance + ", Target: " + target + ", Percent: " + (percent * 100));
+            //Log.d("Distance: " + distance + ", Target: " + target + ", Percent: " + (percent * 100));
             return FOV * percent;
         } else {
             return 0;
