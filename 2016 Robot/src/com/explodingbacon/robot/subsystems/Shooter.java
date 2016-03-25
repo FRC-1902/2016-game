@@ -19,8 +19,6 @@ public class Shooter extends Subsystem {
     private static MotorGroup shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
     private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
 
-    private static Light light = new Light(new Solenoid(Map.LIGHT));
-
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
 
@@ -223,15 +221,6 @@ public class Shooter extends Subsystem {
      */
     public static MotorEncoder getEncoder() {
         return encoder;
-    }
-
-    /**
-     * Gets the indicator light.
-     *
-     * @return The indicator light.
-     */
-    public static Light getLight() {
-        return light;
     }
 
     /*

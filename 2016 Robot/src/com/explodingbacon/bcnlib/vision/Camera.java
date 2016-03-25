@@ -10,7 +10,7 @@ import java.util.function.Consumer;
  * A wrapper class for OpenCV's VideoCapture object.
  *
  * @author Ryan Shavell
- * @version 2016.3.16
+ * @version 2016.3.24
  */
 
 public class Camera {

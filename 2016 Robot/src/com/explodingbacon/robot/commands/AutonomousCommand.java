@@ -32,35 +32,35 @@ public class AutonomousCommand extends Command {
             type = (Type) Robot.autoChooser.getSelected();
             double angleToShoot = (double) Robot.posChooser.getSelected();
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
-            if (type == Type.CROSS) {
+            if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) { //Drive forward, turn, shoot, turn to back to original angle, back into defense ramp
                 Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
-            } else if (type == Type.ONE_BOULDER_NEUTRAL) { //Drive forward through low bar, turn, shoot, turn to 180 degrees our starting angle, stop touching low bar
-                Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
-                Thread.sleep(500);
-                if (Robot.isAutonomous()) {
-                    Shooter.rev(this, Shooter.BAD_BALL_SHOOT_RATE);
-                    Drive.gyroTurn(angleToShoot, 6);
+                if (type == Type.ONE_BOULDER_NEUTRAL) {
+                    Thread.sleep(500);
                     if (Robot.isAutonomous()) {
-                        Shooter.queueVisionShoot();
-                        Shooter.waitForVisionShoot();
+                        Shooter.rev(this, Shooter.BAD_BALL_SHOOT_RATE);
+                        Drive.gyroTurn(angleToShoot, 6);
+                        if (Robot.isAutonomous()) {
+                            Shooter.queueVisionShoot();
+                            Shooter.waitForVisionShoot();
+                            if (Robot.isAutonomous()) {
+                                Drive.gyroTurn(-Drive.getADX().getAngle());
+                                Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
+                            }
+                        }
+                        Shooter.stopRev(this);
                     }
-                    Shooter.stopRev(this);
-                    /*
-                    TODO: Tune this so we can get an extra 2 points
-                    double angleDiff = Drive.getADX().getAngle() + COURTYARD_TO_CASTLE_ANGLE; //TODO: check if sign is wrong
-                    Drive.gyroTurn(angleDiff + 180);
-                    Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
-                    */
                 }
-            } else if (type == Type.ONE_BOULDER_SPY) {
+            } else if (type == Type.ONE_BOULDER_SPY || type == Type.ONE_BOULDER_SPY_NOCROSS) {
                 Shooter.rev(this);
                 Shooter.waitForRev();
                 Shooter.shootUsingIndexer(this);
                 Shooter.stopRev(this);
-                Drive.gyroTurn(91.5);
-                Drive.inchDrive(23 * 12);
-                Thread.sleep(500);
-                Drive.inchDrive(-(15 * 12));
+                if (type == Type.ONE_BOULDER_SPY) {
+                    Drive.gyroTurn(91.5);
+                    Drive.inchDrive(23 * 12);
+                    Thread.sleep(500);
+                    Drive.inchDrive(-(15 * 12));
+                }
             } else if (type == Type.TWO_BOULDER_SPY) { //Shoot ball from spy box, go through low bar, get boulder, return through and shoot second boulder
                 Shooter.rev(this);
                 Shooter.waitForRev();
@@ -107,7 +107,7 @@ public class AutonomousCommand extends Command {
             Log.e("AutonomousCommand exception!");
             e.printStackTrace();
         }
-        Log.i("Auto code complete. Time elapsed since init: " + ((System.currentTimeMillis() - millis) / 1000) + " seconds");
+        Log.i("Autonomous complete. Time elapsed: " + ((System.currentTimeMillis() - millis) / 1000) + " seconds");
     }
 
     @Override
@@ -127,8 +127,9 @@ public class AutonomousCommand extends Command {
         CROSS,
         ONE_BOULDER_NEUTRAL,
         ONE_BOULDER_SPY,
-        TWO_BOULDER_SPY,
+        ONE_BOULDER_SPY_NOCROSS,
         TWO_BOULDER_NEUTRAL,
+        TWO_BOULDER_SPY,
         NOTHING
     }
 }

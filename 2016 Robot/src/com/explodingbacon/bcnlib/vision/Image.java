@@ -12,7 +12,7 @@ import java.util.List;
  * A wrapper class for OpenCV's Mat object.
  *
  * @author Ryan Shavell
- * @version 2016.3.16
+ * @version 2016.3.24
  */
 
 public class Image {

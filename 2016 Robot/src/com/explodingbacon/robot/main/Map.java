@@ -33,14 +33,10 @@ public class Map {
     public static final int INTAKE_SOLENOID_A = 4;
     public static final int INTAKE_SOLENOID_B = 1;
 
-    public static final int MANTIS_1_A = 6;
-    public static final int MANTIS_1_B = 3;
 
-    public static final int MANTIS_2 = 7;
+    public static final int CLIMBER_DEPLOY = 3;
 
-    public static final int CLIMBER_DEPLOY = 8;
-
-    public static final int CLIMBER_POSITION = 9;
+    public static final int CLIMBER_POSITION = 6;
 
     //SENSORS
 

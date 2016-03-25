@@ -66,8 +66,9 @@ public class Robot extends RobotCore {
         autoChooser = new SendableChooser();
         autoChooser.initTable(NetworkTable.getTable("TableThing"));
         autoChooser.addDefault("Cross (10 points, Neutral Zone facing defense)", AutonomousCommand.Type.CROSS);
-        autoChooser.addDefault("Neutral Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
-        autoChooser.addDefault("Spy High Goal w/ Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
+        autoChooser.addDefault("Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
+        autoChooser.addDefault("Spy High Goal (10 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY_NOCROSS);
+        //autoChooser.addDefault("Spy High Goal w/ Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Neutral (30 Points, Neutral Zone facing defense)", AutonomousCommand.Type.TWO_BOULDER_NEUTRAL);
         autoChooser.addObject("Nothing (0 Points, Anywhere)", AutonomousCommand.Type.NOTHING);
@@ -75,30 +76,21 @@ public class Robot extends RobotCore {
 
         posChooser = new SendableChooser();
         posChooser.initTable(NetworkTable.getTable("TableThing"));
-        //TODO: tune all of these angles
-        posChooser.addDefault("1", 20);
-        posChooser.addObject("2", 12);
-        posChooser.addObject("3", 0);
-        posChooser.addObject("4", -12);
-        posChooser.addObject("5", -20);
+        //TODO: tune these angles
+        posChooser.addDefault("1st Position", 20);
+        posChooser.addObject("2nd Position", 12);
+        posChooser.addObject("3rd Position", 0);
+        posChooser.addObject("4th Position", -12);
+        posChooser.addObject("5th Position", -20);
         SmartDashboard.putData("Defense Position Chooser", posChooser);
 
         SmartDashboard.putNumber("Auto Delay", 3);
-
-        /*
-        SmartDashboard.putNumber("Camera Exposure", VisionTargeting.EXPOSURE_DEFAULT);
-
-        CameraServer server = CameraServer.getInstance();
-        server.setQuality(50);
-        server.startAutomaticCapture("cam" + Map.CAMERA_ID);
-        */
 
         Log.i("Battering Ham initialized!");
     }
 
     public void initTeleopCommands() {
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
-        //OI.runCommand(new ClimberCommand());
         if (Vision.isInit()) {
             OI.runCommand(new VisionTargeting());
         }
@@ -115,8 +107,6 @@ public class Robot extends RobotCore {
         super.teleopInit();
         initTeleopCommands();
         Drive.setDriverControlled(true);
-
-        Shooter.getLight().enable();
 
         //SmartDashboard.putNumber("Turn Amnt", 90);
     }
@@ -145,7 +135,7 @@ public class Robot extends RobotCore {
     }
 
     @Override
-    public void teleopPeriodic() { //TODO: make sure the classmate does not go into sleep mode during matches
+    public void teleopPeriodic() {
         super.teleopPeriodic();
 
         //Log.d("Target: " + Shooter.shooterPID.getTarget() + ", Shooter Rate: " +

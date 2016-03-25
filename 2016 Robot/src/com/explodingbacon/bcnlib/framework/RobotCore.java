@@ -10,7 +10,7 @@ import java.util.List;
  * The main class for any BCNLIb Robot. Currently supported robot controllers: roboRIOs and Raspberry Pis
  *
  * @author Ryan Shavell
- * @version 2016.3.10
+ * @version 2016.3.24
  */
 
 public abstract class RobotCore {
