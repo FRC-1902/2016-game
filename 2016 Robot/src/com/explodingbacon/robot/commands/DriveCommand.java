@@ -5,6 +5,7 @@ import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.Drive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveCommand extends Command {
 
@@ -19,7 +20,7 @@ public class DriveCommand extends Command {
             double joyX, joyY;
 
             joyX = OI.drive.getX();
-            joyY = OI.drive.getY();
+            joyY = OI.drive.getY() * 0.75;
 
 
             joyX = Utils.deadzone(joyX, deadzone);

@@ -17,7 +17,6 @@ public class CalibrateDriveMotorsCommand extends Command {
     public CalibrateDriveMotorsCommand() {
         left = Drive.getLeft();
         right = Drive.getRight();
-        light = Shooter.getLight();
     }
 
     private void tune(Motor m) {

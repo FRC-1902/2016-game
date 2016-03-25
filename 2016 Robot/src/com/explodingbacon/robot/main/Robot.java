@@ -77,10 +77,10 @@ public class Robot extends RobotCore {
         posChooser = new SendableChooser();
         posChooser.initTable(NetworkTable.getTable("TableThing"));
         //TODO: tune these angles
-        posChooser.addDefault("1st Position", 20);
-        posChooser.addObject("2nd Position", 12);
-        posChooser.addObject("3rd Position", 0);
-        posChooser.addObject("4th Position", -12);
+        posChooser.addDefault("1st Position", 45);
+        posChooser.addObject("2nd Position", 20);
+        posChooser.addObject("3rd Position", 8);
+        posChooser.addObject("4th Position", -5);
         posChooser.addObject("5th Position", -20);
         SmartDashboard.putData("Defense Position Chooser", posChooser);
 

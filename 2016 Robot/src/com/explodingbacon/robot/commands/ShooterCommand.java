@@ -6,10 +6,14 @@ import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.Shooter;
+import sun.nio.cs.ext.SJIS;
 
 public class ShooterCommand extends Command {
 
     private boolean loggedSpeed = false;
+    private boolean holdingTrim = false;
+
+    private final int TRIM_AMOUNT = 1000;
 
     @Override
     public void onInit() {}
@@ -47,11 +51,17 @@ public class ShooterCommand extends Command {
             loggedSpeed = false;
         }
 
-        if (Shooter.hasBall()) {
-            Shooter.getLight().enable();
-        } else {
-            Shooter.getLight().stop();
+        if(OI.resetLeftTrim.get()) Shooter.BAD_OFFSET = 0;
+        if(OI.resetRightTrim.get()) Shooter.GOOD_OFFSET = 0;
+
+        if(!holdingTrim) {
+            if (OI.trimLeftUp.get()) Shooter.BAD_OFFSET += TRIM_AMOUNT;
+            if (OI.trimLeftDown.get()) Shooter.BAD_OFFSET -= TRIM_AMOUNT;
+            if (OI.trimRightUp.get()) Shooter.GOOD_OFFSET += TRIM_AMOUNT;
+            if (OI.trimRightDown.get()) Shooter.GOOD_OFFSET -= TRIM_AMOUNT;
         }
+
+        holdingTrim = OI.trimButtons.getAny();
     }
 
     @Override

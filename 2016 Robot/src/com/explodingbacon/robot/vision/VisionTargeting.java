@@ -4,10 +4,7 @@ import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.bcnlib.utils.Utils;
-import com.explodingbacon.bcnlib.vision.Camera;
-import com.explodingbacon.bcnlib.vision.Color;
-import com.explodingbacon.bcnlib.vision.Contour;
-import com.explodingbacon.bcnlib.vision.Image;
+import com.explodingbacon.bcnlib.vision.*;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.main.Robot;
@@ -24,9 +21,10 @@ public class VisionTargeting extends Command {
 
     private static final double ANGLE_DEADZONE = 0.8;
     private static final double CAMERA_PIXELS_OFFSET = 0;
-    private static final double EXPOSURE_DEFAULT = -13; //TODO: tune
 
     private static Image goalSample;
+
+    private static VisionConfig config = null;
 
     private static final String imgDir = "/home/lvuser/";
 
@@ -61,7 +59,7 @@ public class VisionTargeting extends Command {
     public void onLoop() {
         try {
             if (Shooter.isVisionShootQueued()) {
-
+                config = config == null ? new VisionConfig() : config;
                 Log.v("Beginning vision shoot...");
                 boolean controllingShooter = false;
                 if (Shooter.shooterPID.getTarget() == 0) {
@@ -70,13 +68,14 @@ public class VisionTargeting extends Command {
                     controllingShooter = true;
                 }
 
-                boolean usedGoal = true;
+                boolean foundGoal = false;
                 boolean abort = false;
-
                 double startMillis = System.currentTimeMillis();
 
+                double imgMillis = System.currentTimeMillis();
+
                 Image i = camera.getImage();
-                double imageGetMS = System.currentTimeMillis() - startMillis;
+                double imageGetMS = System.currentTimeMillis() - imgMillis;
 
                 Log.v("Took " + imageGetMS + "ms to get image.");
 
@@ -85,18 +84,13 @@ public class VisionTargeting extends Command {
                 Contour goal = findGoal(i, target);
 
                 //Log.d("Starting difference: " + (goal.getMiddleX() - target));
-
-                /*
-                save(i, "image_raw");
-
-                Image indicators = i.copy();
-
-                drawIndicators(indicators, target, goal);
-
-                save(indicators, "image_target");
-                Log.d("Saved images!");
-
-                */
+                    /*
+                    save(i, "image_raw");
+                    Image indicators = i.copy();
+                    drawIndicators(indicators, target, goal);
+                    save(indicators, "image_target");
+                    Log.d("Saved images!");
+                    */
 
                 if (isDriverAborting()) {
                     abort = true;
@@ -104,6 +98,7 @@ public class VisionTargeting extends Command {
                 }
 
                 if (goal != null) {
+                    foundGoal = true;
                     //Log.v("Goal detected.");
                     double goalMid = goal.getMiddleX();
                     double degrees = Utils.getDegreesToTurn(goalMid, target);
@@ -115,46 +110,43 @@ public class VisionTargeting extends Command {
                             Drive.setDriverControlled(true);
                             abort = true;
                         }
-                        /*
-                        Image end = camera.getImage();
-                        Contour endGoal = findGoal(end, target);
-                        if (endGoal != null) drawIndicators(end, target, endGoal);
-                        save(end, "image_end");
-                        */
                     } else {
                         Log.v("Already lined up with the goal, not moving.");
                     }
                 } else {
                     if (!abort) Log.v("Goal not detected!");
-                    usedGoal = false;
+                }
+                if (isDriverAborting()) {
+                    abort = true;
                 }
 
                 if (isDriverAborting()) {
                     abort = true;
                 }
 
+                boolean success = false;
                 if (!abort) {
-                    if (!Shooter.shooterPID.isDone()) {
-                        Log.v("Waiting to shoot until the shooter is up to speed.");
-                        Shooter.shooterPID.waitUntilDone();
+                    if (foundGoal || (!config.goalRequired)) {
+                        if (!Shooter.shooterPID.isDone()) {
+                            Log.v("Waiting to shoot until the shooter is up to speed.");
+                            Shooter.shooterPID.waitUntilDone();
+                        }
+                        Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds.");
+                        Shooter.shootUsingIndexer(this);
+                        success = true;
                     }
-                    Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds.");
-                    Shooter.shootUsingIndexer(this);
-                    /*
-                    Shooter.getIndexer().setUser(this); //Forcibly take control of the indexer
-                    Shooter.setIndexerRaw(1);
-                    Thread.sleep(2000);
-                    */
                 }
 
                 Shooter.setShouldVisionShoot(false);
+                config = null;
                 //Shooter.getIndexer().setUser(null);
                 if (controllingShooter) Shooter.stopRev(this);
                 if (!abort) {
-                    if (usedGoal) {
-                        Log.v("Shot a boulder using Vision Targeting.");
+                    if (success) {
+                        if (foundGoal) Log.v("Shot a boulder using Vision Targeting.");
+                        else Log.v("Shot a boulder without Vision Targeting due to not being able to see a goal!");
                     } else {
-                        Log.v("Shot a boulder without Vision Targeting due to not being able to see a goal!");
+                        Log.v("No goal detected and config requires one, not shooting.");
                     }
                 } else {
                     Log.v("Vision shoot aborted.");
@@ -177,6 +169,10 @@ public class VisionTargeting extends Command {
             Log.d("Driver is aborting the vision shot!");
         }
         return aborting;
+    }
+
+    public static void setVisionConfig(VisionConfig c) {
+        config = c;
     }
 
     @Override
@@ -253,15 +249,15 @@ public class VisionTargeting extends Command {
                         if (cTargetError < goalTargetError) {
                             goal = c;
                         }
+
                     } else if (TARGET_TYPE == TargetType.BIGGEST) {
                         if (c.getArea() > goal.getArea()) {
                             goal = c;
                         }
                     } else if (TARGET_TYPE == TargetType.SHAPE) {
-                        double comp;
-                        if ((comp = c.compareTo(goalSample)) > goal.compareTo(goalSample)) {
+                        double comp = c.compareTo(goalSample);
+                        if (comp > 2 && comp > goal.compareTo(goalSample)) {
                             goal = c;
-                            Log.i("Goal compare rating: " + comp);
                         }
                     } else {
                         Log.e("Unsupported TargetType \"" + TARGET_TYPE + "\" selected in VisionTargeting!");
@@ -273,7 +269,10 @@ public class VisionTargeting extends Command {
         goal = goal != null ? goal.approxEdges(0.01) : null;
 
         if (goal != null) {
-            Log.d("Goal's width is " + goal.getWidth() + ", height is " + goal.getHeight());
+            if (TARGET_TYPE == TargetType.SHAPE) {
+                Log.d("Goal shape rating: " + goal.compareTo(goalSample));
+            }
+            //Log.d("Goal's width is " + goal.getWidth() + ", height is " + goal.getHeight());
         }
 
         return goal;

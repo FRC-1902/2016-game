@@ -2,6 +2,7 @@ package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.*;
 import com.explodingbacon.bcnlib.framework.Command;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
@@ -10,6 +11,8 @@ import com.explodingbacon.bcnlib.sensors.MotorEncoder;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
+import com.explodingbacon.robot.vision.VisionConfig;
+import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +27,11 @@ public class Shooter extends Subsystem {
 
     public static final int INTAKE_RATE = -25000;
 
-    public static final int GOOD_BALL_SHOOT_RATE = 36500;
-    public static final int BAD_BALL_SHOOT_RATE = 50000;
+    public static final int GOOD_BALL_SHOOT_RATE = 26500; //Low goal
+    public static final int BAD_BALL_SHOOT_RATE = 55000; //High goal, Used to be 50000
+
+    public static int GOOD_OFFSET = 0;
+    public static int BAD_OFFSET = 0;
 
     //Random rates we were using/tuning at some point, keeping in case we ever need them
     //public static final int BAD_BALL_LOW_RATE = 15000;
@@ -119,15 +125,32 @@ public class Shooter extends Subsystem {
      */
     public static double calculateRate() {
         if (OI.shooterRevBad.get()) {
-            return BAD_BALL_SHOOT_RATE;
+            return BAD_BALL_SHOOT_RATE + BAD_OFFSET;
         }
-        return GOOD_BALL_SHOOT_RATE;
+        return GOOD_BALL_SHOOT_RATE + GOOD_OFFSET;
     }
 
     /**
-     * Tells the Shooter to shoot the boulder.
+     * Tells the Shooter to shoot the boulder via Vision Tracking if it can see the goal.
+     */
+    public static void queueSafeVisionShoot() {
+        queueVisionShoot(new VisionConfig().setGoalRequired(true));
+    }
+
+    /**
+     * Tells the Shooter to shoot the boulder via Vision Tracking.
      */
     public static void queueVisionShoot() {
+        queueVisionShoot(null);
+    }
+
+    /**
+     * Tells the Shooter to shoot the boulder via Vision Tracking.
+     *
+     * @param c The VisionConfig to be used for this shot.
+     */
+    public static void queueVisionShoot(VisionConfig c) {
+        VisionTargeting.setVisionConfig(c);
         setShouldVisionShoot(true);
     }
 
@@ -179,6 +202,7 @@ public class Shooter extends Subsystem {
     public static void shootUsingIndexer(Command c) {
         if (indexer.claim(c)) {
             setIndexerRaw(1);
+            Log.i("Shot at " + calculateRate());
             try {
                 Thread.sleep(2000);
             } catch (Exception e) {

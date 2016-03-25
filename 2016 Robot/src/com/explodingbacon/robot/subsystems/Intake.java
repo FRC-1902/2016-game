@@ -6,7 +6,6 @@ import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
 import edu.wpi.first.wpilibj.CANTalon;
-
 import java.util.Collections;
 import java.util.List;
 

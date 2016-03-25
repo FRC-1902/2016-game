@@ -25,8 +25,6 @@ public class Map {
 
     //PCM ports
 
-    public static final int LIGHT = 0;
-
     public static final int SHIFT_SOLENOID_A = 2;
     public static final int SHIFT_SOLENOID_B = 5;
 
@@ -34,9 +32,10 @@ public class Map {
     public static final int INTAKE_SOLENOID_B = 1;
 
 
-    public static final int CLIMBER_DEPLOY = 3;
+    public static final int CLIMBER_POSITION_A = 3;
+    public static final int CLIMBER_POSITION_B = 6;
 
-    public static final int CLIMBER_POSITION = 6;
+    public static final int CLIMBER_SHOOT = 7;
 
     //SENSORS
 

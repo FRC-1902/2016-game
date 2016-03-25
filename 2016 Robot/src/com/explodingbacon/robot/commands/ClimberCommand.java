@@ -18,8 +18,8 @@ public class ClimberCommand extends Command {
         } else if (d.isDown()) {
             Climber.setPosition(false);
         }
-        if (OI.deployClimber.get()) {
-            Climber.deploy();
+        if (OI.climberShoot.get()) {
+            Climber.shoot();
         } else if (OI.climb.get()) {
             Climber.climb();
         }

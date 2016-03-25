@@ -9,7 +9,7 @@ import java.util.List;
 
 public class IntakeCommand extends Command {
 
-    boolean currentState = true, wasPressed = false, testedCurrentBall = false;
+    boolean currentState = true, wasPressed = false;
 
     List<Double> powerList;
     private final int AVERAGER_SIZE = 10; //The number of records to average
@@ -21,7 +21,6 @@ public class IntakeCommand extends Command {
     public void onLoop() {
         if (OI.intakeMotorIn.get() && !Shooter.hasBall()) {
             Intake.intake(this);
-            testedCurrentBall = false; //If this block of code runs, we're intaking a new ball
         } else if (OI.intakeMotorOut.get()) {
             Intake.outtake(this);
         } else {

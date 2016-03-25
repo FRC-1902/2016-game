@@ -1,5 +1,6 @@
 package com.explodingbacon.robot.subsystems;
 
+import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.actuators.Solenoid;
@@ -15,8 +16,8 @@ public class Climber extends Subsystem {
 
     private static MotorGroup cableWinch = (MotorGroup) new MotorGroup(CANTalon.class, Map.CLIMBER_CABLE_WINCH_A, Map.CLIMBER_CABLE_WINCH_B).setName("Climber Winch");
     private static MotorEncoder encoder;
-    private static Solenoid position = new Solenoid(Map.CLIMBER_POSITION); //TODO: Get correct port and check if this is should be DoubleSolenoid
-    private static Solenoid deploy = new Solenoid(Map.CLIMBER_DEPLOY); //TODO: Get correct port and check if this is should be DoubleSolenoid
+    private static DoubleSolenoid position = new DoubleSolenoid(Map.CLIMBER_POSITION_A, Map.CLIMBER_POSITION_B);
+    private static Solenoid shoot = new Solenoid(Map.CLIMBER_SHOOT);
 
     private static final int STOP_CLIMBING_POSITION = 9001; //TODO: tune
 
@@ -40,10 +41,10 @@ public class Climber extends Subsystem {
     }
 
     /**
-     * Deploys the Climber.
+     * Shoots the Climber.
      */
-    public static void deploy() {
-        deploy.set(true);
+    public static void shoot() {
+        shoot.set(true);
     }
 
     /**

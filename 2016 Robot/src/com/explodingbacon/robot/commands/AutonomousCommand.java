@@ -7,14 +7,16 @@ import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.Drive;
 import com.explodingbacon.robot.subsystems.Intake;
 import com.explodingbacon.robot.subsystems.Shooter;
+import com.explodingbacon.robot.vision.VisionConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutonomousCommand extends Command {
 
+
     Type type;
 
     //Auto values used in most of/all the autos
-    private static final double NEUTRAL_TO_SHOOT_DISTANCE = 13 * 12; //TODO: tune
+    private static final double NEUTRAL_TO_SHOOT_DISTANCE = 13 * 12; //tuned
 
     //Two ball auto values
     private static final double SPYBOX_TO_SECOND_BALL_DISTANCE = 20 * 12; //TODO: tune
@@ -25,22 +27,25 @@ public class AutonomousCommand extends Command {
     private static final double SHOT_TO_SECOND_BALL_DISTANCE = 11 * 12; //TODO: tune
 
 
+    //TODO: Add setting for rock wall since we need to go farther to get over that
+
     @Override
     public void onInit() {
         double millis = System.currentTimeMillis();
         try {
             type = (Type) Robot.autoChooser.getSelected();
-            double angleToShoot = (double) Robot.posChooser.getSelected();
+            double angleToShoot =((Integer)Robot.posChooser.getSelected()) * 1.0;
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
             if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) { //Drive forward, turn, shoot, turn to back to original angle, back into defense ramp
                 Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
                 if (type == Type.ONE_BOULDER_NEUTRAL) {
+                    if (angleToShoot == 45) Drive.inchDrive(7 * 12); //If we're first pos
                     Thread.sleep(500);
                     if (Robot.isAutonomous()) {
                         Shooter.rev(this, Shooter.BAD_BALL_SHOOT_RATE);
-                        Drive.gyroTurn(angleToShoot, 6);
+                        if (angleToShoot != 0) Drive.gyroTurn(angleToShoot, 6);
                         if (Robot.isAutonomous()) {
-                            Shooter.queueVisionShoot();
+                            Shooter.queueSafeVisionShoot();
                             Shooter.waitForVisionShoot();
                             if (Robot.isAutonomous()) {
                                 Drive.gyroTurn(-Drive.getADX().getAngle());
@@ -73,7 +78,7 @@ public class AutonomousCommand extends Command {
                 Intake.stopIntake(this);
                 Shooter.rev(this);
                 Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
-                Shooter.queueVisionShoot();
+                Shooter.queueSafeVisionShoot();
                 Shooter.waitForVisionShoot();
                 Shooter.stopRev(this);
             } else if (type == Type.TWO_BOULDER_NEUTRAL) { //Go through low bar, turn, shoot, turn around and go through low bar, intake ball, go through low bar backwards, turn, shoot

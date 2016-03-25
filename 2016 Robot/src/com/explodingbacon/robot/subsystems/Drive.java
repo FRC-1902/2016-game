@@ -202,7 +202,6 @@ public class Drive extends Subsystem {
      * @param distance How many encoder clicks to drive.
      */
     public static void encoderDrive(double distance) {
-        //Drive.setDriverControlled(false);
         Drive.shift(false);
         Log.t("EncoderDriving " + distance + " clicks");
         leftEncoder.reset();
@@ -210,12 +209,10 @@ public class Drive extends Subsystem {
 
         eLeft.setTarget(distance);
         eRight.setTarget(distance);
-        double startAngle = adx.getAngle();
         eLeft.enable();
         eRight.enable();
         while (!eLeft.isDone() || !eRight.isDone()) {
             if(!Robot.isEnabled()) return;
-
             try {
                 Thread.sleep(25);
             } catch (Exception e) {
@@ -228,7 +225,7 @@ public class Drive extends Subsystem {
 
         Log.d("Done with straight portion, adjusting angle.");
 
-        gyroTurn(adx.getAngle() - startAngle);
+        gyroTurn(adx.getAngle());
 
         Drive.setDriverControlled(true);
     }

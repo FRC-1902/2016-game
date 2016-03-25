@@ -24,9 +24,13 @@ public class OI extends AbstractOI {
     public static Button shooterRev, shooterRevBad;
     public static ButtonGroup shooterRevButtons;
 
-    public static Button deployClimber, climb;
+    public static Button climberShoot, climb;
 
     public static Button testingBall;
+
+    public static Button trimLeftUp, trimLeftDown, trimRightUp, trimRightDown;
+    public static Button resetLeftTrim, resetRightTrim;
+    public static ButtonGroup trimButtons;
 
     public OI() {
         init();
@@ -55,15 +59,25 @@ public class OI extends AbstractOI {
         intakeRetract = manip.bumpers;
 
         intakeMotorIn = manip.x;
-        intakeMotorOut = manip.y;
+        intakeMotorOut = manip.a;
 
         shooterRev = manip.rightTrigger;
         shooterRevBad = manip.leftTrigger;
         shooterRevButtons = manip.triggers;
 
-        deployClimber = manip.start; //TODO: check if this is the left
-        climb = manip.select;
+        climberShoot = manip.select; //TODO: check if this is the left
+        climb = manip.start;
 
         testingBall = new FakeButton();
+
+        trimLeftUp = new FakeButton(() -> manip.getY() < -0.8);
+        trimLeftDown = new FakeButton(() -> manip.getY() > 0.8);
+        trimRightUp = new FakeButton(() -> manip.getY2() < -0.8);
+        trimRightDown = new FakeButton(() -> manip.getY2() > 0.8);
+
+        trimButtons = new ButtonGroup(trimLeftUp, trimLeftDown, trimRightUp, trimRightDown);
+
+        resetLeftTrim = manip.leftJoyButton;
+        resetRightTrim = manip.rightJoyButton;
     }
 }
