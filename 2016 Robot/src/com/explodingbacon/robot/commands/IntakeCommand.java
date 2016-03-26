@@ -34,58 +34,6 @@ public class IntakeCommand extends Command {
             Intake.setPosition(currentState);
         }
 
-        /*
-        if (Intake.TEST_BALLS && !testedCurrentBall && Shooter.hasBall()) {
-            try {
-                ((FakeButton) OI.testingBall).set(true);
-                Intake.stopIntake(this);
-                Intake.getIntake().setUser(this);
-
-                Motor indexer = Shooter.getIndexer();
-
-                indexer.setPower(0);
-
-                powerList = new ArrayList<>();
-
-                Thread.sleep(2000); //Wait for things to calm down
-
-                indexer.setPower(.6); //Outtake
-
-                Thread.sleep(750); //Outtake time
-
-                indexer.setPower(-.6); //Intake
-
-                while(!Shooter.hasBall()) { //Log intake powers until we have the ball
-                    powerList.add(indexer.getWatts());
-                    Thread.sleep(25);
-                }
-
-                Log.d("Indexer unaveraged: " + indexer.getWatts());
-
-                powerList.add(indexer.getWatts());
-                indexer.setPower(0);
-
-                double total = 0; //Pull out the last n values
-                int counter = 0;
-                for(Double element : powerList.subList(powerList.size() - AVERAGER_SIZE, powerList.size())) {
-                    total += element;
-                    counter ++;
-                }
-
-                double avgPower = total / counter; //Average them
-
-                Shooter.setBallWatts(avgPower); //Pass the average to Shooter
-                Log.d("Average power: " + avgPower + " watts");
-
-                testedCurrentBall = true;
-            } catch (Exception e) {
-                Log.e("Ball test error! (in IntakeCommand)");
-                e.printStackTrace();
-            }
-            ((FakeButton) OI.testingBall).set(false);
-            Intake.getIntake().setUser(null);
-        }*/
-
         wasPressed = pressed;
     }
 

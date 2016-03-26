@@ -47,14 +47,12 @@ public class Climber extends Subsystem {
         shoot.set(true);
     }
 
-    /**
-     * Makes the Robot climb the tower.
-     */
-    public static void climb() {
-        encoder.reset();
-        cableWinch.setPower(0.5);
-        Utils.waitFor(() -> encoder.get() > STOP_CLIMBING_POSITION); //TODO: check if we can trust this
-        cableWinch.setPower(0);
+    public static void setSpeed(double d) {
+        cableWinch.setPower(d);
+    }
+
+    public static MotorEncoder getEncoder() {
+        return encoder;
     }
 
     @Override

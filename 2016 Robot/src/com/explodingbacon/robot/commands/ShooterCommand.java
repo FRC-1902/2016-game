@@ -6,7 +6,6 @@ import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.Shooter;
-import sun.nio.cs.ext.SJIS;
 
 public class ShooterCommand extends Command {
 

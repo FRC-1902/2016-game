@@ -23,26 +23,24 @@ package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
-import com.explodingbacon.bcnlib.sensors.PDP;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.*;
 import com.explodingbacon.robot.vision.VisionTargeting;
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import sun.nio.ch.Net;
 
 public class Robot extends RobotCore {
 
     public static Drive drive;
     public static Intake intake;
     public static Shooter shooter;
-    //public static Climber climber;
+    public static Climber climber;
     public static SendableChooser autoChooser;
     public static SendableChooser posChooser;
+    public static SendableChooser defenseChooser;
     //public static DataLogger logger = new DataLogger();
 
     public OI oi;
@@ -59,14 +57,14 @@ public class Robot extends RobotCore {
         drive = new Drive();
         intake = new Intake();
         shooter = new Shooter();
-        //climber = new Climber();
+        climber = new Climber();
 
         oi = new OI();
 
         autoChooser = new SendableChooser();
         autoChooser.initTable(NetworkTable.getTable("TableThing"));
         autoChooser.addDefault("Cross (10 points, Neutral Zone facing defense)", AutonomousCommand.Type.CROSS);
-        autoChooser.addDefault("Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
+        //autoChooser.addDefault("Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
         autoChooser.addDefault("Spy High Goal (10 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY_NOCROSS);
         //autoChooser.addDefault("Spy High Goal w/ Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
@@ -84,6 +82,14 @@ public class Robot extends RobotCore {
         posChooser.addObject("5th Position", -20);
         SmartDashboard.putData("Defense Position Chooser", posChooser);
 
+        defenseChooser = new SendableChooser();
+        defenseChooser.initTable(NetworkTable.getTable("TableThing"));
+        defenseChooser.addDefault("Normal Static", AutonomousCommand.Defense.NORMAL);
+        defenseChooser.addObject("Rock Wall", AutonomousCommand.Defense.ROCK_WALL);
+        //defenseChooser.addObject("Cheval De Frise", AutonomousCommand.Defense.CHEVAL);
+        //defenseChooser.addObject("Portcullis", AutonomousCommand.Defense.PORTCULLIS);
+        SmartDashboard.putData("Defense Type Chooser", defenseChooser);
+
         SmartDashboard.putNumber("Auto Delay", 3);
 
         Log.i("Battering Ham initialized!");
@@ -91,6 +97,7 @@ public class Robot extends RobotCore {
 
     public void initTeleopCommands() {
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
+        OI.runCommand(new ClimberCommand());
         if (Vision.isInit()) {
             OI.runCommand(new VisionTargeting());
         }

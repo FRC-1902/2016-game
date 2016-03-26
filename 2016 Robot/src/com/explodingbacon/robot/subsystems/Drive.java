@@ -28,7 +28,7 @@ public class Drive extends Subsystem {
     private static AbstractEncoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
     private static AbstractEncoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
 
-    private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
+    //private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
 
     private static boolean driverControlled = true;
 
@@ -38,8 +38,8 @@ public class Drive extends Subsystem {
     public static PIDController eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
     public static PIDController eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
 
-    public static PIDController gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
-    public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+    //public static PIDController gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+    //public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
 
     public static final double GYRO_PID_TOLERANCE = 0.25;
     public static final double ENCODER_ANGLE_TOLERANCE = 1500;
@@ -52,8 +52,8 @@ public class Drive extends Subsystem {
         //leftMotors.setLoggingChanges(true);
         //rightMotors.setLoggingChanges(true);
 
-        gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
-        gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
+        //gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
+        //gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
 
         eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
         eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
@@ -136,7 +136,8 @@ public class Drive extends Subsystem {
      * @return The ADXSensor.
      */
     public static ADXSensor getADX() {
-        return adx;
+        //return adx;
+        return null;
     }
 
     /**
@@ -223,9 +224,9 @@ public class Drive extends Subsystem {
         eLeft.disable();
         eRight.disable();
 
-        Log.d("Done with straight portion, adjusting angle.");
+        //Log.d("Done with straight portion, adjusting angle.");
 
-        gyroTurn(adx.getAngle());
+        //gyroTurn(adx.getAngle());
 
         Drive.setDriverControlled(true);
     }
@@ -236,17 +237,20 @@ public class Drive extends Subsystem {
      * @param degrees How many degrees to turn.
      * @return True.
      */
+    /*
     public static boolean gyroTurn(double degrees) {
         return gyroTurn(degrees, -1);
     }
+    */
 
     /**
-     * Makes the Robot turn a certain amount of degrees.
+     * Makes the Robot turn a certain amount of degrees. TODO: Figure out 100% which way is right and left and make it match with the right and left on the gyro
      *
      * @param degrees How many degrees to turn.
      * @param timeout How long to wait before giving up on the gyro turn.
      * @return True is the turn was successful, false if the timeout was reached.
      */
+    /*
     public static boolean gyroTurn(double degrees, double timeout) {
         Drive.setDriverControlled(false);
         Drive.shift(false);
@@ -267,7 +271,7 @@ public class Drive extends Subsystem {
             gRight.waitUntilDone();
             result = true;
         } else {
-            result = gLeft.waitUntilDone(timeout); //TODO: Both PIDs should finish at the same time, so this should be safe.
+            result = gLeft.waitUntilDone(timeout);
         }
 
         Log.d("Done turning " + degrees + " degrees");
@@ -278,6 +282,7 @@ public class Drive extends Subsystem {
 
         return result;
     }
+    */
 
     /**
      * Converts inches to drive encoder clicks.

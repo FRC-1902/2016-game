@@ -12,7 +12,6 @@ import com.explodingbacon.robot.subsystems.Shooter;
 public class CalibrateDriveMotorsCommand extends Command {
 
     private Motor left, right;
-    private Light light;
 
     public CalibrateDriveMotorsCommand() {
         left = Drive.getLeft();
@@ -21,7 +20,6 @@ public class CalibrateDriveMotorsCommand extends Command {
 
     private void tune(Motor m) {
         try {
-            light.enable();
             Thread.sleep(1000);
 
             //light.blink(0.1);
@@ -36,8 +34,6 @@ public class CalibrateDriveMotorsCommand extends Command {
             m.setPower(0);
 
             Thread.sleep(1000);
-
-            light.stop();
         } catch (Exception e) {
             Log.e("Motor Controller calibration error! (CalibrateDriveMotorsCommand)");
             e.printStackTrace();

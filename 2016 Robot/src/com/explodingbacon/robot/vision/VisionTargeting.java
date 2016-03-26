@@ -21,6 +21,7 @@ public class VisionTargeting extends Command {
 
     private static final double ANGLE_DEADZONE = 0.8;
     private static final double CAMERA_PIXELS_OFFSET = 0;
+    private static final double MINIMUM_SIMILARITY = 2; //TODO: tune
 
     private static Image goalSample;
 
@@ -105,11 +106,14 @@ public class VisionTargeting extends Command {
                     Log.d("Calculated degrees to turn");
                     Log.v(degrees + " degrees away from the goal");
                     if (Math.abs(degrees) > ANGLE_DEADZONE) {
+                        /*
                         if (!Drive.gyroTurn(degrees, 6)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
                             Log.v("Gyro turn timeout reached. Shoot aborting.");
                             Drive.setDriverControlled(true);
                             abort = true;
                         }
+                        */
+                        Log.v("Angle is incorrect, turning not implemented yet :(");
                     } else {
                         Log.v("Already lined up with the goal, not moving.");
                     }
@@ -234,7 +238,13 @@ public class VisionTargeting extends Command {
         for (Contour c : filtered.getContours()) {
             if (c.getWidth() < 300 && c.getWidth() > 20 && c.getHeight() < 300 && c.getHeight() > 20) { //TODO: These 20's used to be 10's. If things are bad, go back to 10's
                 if (goal == null) {
-                    goal = c;
+                    boolean good = false;
+                    if (TARGET_TYPE == TargetType.SHAPE) {
+                        good = c.compareTo(goalSample) > MINIMUM_SIMILARITY;
+                    } else {
+                        good = true;
+                    }
+                    if (good) goal = c;
                 } else {
                     if (TARGET_TYPE == TargetType.CLOSEST_TO_TARGET) {
                         double cTargetError = Math.abs(c.getMiddleX() - target);
@@ -256,7 +266,7 @@ public class VisionTargeting extends Command {
                         }
                     } else if (TARGET_TYPE == TargetType.SHAPE) {
                         double comp = c.compareTo(goalSample);
-                        if (comp > 2 && comp > goal.compareTo(goalSample)) {
+                        if (comp > MINIMUM_SIMILARITY  && comp > goal.compareTo(goalSample)) {
                             goal = c;
                         }
                     } else {

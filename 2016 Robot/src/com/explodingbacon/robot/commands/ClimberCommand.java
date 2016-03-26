@@ -20,8 +20,11 @@ public class ClimberCommand extends Command {
         }
         if (OI.climberShoot.get()) {
             Climber.shoot();
-        } else if (OI.climb.get()) {
-            Climber.climb();
+        }
+        if (OI.climb.get()) {
+            Climber.setSpeed(1);
+        } else {
+            Climber.setSpeed(0);
         }
     }
 

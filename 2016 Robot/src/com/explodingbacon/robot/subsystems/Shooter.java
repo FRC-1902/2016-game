@@ -70,6 +70,7 @@ public class Shooter extends Subsystem {
 
     /**
      * Revs up the Shooter.
+     *
      * @param c The Command calling this function.
      */
     public static void rev(Command c) {
@@ -247,11 +248,6 @@ public class Shooter extends Subsystem {
         return encoder;
     }
 
-    /*
-    public static void setSpotlight(boolean b) {
-        spotlight.setPower(b ? 1 : 0);
-    }
-    */
 
     @Override
     public void stop() {

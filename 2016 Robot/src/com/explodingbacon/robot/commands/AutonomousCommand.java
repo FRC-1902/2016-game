@@ -34,21 +34,26 @@ public class AutonomousCommand extends Command {
         double millis = System.currentTimeMillis();
         try {
             type = (Type) Robot.autoChooser.getSelected();
+            Defense defense = (Defense) Robot.defenseChooser.getSelected();
             double angleToShoot =((Integer)Robot.posChooser.getSelected()) * 1.0;
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
             if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) { //Drive forward, turn, shoot, turn to back to original angle, back into defense ramp
-                Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+                if (defense == Defense.ROCK_WALL) {
+                    Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE + (4 * 12));
+                } else {
+                    Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
+                }
                 if (type == Type.ONE_BOULDER_NEUTRAL) {
                     if (angleToShoot == 45) Drive.inchDrive(7 * 12); //If we're first pos
                     Thread.sleep(500);
                     if (Robot.isAutonomous()) {
                         Shooter.rev(this, Shooter.BAD_BALL_SHOOT_RATE);
-                        if (angleToShoot != 0) Drive.gyroTurn(angleToShoot, 6);
+                        //if (angleToShoot != 0) Drive.gyroTurn(angleToShoot, 6);
                         if (Robot.isAutonomous()) {
                             Shooter.queueSafeVisionShoot();
                             Shooter.waitForVisionShoot();
                             if (Robot.isAutonomous()) {
-                                Drive.gyroTurn(-Drive.getADX().getAngle());
+                                //Drive.gyroTurn(-Drive.getADX().getAngle());
                                 Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
                             }
                         }
@@ -61,7 +66,7 @@ public class AutonomousCommand extends Command {
                 Shooter.shootUsingIndexer(this);
                 Shooter.stopRev(this);
                 if (type == Type.ONE_BOULDER_SPY) {
-                    Drive.gyroTurn(91.5);
+                    //Drive.gyroTurn(91.5);
                     Drive.inchDrive(23 * 12);
                     Thread.sleep(500);
                     Drive.inchDrive(-(15 * 12));
@@ -71,31 +76,31 @@ public class AutonomousCommand extends Command {
                 Shooter.waitForRev();
                 Shooter.shootUsingIndexer(this);
                 Shooter.stopRev(this);
-                Drive.gyroTurn(90);
+                //Drive.gyroTurn(90);
                 Intake.intake(this);
                 Drive.inchDrive(SPYBOX_TO_SECOND_BALL_DISTANCE);
                 Drive.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
                 Intake.stopIntake(this);
                 Shooter.rev(this);
-                Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
+                //Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
                 Shooter.queueSafeVisionShoot();
                 Shooter.waitForVisionShoot();
                 Shooter.stopRev(this);
             } else if (type == Type.TWO_BOULDER_NEUTRAL) { //Go through low bar, turn, shoot, turn around and go through low bar, intake ball, go through low bar backwards, turn, shoot
                 Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
                 Shooter.rev(this);
-                Drive.gyroTurn(angleToShoot);
+                //Drive.gyroTurn(angleToShoot);
                 Shooter.queueVisionShoot();
                 Shooter.waitForVisionShoot();
                 Shooter.stopRev(this);
                 double turnAmount = 180 - (Drive.getADX().getAngle() + angleToShoot); //TODO: check this math
-                Drive.gyroTurn(-turnAmount);
+                //Drive.gyroTurn(-turnAmount);
                 Intake.intake(this);
                 Drive.inchDrive(SHOT_TO_SECOND_BALL_DISTANCE);
                 Drive.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
                 Intake.stopIntake(this);
                 Shooter.rev(this);
-                Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
+                //Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
                 Shooter.queueVisionShoot();
                 Shooter.waitForVisionShoot();
                 Shooter.stopRev(this);
@@ -126,6 +131,13 @@ public class AutonomousCommand extends Command {
     @Override
     public boolean isFinished() {
         return (Robot.getMode() == Mode.AUTONOMOUS) && Robot.isEnabled();
+    }
+
+    public enum Defense {
+        NORMAL,
+        ROCK_WALL,
+        CHEVAL,
+        PORTCULLIS
     }
 
     public enum Type {
