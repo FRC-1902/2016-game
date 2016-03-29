@@ -21,7 +21,7 @@ public class OI extends AbstractOI {
     public static ButtonGroup intakeRetract;
     public static Button intakeMotorIn, intakeMotorOut;
 
-    public static Button shooterRev, shooterRevBad;
+    public static Button shooterRevLow, shooterRevHigh;
     public static ButtonGroup shooterRevButtons;
 
     public static Button climberShoot, climb;
@@ -61,8 +61,8 @@ public class OI extends AbstractOI {
         intakeMotorIn = manip.x;
         intakeMotorOut = manip.a;
 
-        shooterRev = manip.rightTrigger;
-        shooterRevBad = manip.leftTrigger;
+        shooterRevLow = manip.rightTrigger;
+        shooterRevHigh = manip.leftTrigger;
         shooterRevButtons = manip.triggers;
 
         climberShoot = manip.select; //TODO: check if this is the left

@@ -37,7 +37,7 @@ public class Robot extends RobotCore {
     public static Drive drive;
     public static Intake intake;
     public static Shooter shooter;
-    public static Climber climber;
+    //public static Climber climber;
     public static SendableChooser autoChooser;
     public static SendableChooser posChooser;
     public static SendableChooser defenseChooser;
@@ -57,14 +57,14 @@ public class Robot extends RobotCore {
         drive = new Drive();
         intake = new Intake();
         shooter = new Shooter();
-        climber = new Climber();
+        //climber = new Climber();
 
         oi = new OI();
 
         autoChooser = new SendableChooser();
         autoChooser.initTable(NetworkTable.getTable("TableThing"));
         autoChooser.addDefault("Cross (10 points, Neutral Zone facing defense)", AutonomousCommand.Type.CROSS);
-        //autoChooser.addDefault("Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
+        autoChooser.addDefault("Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
         autoChooser.addDefault("Spy High Goal (10 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY_NOCROSS);
         //autoChooser.addDefault("Spy High Goal w/ Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
@@ -97,7 +97,7 @@ public class Robot extends RobotCore {
 
     public void initTeleopCommands() {
         OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
-        OI.runCommand(new ClimberCommand());
+        //OI.runCommand(new ClimberCommand());
         if (Vision.isInit()) {
             OI.runCommand(new VisionTargeting());
         }

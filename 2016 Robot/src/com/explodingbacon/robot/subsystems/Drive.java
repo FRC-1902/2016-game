@@ -14,7 +14,6 @@ import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class Drive extends Subsystem {
     private static AbstractEncoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
     private static AbstractEncoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
 
-    //private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
+    private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
 
     private static boolean driverControlled = true;
 
@@ -38,8 +37,8 @@ public class Drive extends Subsystem {
     public static PIDController eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
     public static PIDController eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
 
-    //public static PIDController gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
-    //public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+    public static PIDController gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+    public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
 
     public static final double GYRO_PID_TOLERANCE = 0.25;
     public static final double ENCODER_ANGLE_TOLERANCE = 1500;
@@ -49,11 +48,11 @@ public class Drive extends Subsystem {
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
 
-        //leftMotors.setLoggingChanges(true);
-        //rightMotors.setLoggingChanges(true);
+        leftMotors.setLoggingChanges(true);
+        rightMotors.setLoggingChanges(true);
 
-        //gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
-        //gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
+        gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
+        gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
 
         eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
         eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
@@ -62,17 +61,6 @@ public class Drive extends Subsystem {
         SmartDashboard.putNumber("Gyro kP", gyrokP);
         SmartDashboard.putNumber("Gyro kI", gyrokI);
         SmartDashboard.putNumber("Gyro kD", gyrokD);
-
-
-        /*
-        Talon t = (Talon) ((MotorGroup)leftMotors).getMotors().get(0).getInternalSpeedController();
-
-        Log.d(getField(t, "loopTime"));
-        Log.d(getField(t, "m_maxPwm"));
-        Log.d(getField(t, "m_deadbandMaxPwm"));
-        Log.d(getField(t, "m_centerPwm"));
-        Log.d(getField(t, "m_deadbandMinPwm"));
-        Log.d(getField(t, "m_minPwm"));*/
 
     }
 
@@ -83,16 +71,6 @@ public class Drive extends Subsystem {
 
     @Override
     public void disabledInit() {}
-
-    /*
-    public static String getField(Object o, String field) {
-        try {
-            Field f = PWM.class.getDeclaredField(field);
-            f.setAccessible(true);
-            return f.get(o).toString();
-        } catch (Exception e) {}
-        return null;
-    }*/
 
     /**
      * Gets the MotorGroup for the gLeft drivetrain motors.
@@ -136,8 +114,7 @@ public class Drive extends Subsystem {
      * @return The ADXSensor.
      */
     public static ADXSensor getADX() {
-        //return adx;
-        return null;
+        return adx;
     }
 
     /**
@@ -198,6 +175,26 @@ public class Drive extends Subsystem {
     }
 
     /**
+     * Makes the Robot drive a certain amount of inches, then return to it's starting angle.
+     *
+     * @param inches How many inches to drive.
+     */
+    public static void inchDriveGyro(double inches) {
+        encoderDriveGyro(inchesToEncoder(inches));
+    }
+
+    /**
+     * Makes the Robot drive a certain amount of encoder clicks, then return to it's starting angle.
+     *
+     * @param distance How many encoder clicks to drive.
+     */
+    public static void encoderDriveGyro(double distance) {
+        adx.reset();
+        encoderDrive(distance);
+        gyroTurn(adx.getAngle()); //TODO: check sign
+    }
+
+    /**
      * Makes the Robot drive a certain amount of encoder clicks.
      *
      * @param distance How many encoder clicks to drive.
@@ -223,12 +220,6 @@ public class Drive extends Subsystem {
 
         eLeft.disable();
         eRight.disable();
-
-        //Log.d("Done with straight portion, adjusting angle.");
-
-        //gyroTurn(adx.getAngle());
-
-        Drive.setDriverControlled(true);
     }
 
     /**
@@ -237,20 +228,18 @@ public class Drive extends Subsystem {
      * @param degrees How many degrees to turn.
      * @return True.
      */
-    /*
     public static boolean gyroTurn(double degrees) {
         return gyroTurn(degrees, -1);
     }
-    */
 
     /**
      * Makes the Robot turn a certain amount of degrees. TODO: Figure out 100% which way is right and left and make it match with the right and left on the gyro
+     * TODO: The gyro WILL freak out when the Robot is jerked around when going over a defense. Don't rely on this to be accurate when crossing a bumpy defense.
      *
      * @param degrees How many degrees to turn.
      * @param timeout How long to wait before giving up on the gyro turn.
      * @return True is the turn was successful, false if the timeout was reached.
      */
-    /*
     public static boolean gyroTurn(double degrees, double timeout) {
         Drive.setDriverControlled(false);
         Drive.shift(false);
@@ -282,7 +271,6 @@ public class Drive extends Subsystem {
 
         return result;
     }
-    */
 
     /**
      * Converts inches to drive encoder clicks.

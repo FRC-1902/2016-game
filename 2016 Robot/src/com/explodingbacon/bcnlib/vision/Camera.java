@@ -196,7 +196,9 @@ public class Camera {
      */
     public boolean setRaw(int propid, double val) {
         synchronized (CAMERA_USE) {
-            return cam.set(propid, val);
+            boolean result = cam.set(propid, val);
+            if (!result) Log.w("Setting a property of Camera " + index + " failed!");
+            return result;
         }
     }
 }

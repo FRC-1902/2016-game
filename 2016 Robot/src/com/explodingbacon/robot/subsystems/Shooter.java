@@ -8,10 +8,8 @@ import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
-import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.vision.VisionConfig;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Arrays;
@@ -27,19 +25,15 @@ public class Shooter extends Subsystem {
 
     public static final int INTAKE_RATE = -25000;
 
-    public static final int GOOD_BALL_SHOOT_RATE = 26500; //Low goal
-    public static final int BAD_BALL_SHOOT_RATE = 55000; //High goal, Used to be 50000
+    public static final int LOW_GOAL_RATE = 26500;
+    public static final int HIGH_GOAL_RATE = 55000; //Used to be 50000
 
-    public static int GOOD_OFFSET = 0;
-    public static int BAD_OFFSET = 0;
-
-    //Random rates we were using/tuning at some point, keeping in case we ever need them
-    //public static final int BAD_BALL_LOW_RATE = 15000;
-    //public static final int GOOD_BALL_LOW_RATE = 12500;
+    public static int LOW_OFFSET = 0;
+    public static int HIGH_OFFSET = 0;
 
     private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
-    private static boolean shouldVisionShoot = false;
+    private static boolean doingVisionShoot = false;
 
     public Shooter() {
         super();
@@ -125,65 +119,64 @@ public class Shooter extends Subsystem {
      * @return The rate needed to shoot the current ball.
      */
     public static double calculateRate() {
-        if (OI.shooterRevBad.get()) {
-            return BAD_BALL_SHOOT_RATE + BAD_OFFSET;
+        if (OI.shooterRevLow.get()) return LOW_GOAL_RATE + LOW_OFFSET;
+        return HIGH_GOAL_RATE + HIGH_OFFSET;
+    }
+
+    private static final double slowTurnSpeed = 0.3;
+
+    /**
+     * Uses Vision Targeting to make the Robot turn and shoot a high goal.
+     *
+     * @param c The Command asking for this action to be performed.
+     */
+    public static void doVisionShoot(Command c) {
+        doingVisionShoot = true;
+        boolean didLeft = false;
+        boolean didRight = false;
+        if (VisionTargeting.isGoalVisible()) {
+            boolean abort = false;
+            while (!VisionTargeting.isLinedUp()) { //TODO: see if we can get away with being lazy and just doing motor speeds instead of using a rate PID
+                if (VisionTargeting.shouldGoLeft()) {
+                    didLeft = true;
+                    Drive.tankDrive(slowTurnSpeed, -slowTurnSpeed); //Turn left
+                } else if (VisionTargeting.shouldGoRight()) {
+                    didRight = true;
+                    Drive.tankDrive(-slowTurnSpeed, slowTurnSpeed); //Turn right
+                } else {
+                    Log.e("Shooter.doVisionShoot() made it to an else statement that should not happen!");
+                }
+                if (didLeft && didRight) {
+                    Log.w("Drive train oscillating when doing Vision Shoot!");
+                    didLeft = false;
+                    didRight = false;
+                }
+                if (!VisionTargeting.isGoalVisible()) {
+                    abort = true;
+                    break;
+                }
+            }
+            if (!abort) {
+                Drive.tankDrive(0, 0);
+                waitForRev(); //Should not wait at all if already at target
+                shootUsingIndexer(c);
+            } else {
+                Log.v("Vision Shoot aborted!");
+            }
+        } else {
+            Log.i("Did not do vision shoot due to not being able to see the goal!");
+            //TODO: make the robot turn and look for the goal based off it's defense position instead of giving up
         }
-        return GOOD_BALL_SHOOT_RATE + GOOD_OFFSET;
+        doingVisionShoot = false;
     }
 
     /**
-     * Tells the Shooter to shoot the boulder via Vision Tracking if it can see the goal.
-     */
-    public static void queueSafeVisionShoot() {
-        queueVisionShoot(new VisionConfig().setGoalRequired(true));
-    }
-
-    /**
-     * Tells the Shooter to shoot the boulder via Vision Tracking.
-     */
-    public static void queueVisionShoot() {
-        queueVisionShoot(null);
-    }
-
-    /**
-     * Tells the Shooter to shoot the boulder via Vision Tracking.
+     * Checks if the Robot is currently shooting using Vision Targeting.
      *
-     * @param c The VisionConfig to be used for this shot.
+     * @return If the Robot is currently shooting using Vision Targeting.
      */
-    public static void queueVisionShoot(VisionConfig c) {
-        VisionTargeting.setVisionConfig(c);
-        setShouldVisionShoot(true);
-    }
-
-    /**
-     * Waits until the Shooter shoots the boulder.
-     */
-    public static void waitForVisionShoot() {
-        Utils.waitFor(() -> !shouldVisionShoot);
-    }
-
-    /**
-     * Checks if the Shooter has been told to shoot using Vision Tracking.
-     *
-     * @return If the Shooter has been told to shoot using Vision Tracking.
-     */
-    public static boolean isVisionShootQueued() { return shouldVisionShoot; }
-
-    /**
-     * Sets if the Shooter should shoot the boulder using Vision Tracking.
-     *
-     * @param b If the Shooter should shoot the boulder using Vision Tracking.
-     */
-    public static void setShouldVisionShoot(boolean b) { shouldVisionShoot = b; }
-
-
-    /**
-     * Sets the speed of the Shooter.
-     *
-     * @param d The speed of the Shooter.
-     */
-    public static void setShooterRaw(double d) {
-        shooter.setPower(d);
+    public static boolean isVisionShooting() {
+        return doingVisionShoot;
     }
 
     /**

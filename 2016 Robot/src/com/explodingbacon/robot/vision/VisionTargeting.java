@@ -2,14 +2,9 @@ package com.explodingbacon.robot.vision;
 
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
-import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.*;
-import com.explodingbacon.robot.main.Map;
-import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.main.Robot;
-import com.explodingbacon.robot.subsystems.Drive;
-import com.explodingbacon.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Collections;
@@ -18,14 +13,12 @@ public class VisionTargeting extends Command {
 
     private static Camera camera;
     private static boolean init = false;
-
-    private static final double ANGLE_DEADZONE = 0.8;
-    private static final double CAMERA_PIXELS_OFFSET = 0;
-    private static final double MINIMUM_SIMILARITY = 2; //TODO: tune
-
     private static Image goalSample;
+    private static boolean left, middle, right, goalVisible;
 
-    private static VisionConfig config = null;
+    private static final double TARGET_CENTER = 0;
+    private static final double ACCEPTABLE_ERROR = 10;
+    private static final double MINIMUM_SIMILARITY = 2; //TODO: tune
 
     private static final String imgDir = "/home/lvuser/";
 
@@ -35,20 +28,12 @@ public class VisionTargeting extends Command {
     public void onInit() {
         if (!init) {
             camera = new Camera(0, true);
-            // Log.d("Made camera!");
-
-            /*
-            camera.setUpdatingEnabled(false);
-            boolean b = camera.setExposure(EXPOSURE_DEFAULT);
-            camera.setUpdatingEnabled(true);
-            */
+            camera.onEachFrame(VisionTargeting::onImage);
 
             goalSample = Image.fromFile(imgDir + "goal_sample.png").inRange(new Color(244, 244, 244), new Color(255, 255, 255));
-            //Log.d("Goal sample gotten!");
-
-            Log.v("Vision Targeting initialized!");
 
             init = true;
+            Log.v("Vision Targeting initialized!");
         }
 
         try {
@@ -56,135 +41,91 @@ public class VisionTargeting extends Command {
         } catch (Exception e) {}
     }
 
-    @Override
-    public void onLoop() {
-        try {
-            if (Shooter.isVisionShootQueued()) {
-                config = config == null ? new VisionConfig() : config;
-                Log.v("Beginning vision shoot...");
-                boolean controllingShooter = false;
-                if (Shooter.shooterPID.getTarget() == 0) {
-                    Shooter.getShooter().setUser(this); //Forcibly take control of this
-                    Shooter.rev(this);
-                    controllingShooter = true;
-                }
-
-                boolean foundGoal = false;
-                boolean abort = false;
-                double startMillis = System.currentTimeMillis();
-
-                double imgMillis = System.currentTimeMillis();
-
-                Image i = camera.getImage();
-                double imageGetMS = System.currentTimeMillis() - imgMillis;
-
-                Log.v("Took " + imageGetMS + "ms to get image.");
-
-                double target = (i.getWidth() / 2) + CAMERA_PIXELS_OFFSET;
-
-                Contour goal = findGoal(i, target);
-
-                //Log.d("Starting difference: " + (goal.getMiddleX() - target));
-                    /*
-                    save(i, "image_raw");
-                    Image indicators = i.copy();
-                    drawIndicators(indicators, target, goal);
-                    save(indicators, "image_target");
-                    Log.d("Saved images!");
-                    */
-
-                if (isDriverAborting()) {
-                    abort = true;
-                    goal = null;
-                }
-
-                if (goal != null) {
-                    foundGoal = true;
-                    //Log.v("Goal detected.");
-                    double goalMid = goal.getMiddleX();
-                    double degrees = Utils.getDegreesToTurn(goalMid, target);
-                    Log.d("Calculated degrees to turn");
-                    Log.v(degrees + " degrees away from the goal");
-                    if (Math.abs(degrees) > ANGLE_DEADZONE) {
-                        /*
-                        if (!Drive.gyroTurn(degrees, 6)) { //TODO: Tweak how long we should wait before giving up on the gyro turn
-                            Log.v("Gyro turn timeout reached. Shoot aborting.");
-                            Drive.setDriverControlled(true);
-                            abort = true;
-                        }
-                        */
-                        Log.v("Angle is incorrect, turning not implemented yet :(");
-                    } else {
-                        Log.v("Already lined up with the goal, not moving.");
-                    }
-                } else {
-                    if (!abort) Log.v("Goal not detected!");
-                }
-                if (isDriverAborting()) {
-                    abort = true;
-                }
-
-                if (isDriverAborting()) {
-                    abort = true;
-                }
-
-                boolean success = false;
-                if (!abort) {
-                    if (foundGoal || (!config.goalRequired)) {
-                        if (!Shooter.shooterPID.isDone()) {
-                            Log.v("Waiting to shoot until the shooter is up to speed.");
-                            Shooter.shooterPID.waitUntilDone();
-                        }
-                        Log.v("Time taken to shoot: " + ((System.currentTimeMillis() - startMillis) / 1000) + " seconds.");
-                        Shooter.shootUsingIndexer(this);
-                        success = true;
-                    }
-                }
-
-                Shooter.setShouldVisionShoot(false);
-                config = null;
-                //Shooter.getIndexer().setUser(null);
-                if (controllingShooter) Shooter.stopRev(this);
-                if (!abort) {
-                    if (success) {
-                        if (foundGoal) Log.v("Shot a boulder using Vision Targeting.");
-                        else Log.v("Shot a boulder without Vision Targeting due to not being able to see a goal!");
-                    } else {
-                        Log.v("No goal detected and config requires one, not shooting.");
-                    }
-                } else {
-                    Log.v("Vision shoot aborted.");
-                }
+    /**
+     * Runs every time the Camera image updates.
+     *
+     * @param i The new Image.
+     */
+    public static void onImage(Image i) {
+        Contour goal = findGoal(i);
+        if (goal != null) {
+            setGoalVisible(true);
+            double target = (i.getWidth() / 2) + TARGET_CENTER;
+            double pos = goal.getMiddleX();
+            double diff = pos - target;
+            if (diff < -ACCEPTABLE_ERROR) { //If the goal is to the left of the target area
+                setAimValues(false, false, true);
+            } else if (diff > ACCEPTABLE_ERROR) {//If the goal is to the right of the target area
+                setAimValues(true, false, false);
+            } else { //If we are within the target area
+                setAimValues(false, true, false);
             }
-        } catch (Exception e) {
-            Log.e("VisionTargeting exception!");
-            e.printStackTrace();
+        } else {
+            setGoalVisible(false);
+            setAimValues(false, false, false);
         }
     }
 
     /**
-     * Checks if the driver is trying to abort the vision shot.
+     * Sets if the goal if visible to the Robot.
      *
-     * @return If the driver is trying to abort the vision shot.
+     * @param b If the goal if visible to the Robot.
      */
-    public boolean isDriverAborting() {
-        boolean aborting = OI.shootAbort.get() && Robot.getMode() != Mode.AUTONOMOUS;
-        if (aborting) {
-            Log.d("Driver is aborting the vision shot!");
-        }
-        return aborting;
+    private static void setGoalVisible(boolean b) {
+        goalVisible = b;
+        SmartDashboard.putBoolean("goal", b);
     }
 
-    public static void setVisionConfig(VisionConfig c) {
-        config = c;
+    /**
+     * Checks if the goal is visible.
+     *
+     * @return If the goal is visible.
+     */
+    public static boolean isGoalVisible() {
+        return goalVisible;
     }
 
-    @Override
-    public void onStop() {}
+    /**
+     * Sets the values for the aiming indicators on the SmartDashboard.
+     *
+     * @param l The left inidicator value.
+     * @param m The middle inidicator value.
+     * @param r The right inidicator value.
+     */
+    private static void setAimValues(boolean l, boolean m, boolean r) {
+        left = l;
+        middle = m;
+        right = r;
+        SmartDashboard.putBoolean("left", l);
+        SmartDashboard.putBoolean("middle", m);
+        SmartDashboard.putBoolean("right", r);
+    }
 
-    @Override
-    public boolean isFinished() {
-        return !Robot.isEnabled();
+    /**
+     * Checks if the Robot should turn left to line up with the goal.
+     *
+     * @return If the Robot should turn left to line up with the goal.
+     */
+    public static boolean shouldGoLeft() {
+        return left;
+    }
+
+    /**
+     * Checks if the Robot should turn right to line up with the goal.
+     *
+     * @return If the Robot should turn right to line up with the goal.
+     */
+    public static boolean shouldGoRight() {
+        return right;
+    }
+
+    /**
+     * Checks if the Robot is lined up with the goal.
+     *
+     * @return If the Robot is lined up with the goal.
+     */
+    public static boolean isLinedUp() {
+        return middle && goalVisible;
     }
 
     /**
@@ -229,16 +170,15 @@ public class VisionTargeting extends Command {
      * Gets the Contour for the retroreflective tape around the Castle's high goal.
      *
      * @param i The image the goal is in.
-     * @param target Where we'll want to be moving the goal to.
      * @return The Contour for the retroreflective tape around the Castle's high goal.
      */
-    private static Contour findGoal(Image i, double target) {
+    private static Contour findGoal(Image i) {
         Image filtered = filter(i);
         Contour goal = null;
         for (Contour c : filtered.getContours()) {
             if (c.getWidth() < 300 && c.getWidth() > 20 && c.getHeight() < 300 && c.getHeight() > 20) { //TODO: These 20's used to be 10's. If things are bad, go back to 10's
                 if (goal == null) {
-                    boolean good = false;
+                    boolean good;
                     if (TARGET_TYPE == TargetType.SHAPE) {
                         good = c.compareTo(goalSample) > MINIMUM_SIMILARITY;
                     } else {
@@ -246,21 +186,7 @@ public class VisionTargeting extends Command {
                     }
                     if (good) goal = c;
                 } else {
-                    if (TARGET_TYPE == TargetType.CLOSEST_TO_TARGET) {
-                        double cTargetError = Math.abs(c.getMiddleX() - target);
-                        double goalTargetError = Math.abs(goal.getMiddleX() - target);
-                        if (cTargetError < goalTargetError) {
-                            goal = c;
-                        }
-                    } else if (TARGET_TYPE == TargetType.CLOSEST_TO_BOTTOM) {
-                        double height = i.getHeight();
-                        double cTargetError = Math.abs(c.getMiddleY() - height);
-                        double goalTargetError = Math.abs(goal.getMiddleY() - height);
-                        if (cTargetError < goalTargetError) {
-                            goal = c;
-                        }
-
-                    } else if (TARGET_TYPE == TargetType.BIGGEST) {
+                    if (TARGET_TYPE == TargetType.BIGGEST) {
                         if (c.getArea() > goal.getArea()) {
                             goal = c;
                         }
@@ -280,18 +206,37 @@ public class VisionTargeting extends Command {
 
         if (goal != null) {
             if (TARGET_TYPE == TargetType.SHAPE) {
-                Log.d("Goal shape rating: " + goal.compareTo(goalSample));
+                Log.d("Final goal shape rating: " + goal.compareTo(goalSample));
             }
-            //Log.d("Goal's width is " + goal.getWidth() + ", height is " + goal.getHeight());
         }
 
         return goal;
     }
 
+    /**
+     * Checks if a goal is in a sample image. Used to check if the current detection method works on a sample image.
+     *
+     * @param imgPath The path to the Image file.
+     * @return If a goal is in the image or not.
+     */
+    public boolean hasGoal(String imgPath) {
+        return findGoal(Image.fromFile(imgPath)) != null;
+    }
+
+    @Override
+    public void onLoop() {}
+
+    @Override
+    public void onStop() {}
+
+    @Override
+    public boolean isFinished() {
+        return !Robot.isEnabled();
+    }
+
+
     public enum TargetType {
         BIGGEST,
-        CLOSEST_TO_TARGET,
-        CLOSEST_TO_BOTTOM,
         SHAPE
     }
 }

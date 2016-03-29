@@ -29,9 +29,7 @@ public class ShooterCommand extends Command {
 
         if (shoot || OI.shootNoVision.get() && Robot.isEnabled()) {
             if (Vision.isInit() && !OI.shootNoVision.get()) {
-                if (!Shooter.isVisionShootQueued()) {
-                    Shooter.queueVisionShoot();
-                }
+                //Shooter.doVisionShoot(this);
             } else {
                 if (Shooter.getIndexer().isUsableBy(this)) {
                     Shooter.shootUsingIndexer(this);
@@ -50,14 +48,14 @@ public class ShooterCommand extends Command {
             loggedSpeed = false;
         }
 
-        if(OI.resetLeftTrim.get()) Shooter.BAD_OFFSET = 0;
-        if(OI.resetRightTrim.get()) Shooter.GOOD_OFFSET = 0;
+        if(OI.resetLeftTrim.get()) Shooter.HIGH_OFFSET = 0;
+        if(OI.resetRightTrim.get()) Shooter.LOW_OFFSET = 0;
 
         if(!holdingTrim) {
-            if (OI.trimLeftUp.get()) Shooter.BAD_OFFSET += TRIM_AMOUNT;
-            if (OI.trimLeftDown.get()) Shooter.BAD_OFFSET -= TRIM_AMOUNT;
-            if (OI.trimRightUp.get()) Shooter.GOOD_OFFSET += TRIM_AMOUNT;
-            if (OI.trimRightDown.get()) Shooter.GOOD_OFFSET -= TRIM_AMOUNT;
+            if (OI.trimLeftUp.get()) Shooter.HIGH_OFFSET += TRIM_AMOUNT;
+            if (OI.trimLeftDown.get()) Shooter.HIGH_OFFSET -= TRIM_AMOUNT;
+            if (OI.trimRightUp.get()) Shooter.LOW_OFFSET += TRIM_AMOUNT;
+            if (OI.trimRightDown.get()) Shooter.LOW_OFFSET -= TRIM_AMOUNT;
         }
 
         holdingTrim = OI.trimButtons.getAny();
