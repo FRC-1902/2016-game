@@ -7,11 +7,9 @@ import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.Drive;
 import com.explodingbacon.robot.subsystems.Intake;
 import com.explodingbacon.robot.subsystems.Shooter;
-import com.explodingbacon.robot.vision.VisionConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutonomousCommand extends Command {
-
 
     Type type;
 
@@ -27,8 +25,6 @@ public class AutonomousCommand extends Command {
     private static final double SHOT_TO_SECOND_BALL_DISTANCE = 11 * 12; //TODO: tune
 
 
-    //TODO: Add setting for rock wall since we need to go farther to get over that
-
     @Override
     public void onInit() {
         double millis = System.currentTimeMillis();
@@ -37,72 +33,70 @@ public class AutonomousCommand extends Command {
             Defense defense = (Defense) Robot.defenseChooser.getSelected();
             double angleToShoot =((Integer)Robot.posChooser.getSelected()) * 1.0;
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
-            if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) { //Drive forward, turn, shoot, turn to back to original angle, back into defense ramp
+            if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) {
                 if (defense == Defense.ROCK_WALL) {
                     Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE + (4 * 12));
                 } else {
                     Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
                 }
                 if (type == Type.ONE_BOULDER_NEUTRAL) {
-                    if (angleToShoot == 45) Drive.inchDrive(7 * 12); //If we're first pos
+                    //if (angleToShoot == 45) Drive.inchDrive(3 * 12); //Drive forward extra if we're in the first position. TODO: Check position a better way then checking hardcoded angles?
                     Thread.sleep(500);
                     if (Robot.isAutonomous()) {
-                        Shooter.rev(this, Shooter.BAD_BALL_SHOOT_RATE);
-                        //if (angleToShoot != 0) Drive.gyroTurn(angleToShoot, 6);
+                        Shooter.rev(this);
+                        if (angleToShoot != 0) Drive.gyroTurn(angleToShoot, 6);
                         if (Robot.isAutonomous()) {
-                            Shooter.queueSafeVisionShoot();
-                            Shooter.waitForVisionShoot();
+                            Shooter.doVisionShoot(this);
+                            //Back up to touching a defense to get a whopping 2 MORE POINTS
                             if (Robot.isAutonomous()) {
-                                //Drive.gyroTurn(-Drive.getADX().getAngle());
-                                Drive.inchDrive(-80); //TODO: tune to get robot touching a defense
+                                Drive.gyroTurn(-Drive.getADX().getAngle()); //TODO: check sign
+                                Drive.tankDrive(-0.3, -0.3); //TODO: adjust speed? use PID instead? test this? Doing this to try and make it safer, slower, and simpler
                             }
                         }
                         Shooter.stopRev(this);
                     }
                 }
-            } else if (type == Type.ONE_BOULDER_SPY || type == Type.ONE_BOULDER_SPY_NOCROSS) {
+            } else if (type == Type.ONE_BOULDER_SPY || type == Type.ONE_BOULDER_SPY_NOCROSS) { //TODO: crossing part is not functional
                 Shooter.rev(this);
                 Shooter.waitForRev();
                 Shooter.shootUsingIndexer(this);
                 Shooter.stopRev(this);
                 if (type == Type.ONE_BOULDER_SPY) {
-                    //Drive.gyroTurn(91.5);
+                    Drive.inchDrive(12);
+                    Drive.gyroTurn(91.5); //TODO: can the robot even turn when wedged into the corner like this?
                     Drive.inchDrive(23 * 12);
                     Thread.sleep(500);
                     Drive.inchDrive(-(15 * 12));
                 }
-            } else if (type == Type.TWO_BOULDER_SPY) { //Shoot ball from spy box, go through low bar, get boulder, return through and shoot second boulder
+            } else if (type == Type.TWO_BOULDER_SPY) { //TODO: not functional
                 Shooter.rev(this);
                 Shooter.waitForRev();
                 Shooter.shootUsingIndexer(this);
                 Shooter.stopRev(this);
-                //Drive.gyroTurn(90);
+                Drive.gyroTurn(90); //TODO: can the robot even turn when wedged into the corner like this?
                 Intake.intake(this);
                 Drive.inchDrive(SPYBOX_TO_SECOND_BALL_DISTANCE);
                 Drive.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
                 Intake.stopIntake(this);
                 Shooter.rev(this);
-                //Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
-                Shooter.queueSafeVisionShoot();
-                Shooter.waitForVisionShoot();
+                Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
+                Shooter.doVisionShoot(this);
                 Shooter.stopRev(this);
-            } else if (type == Type.TWO_BOULDER_NEUTRAL) { //Go through low bar, turn, shoot, turn around and go through low bar, intake ball, go through low bar backwards, turn, shoot
+            } else if (type == Type.TWO_BOULDER_NEUTRAL) { //TODO: not functional
                 Drive.inchDrive(NEUTRAL_TO_SHOOT_DISTANCE);
                 Shooter.rev(this);
-                //Drive.gyroTurn(angleToShoot);
-                Shooter.queueVisionShoot();
-                Shooter.waitForVisionShoot();
+                Drive.gyroTurn(angleToShoot);
+                Shooter.doVisionShoot(this);
                 Shooter.stopRev(this);
                 double turnAmount = 180 - (Drive.getADX().getAngle() + angleToShoot); //TODO: check this math
-                //Drive.gyroTurn(-turnAmount);
+                Drive.gyroTurn(-turnAmount);
                 Intake.intake(this);
                 Drive.inchDrive(SHOT_TO_SECOND_BALL_DISTANCE);
                 Drive.inchDrive(-(SECOND_BALL_TO_SHOOT_DISTANCE));
                 Intake.stopIntake(this);
                 Shooter.rev(this);
-                //Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
-                Shooter.queueVisionShoot();
-                Shooter.waitForVisionShoot();
+                Drive.gyroTurn(COURTYARD_BACKWARDS_TO_CASTLE_ANGLE);
+                Shooter.doVisionShoot(this);
                 Shooter.stopRev(this);
 
             } else if (type == Type.NOTHING) {
@@ -117,6 +111,7 @@ public class AutonomousCommand extends Command {
             Log.e("AutonomousCommand exception!");
             e.printStackTrace();
         }
+        Drive.tankDrive(0, 0);
         Log.i("Autonomous complete. Time elapsed: " + ((System.currentTimeMillis() - millis) / 1000) + " seconds");
     }
 
