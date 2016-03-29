@@ -23,6 +23,7 @@ package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
+import com.explodingbacon.bcnlib.vision.ImageServer;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.*;
@@ -91,6 +92,8 @@ public class Robot extends RobotCore {
         SmartDashboard.putData("Defense Type Chooser", defenseChooser);
 
         SmartDashboard.putNumber("Auto Delay", 3);
+
+        ImageServer.getInstance(); //Calling this should initialize the ImageServer
 
         Log.i("Battering Ham initialized!");
     }

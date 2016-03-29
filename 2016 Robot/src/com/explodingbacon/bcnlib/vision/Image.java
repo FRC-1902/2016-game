@@ -233,6 +233,27 @@ public class Image {
     }
 
     /**
+     * Creates a resized version of this Image. TODO: test
+     *
+     * @return A resized version of this Image.
+     */
+    public Image resize(int width, int height) {
+        Image resize = new Image();
+        Size sz = new Size(width, height);
+        Imgproc.resize(m, resize.getMat(), sz );
+        return resize;
+    }
+
+    /**
+     * Converts this Image to a byte array. TODO: test
+     *
+     * @return This Image in byte array form.
+     */
+    public byte[] toBytes() {
+        return new byte[ m.rows() * m.cols() * m.channels() ];
+    }
+
+    /**
      * Saves this Image as a file.
      *
      * @param fileName The name of the file.

@@ -7,7 +7,9 @@ import com.explodingbacon.bcnlib.vision.*;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class VisionTargeting extends Command {
 
@@ -15,6 +17,9 @@ public class VisionTargeting extends Command {
     private static boolean init = false;
     private static Image goalSample;
     private static boolean left, middle, right, goalVisible;
+    private static List<Image> frames = new ArrayList<>();
+
+    private static final Object IMAGE_USE = new Object();
 
     private static final double TARGET_CENTER = 0;
     private static final double ACCEPTABLE_ERROR = 10;
@@ -28,7 +33,7 @@ public class VisionTargeting extends Command {
     public void onInit() {
         if (!init) {
             camera = new Camera(0, true);
-            camera.onEachFrame(VisionTargeting::onImage);
+            camera.onEachFrame((img) -> frames.add(img)); //TODO: make sure the roborio can process the images fast enough to not lag or fall behind
 
             goalSample = Image.fromFile(imgDir + "goal_sample.png").inRange(new Color(244, 244, 244), new Color(255, 255, 255));
 
@@ -39,6 +44,26 @@ public class VisionTargeting extends Command {
         try {
             Thread.sleep(500);
         } catch (Exception e) {}
+    }
+
+    @Override
+    public void onLoop() { //TODO: make sure this doesn't cause concurrent modification exceptions
+        if (frames.size() > 0) {
+            Image i = frames.get(0);
+            onImage(i);
+            frames.remove(0);
+            ImageServer.getInstance().setImage(i); //TODO: if this is too slow or not working, comment this out
+            Log.d("Frames in queue: " + frames.size());
+            //TODO: make sure this can loop fast enough to keep up with the frames being passed in
+        }
+    }
+
+    @Override
+    public void onStop() {}
+
+    @Override
+    public boolean isFinished() {
+        return !Robot.isEnabled();
     }
 
     /**
@@ -221,17 +246,6 @@ public class VisionTargeting extends Command {
      */
     public boolean hasGoal(String imgPath) {
         return findGoal(Image.fromFile(imgPath)) != null;
-    }
-
-    @Override
-    public void onLoop() {}
-
-    @Override
-    public void onStop() {}
-
-    @Override
-    public boolean isFinished() {
-        return !Robot.isEnabled();
     }
 
 
