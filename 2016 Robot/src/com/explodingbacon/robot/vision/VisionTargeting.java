@@ -2,6 +2,7 @@ package com.explodingbacon.robot.vision;
 
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
+import com.explodingbacon.bcnlib.utils.Timer;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.*;
 import com.explodingbacon.robot.main.Robot;
@@ -29,11 +30,22 @@ public class VisionTargeting extends Command {
 
     private static final TargetType TARGET_TYPE = TargetType.SHAPE;
 
+    private static int imgPerSecond = 0;
+    private Timer t;
+
     @Override
     public void onInit() {
         if (!init) {
+            t = new Timer(1, () -> {
+                //System.out.println("Images per second: " + imgPerSecond);
+                imgPerSecond = 0;
+            });
+            t.start();
             camera = new Camera(0, true);
-            camera.onEachFrame((img) -> frames.add(img)); //TODO: make sure the roborio can process the images fast enough to not lag or fall behind
+            camera.onEachFrame((img) -> {
+                frames.add(img);
+                imgPerSecond++;
+            }); //TODO: make sure the roborio can process the images fast enough to not lag or fall behind
 
             goalSample = Image.fromFile(imgDir + "goal_sample.png").inRange(new Color(244, 244, 244), new Color(255, 255, 255));
 
@@ -52,8 +64,8 @@ public class VisionTargeting extends Command {
             Image i = frames.get(0);
             onImage(i);
             frames.remove(0);
-            ImageServer.getInstance().setImage(i); //TODO: if this is too slow or not working, comment this out
-            Log.d("Frames in queue: " + frames.size());
+            //ImageServer.getInstance().setImage(i); //TODO: if this is too slow or not working, comment this out
+            //Log.d("Frames in queue: " + frames.size());
             //TODO: make sure this can loop fast enough to keep up with the frames being passed in
         }
     }
@@ -63,7 +75,8 @@ public class VisionTargeting extends Command {
 
     @Override
     public boolean isFinished() {
-        return !Robot.isEnabled();
+        return false; //TODO: change back
+        //return !Robot.isEnabled();
     }
 
     /**
@@ -72,22 +85,25 @@ public class VisionTargeting extends Command {
      * @param i The new Image.
      */
     public static void onImage(Image i) {
-        Contour goal = findGoal(i);
-        if (goal != null) {
-            setGoalVisible(true);
-            double target = (i.getWidth() / 2) + TARGET_CENTER;
-            double pos = goal.getMiddleX();
-            double diff = pos - target;
-            if (diff < -ACCEPTABLE_ERROR) { //If the goal is to the left of the target area
-                setAimValues(false, false, true);
-            } else if (diff > ACCEPTABLE_ERROR) {//If the goal is to the right of the target area
-                setAimValues(true, false, false);
-            } else { //If we are within the target area
-                setAimValues(false, true, false);
+        if (i != null) {
+            Contour goal = findGoal(i);
+            if (goal != null) {
+                setGoalVisible(true);
+                double target = (i.getWidth() / 2) + TARGET_CENTER;
+                double pos = goal.getMiddleX();
+                double diff = pos - target;
+                if (diff < -ACCEPTABLE_ERROR) { //If the goal is to the left of the target area
+                    setAimValues(false, false, true);
+                } else if (diff > ACCEPTABLE_ERROR) {//If the goal is to the right of the target area
+                    setAimValues(true, false, false);
+                } else { //If we are within the target area
+                    setAimValues(false, true, false);
+                }
+            } else {
+                setGoalVisible(false);
+                setAimValues(false, false, false);
             }
-        } else {
-            setGoalVisible(false);
-            setAimValues(false, false, false);
+            System.out.println("Can see goal? " + goalVisible);
         }
     }
 

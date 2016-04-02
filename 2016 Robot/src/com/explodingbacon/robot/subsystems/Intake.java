@@ -11,11 +11,14 @@ import java.util.List;
 
 public class Intake extends Subsystem {
 
-    private static Motor intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
-    private static DoubleSolenoid intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
+    private static Motor intakeMotor;
+    private static DoubleSolenoid intakeOut;
 
     public Intake() {
         super();
+
+        intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
+        intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
 
         intakeMotor.setStopOnNoUser();
     }

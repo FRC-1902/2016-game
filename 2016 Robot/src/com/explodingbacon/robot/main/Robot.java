@@ -33,6 +33,8 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import java.lang.reflect.Field;
+
 public class Robot extends RobotCore {
 
     public static Drive drive;
@@ -53,11 +55,27 @@ public class Robot extends RobotCore {
     @Override
     public void robotInit() {
         super.robotInit();
-        Vision.init();
 
-        drive = new Drive();
-        intake = new Intake();
-        shooter = new Shooter();
+        Vision.init();
+        /*
+        try {
+            System.setProperty("java.library.path", "/home/lvuser/opencv_libs");
+
+            Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
+            fieldSysPath.setAccessible(true);
+            fieldSysPath.set(null, null);
+
+            Vision.init();
+        } catch (Exception e) {
+            Log.e("java.library.path set exception!");
+            e.printStackTrace();
+        }
+        */
+
+
+        //drive = new Drive();
+        //intake = new Intake();
+        //shooter = new Shooter();
         //climber = new Climber();
 
         oi = new OI();
@@ -96,10 +114,12 @@ public class Robot extends RobotCore {
         ImageServer.getInstance(); //Calling this should initialize the ImageServer
 
         Log.i("Battering Ham initialized!");
+
+        OI.runCommand(new VisionTargeting());
     }
 
     public void initTeleopCommands() {
-        OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
+        //OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
         //OI.runCommand(new ClimberCommand());
         if (Vision.isInit()) {
             OI.runCommand(new VisionTargeting());

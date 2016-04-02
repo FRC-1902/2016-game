@@ -17,8 +17,9 @@ import java.util.List;
 
 public class Shooter extends Subsystem {
 
-    private static MotorGroup shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
-    private static Motor indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
+    private static MotorGroup shooter;
+    private static Motor indexer;
+    private static DigitalInput hasBall;
 
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
@@ -31,12 +32,14 @@ public class Shooter extends Subsystem {
     public static int LOW_OFFSET = 0;
     public static int HIGH_OFFSET = 0;
 
-    private static DigitalInput hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
-
     private static boolean doingVisionShoot = false;
 
     public Shooter() {
         super();
+
+        shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+        indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
+        hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
