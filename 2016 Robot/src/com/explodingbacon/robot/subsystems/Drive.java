@@ -13,49 +13,68 @@ import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.TalonSRX;
+import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Arrays;
 import java.util.List;
 
 public class Drive extends Subsystem {
 
-    private static MotorGroup leftMotors = (MotorGroup) new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
-    private static MotorGroup rightMotors = (MotorGroup) new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+    private static MotorGroup leftMotors, rightMotors;
 
-    private static DoubleSolenoid shift = new DoubleSolenoid(Map.SHIFT_SOLENOID_A, Map.SHIFT_SOLENOID_B);
+    private static DoubleSolenoid shift;
 
-    private static AbstractEncoder leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
-    private static AbstractEncoder rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
+    private static AbstractEncoder leftEncoder;
+    private static AbstractEncoder rightEncoder;
 
-    private static ADXSensor adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
+    private static ADXSensor adx;
+
+    public static PIDController eLeft, eRight, gLeft, gRight;
 
     private static boolean driverControlled = true;
 
     private static double encoderkP = 0.0001, encoderkI = 0, encoderkD = 0, encoderMin = 0.2, encoderMax = 1; //33300=8ft, encoderMax was 0.5
     private static double gyrokP = 0.025, gyrokI = 0.005, gyrokD = 0.03, gyroMin = 0.05, gyroMax = 0.5;
 
-    public static PIDController eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
-    public static PIDController eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
-
-    public static PIDController gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
-    public static PIDController gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
-
     public static final double GYRO_PID_TOLERANCE = 0.25;
     public static final double ENCODER_ANGLE_TOLERANCE = 1500;
 
     public Drive() {
         super();
+
+        Class driveMotorClass = Robot.real ? VictorSP.class : TalonSRX.class;
+        leftMotors = (MotorGroup) new MotorGroup(driveMotorClass, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
+        rightMotors = (MotorGroup) new MotorGroup(driveMotorClass, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+
+        shift = new DoubleSolenoid(Map.SHIFT_SOLENOID_A, Map.SHIFT_SOLENOID_B);
+
+        if (Robot.real) {
+            leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
+            rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
+
+            adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
+
+            eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
+            eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
+
+            gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+            gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+        }
+
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);
 
         leftMotors.setLoggingChanges(true);
         rightMotors.setLoggingChanges(true);
 
-        gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
-        gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
+        if (Robot.real) {
+            gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
+            gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
 
-        eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
-        eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
+            eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
+            eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
+        }
 
 
         SmartDashboard.putNumber("Gyro kP", gyrokP);

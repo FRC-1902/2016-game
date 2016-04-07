@@ -10,8 +10,12 @@ import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
+import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.TalonSRX;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,22 +41,29 @@ public class Shooter extends Subsystem {
     public Shooter() {
         super();
 
-        shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
-        indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
+        Class shooterClass = Robot.real ? CANTalon.class : TalonSRX.class;
+        shooter = (MotorGroup) new MotorGroup(shooterClass, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+
+        Class indexerClass = Robot.real ? CANTalon.class : Talon.class;
+        indexer = new Motor(indexerClass, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
         hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
 
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
 
-        encoder = shooter.getMotors().get(1).getEncoder();
-        encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
-        encoder.setReversed(true);
+        if (Robot.real) {
+            encoder = shooter.getMotors().get(1).getEncoder();
+            encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
+            encoder.setReversed(true);
 
-        shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
-        shooterPID.setFinishedTolerance(1500);
-        shooterPID.setInputInverted(false); //Changed from true
+            shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
+            shooterPID.setFinishedTolerance(1500);
+            shooterPID.setInputInverted(false); //Changed from true
 
-        shooter.onNoUser(() -> shooterPID.setTarget(0));
+            shooter.onNoUser(() -> shooterPID.setTarget(0));
+        } else {
+            shooter.onNoUser(() -> shooter.setPower(0));
+        }
     }
 
     @Override
@@ -82,15 +93,19 @@ public class Shooter extends Subsystem {
      */
     public static void rev(Command c, double speed) {
         if (shooter.claim(c)) {
-            shooterPID.setTarget(speed);
+            if (Robot.real) {
+                shooterPID.setTarget(speed);
 
-            shooterPID.setExtraCode(() -> {
-                if (shooterPID.isDone()) {
-                    OI.manip.rumble(0.1f, 0.1f);
-                } else {
-                    OI.manip.rumble(0, 0);
-                }
-            });
+                shooterPID.setExtraCode(() -> {
+                    if (shooterPID.isDone()) {
+                        OI.manip.rumble(0.1f, 0.1f);
+                    } else {
+                        OI.manip.rumble(0, 0);
+                    }
+                });
+            } else {
+                shooter.setPower(0.66);
+            }
         }
     }
 

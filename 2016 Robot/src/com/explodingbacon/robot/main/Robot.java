@@ -21,6 +21,7 @@
  */
 package com.explodingbacon.robot.main;
 
+import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
 import com.explodingbacon.bcnlib.vision.ImageServer;
@@ -33,18 +34,21 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Robot extends RobotCore {
 
-    public static Drive drive;
-    public static Intake intake;
-    public static Shooter shooter;
-    //public static Climber climber;
+    public static Drive drive = null;
+    public static Intake intake = null;
+    public static Shooter shooter = null;
+    public static Climber climber = null;
     public static SendableChooser autoChooser;
     public static SendableChooser posChooser;
     public static SendableChooser defenseChooser;
     //public static DataLogger logger = new DataLogger();
+
+    public static final boolean real = true; //False = kitbot
 
     public OI oi;
 
@@ -57,25 +61,10 @@ public class Robot extends RobotCore {
         super.robotInit();
 
         Vision.init();
-        /*
-        try {
-            System.setProperty("java.library.path", "/home/lvuser/opencv_libs");
 
-            Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
-            fieldSysPath.setAccessible(true);
-            fieldSysPath.set(null, null);
-
-            Vision.init();
-        } catch (Exception e) {
-            Log.e("java.library.path set exception!");
-            e.printStackTrace();
-        }
-        */
-
-
-        //drive = new Drive();
+        drive = new Drive();
         //intake = new Intake();
-        //shooter = new Shooter();
+        shooter = new Shooter();
         //climber = new Climber();
 
         oi = new OI();
@@ -106,7 +95,7 @@ public class Robot extends RobotCore {
         defenseChooser.addDefault("Normal Static", AutonomousCommand.Defense.NORMAL);
         defenseChooser.addObject("Rock Wall", AutonomousCommand.Defense.ROCK_WALL);
         //defenseChooser.addObject("Cheval De Frise", AutonomousCommand.Defense.CHEVAL);
-        //defenseChooser.addObject("Portcullis", AutonomousCommand.Defense.PORTCULLIS);
+        //defensheCooser.addObject("Portcullis", AutonomousCommand.Defense.PORTCULLIS);
         SmartDashboard.putData("Defense Type Chooser", defenseChooser);
 
         SmartDashboard.putNumber("Auto Delay", 3);
@@ -119,11 +108,13 @@ public class Robot extends RobotCore {
     }
 
     public void initTeleopCommands() {
-        //OI.runCommands(new DriveCommand(), new IntakeCommand(), new ShooterCommand());
-        //OI.runCommand(new ClimberCommand());
-        if (Vision.isInit()) {
-            OI.runCommand(new VisionTargeting());
-        }
+        List<Command> commands = new ArrayList<>();
+        if (drive != null) commands.add(new DriveCommand());
+        if (intake != null) commands.add(new IntakeCommand());
+        if (shooter != null) commands.add(new ShooterCommand());
+        if (climber != null) commands.add(new ClimberCommand());
+        if (Vision.isInit()) commands.add(new VisionTargeting());
+        OI.runCommands(commands.toArray(new Command[commands.size()]));
     }
 
     @Override

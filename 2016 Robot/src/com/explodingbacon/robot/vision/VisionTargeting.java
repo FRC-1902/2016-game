@@ -103,7 +103,7 @@ public class VisionTargeting extends Command {
                 setGoalVisible(false);
                 setAimValues(false, false, false);
             }
-            System.out.println("Can see goal? " + goalVisible);
+            //System.out.println("Can see goal? " + goalVisible);
         }
     }
 
