@@ -6,6 +6,7 @@ import com.explodingbacon.bcnlib.actuators.MotorGroup;
 import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
+import com.explodingbacon.robot.main.KitMap;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.CANTalon;
@@ -23,8 +24,11 @@ public class Climber extends Subsystem {
 
     public Climber() {
         super();
-        Class winchType = Robot.real ? CANTalon.class : Talon.class;
-        cableWinch = (MotorGroup) new MotorGroup(winchType, Map.CLIMBER_CABLE_WINCH_A, Map.CLIMBER_CABLE_WINCH_B).setName("Climber Winch");
+        if (Robot.real) {
+            cableWinch = (MotorGroup) new MotorGroup(CANTalon.class, Map.CLIMBER_CABLE_WINCH_A, Map.CLIMBER_CABLE_WINCH_B).setName("Climber Winch");
+        } else {
+            cableWinch = new MotorGroup(Talon.class, KitMap.CABLE_WINCH);
+        }
         if (Robot.real) encoder = cableWinch.getMotors().get(1).getEncoder();
         position = new DoubleSolenoid(Map.CLIMBER_POSITION_A, Map.CLIMBER_POSITION_B);
         shoot = new Solenoid(Map.CLIMBER_SHOOT);

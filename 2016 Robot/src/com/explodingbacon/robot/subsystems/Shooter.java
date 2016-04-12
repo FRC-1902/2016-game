@@ -8,6 +8,7 @@ import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
+import com.explodingbacon.robot.main.KitMap;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.main.Robot;
@@ -41,12 +42,17 @@ public class Shooter extends Subsystem {
     public Shooter() {
         super();
 
-        Class shooterClass = Robot.real ? CANTalon.class : TalonSRX.class;
-        shooter = (MotorGroup) new MotorGroup(shooterClass, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+        if (Robot.real) {
+            shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+        } else {
+            shooter = new MotorGroup(TalonSRX.class, KitMap.SHOOTER);
+        }
 
-        Class indexerClass = Robot.real ? CANTalon.class : Talon.class;
-        indexer = new Motor(indexerClass, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
-        hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
+        if (Robot.real) {
+            indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
+        } else {
+            indexer = new Motor(Talon.class, KitMap.INDEXER);
+        }
 
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
@@ -104,7 +110,7 @@ public class Shooter extends Subsystem {
                     }
                 });
             } else {
-                shooter.setPower(0.66);
+                shooter.setPower(0.66); //TODO: tweak
             }
         }
     }

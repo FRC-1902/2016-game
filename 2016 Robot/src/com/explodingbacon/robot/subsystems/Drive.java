@@ -9,6 +9,7 @@ import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
+import com.explodingbacon.robot.main.KitMap;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.SPI;
@@ -43,9 +44,13 @@ public class Drive extends Subsystem {
     public Drive() {
         super();
 
-        Class driveMotorClass = Robot.real ? VictorSP.class : TalonSRX.class;
-        leftMotors = (MotorGroup) new MotorGroup(driveMotorClass, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
-        rightMotors = (MotorGroup) new MotorGroup(driveMotorClass, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+        if (Robot.real) {
+            leftMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
+            rightMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+        } else {
+            leftMotors = new MotorGroup(TalonSRX.class, KitMap.LEFT_DRIVE);
+            rightMotors = new MotorGroup(TalonSRX.class, KitMap.RIGHT_DRIVE);
+        }
 
         shift = new DoubleSolenoid(Map.SHIFT_SOLENOID_A, Map.SHIFT_SOLENOID_B);
 
