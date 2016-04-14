@@ -47,9 +47,19 @@ public class Drive extends Subsystem {
         if (Robot.real) {
             leftMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
             rightMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+
+            leftMotors.setReversed(true);
+            rightMotors.setReversed(true);
+
+            Log.d("Initialized Drive in Battering Ham mode.");
         } else {
-            leftMotors = new MotorGroup(TalonSRX.class, KitMap.LEFT_DRIVE);
-            rightMotors = new MotorGroup(TalonSRX.class, KitMap.RIGHT_DRIVE);
+            leftMotors = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.LEFT_DRIVE).setName("Left Drive");
+            rightMotors = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.RIGHT_DRIVE).setName("Right Drive");
+
+            Log.d("Initialized Drive in KitBot mode.");
+
+            leftMotors.setReversed(true);
+            rightMotors.setReversed(true);
         }
 
         shift = new DoubleSolenoid(Map.SHIFT_SOLENOID_A, Map.SHIFT_SOLENOID_B);
@@ -66,9 +76,6 @@ public class Drive extends Subsystem {
             gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
             gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
         }
-
-        leftMotors.setReversed(true);
-        rightMotors.setReversed(true);
 
         leftMotors.setLoggingChanges(true);
         rightMotors.setLoggingChanges(true);

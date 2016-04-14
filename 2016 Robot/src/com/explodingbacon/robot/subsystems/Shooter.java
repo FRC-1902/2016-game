@@ -74,12 +74,18 @@ public class Shooter extends Subsystem {
 
     @Override
     public void enabledInit() {
-        Shooter.shooterPID.enable();
+        if (Robot.real) {
+            Shooter.shooterPID.enable();
+        }
     }
 
     @Override
     public void disabledInit() {
-        Shooter.shooterPID.setTarget(0);
+        if (Robot.real) {
+            Shooter.shooterPID.setTarget(0);
+        } else {
+            shooter.setPower(0);
+        }
     }
 
     /**
@@ -129,7 +135,11 @@ public class Shooter extends Subsystem {
         if (shooter.isUsableBy(c)) {
             //setSpotlight(false);
 
-            shooterPID.setTarget(0);
+            if (Robot.real) {
+                shooterPID.setTarget(0);
+            } else {
+                shooter.setPower(0);
+            }
 
             shooterPID.setExtraCode(null);
 

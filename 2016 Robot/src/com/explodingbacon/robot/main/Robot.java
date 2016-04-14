@@ -48,7 +48,7 @@ public class Robot extends RobotCore {
     public static SendableChooser defenseChooser;
     //public static DataLogger logger = new DataLogger();
 
-    public static final boolean real = true; //False = kitbot
+    public static final boolean real = false; //False = kitbot
 
     public OI oi;
 
@@ -103,6 +103,7 @@ public class Robot extends RobotCore {
         ImageServer.getInstance(); //Calling this should initialize the ImageServer
 
         Log.i("Battering Ham initialized!");
+        Log.i("Robot is in " + (Robot.real ? "Battering Ham" : "KitBot") + " mode.");
 
         OI.runCommand(new VisionTargeting());
     }
@@ -128,6 +129,7 @@ public class Robot extends RobotCore {
         super.teleopInit();
         initTeleopCommands();
         Drive.setDriverControlled(true);
+        //Drive.tankDrive(0.25, 0);
 
         //SmartDashboard.putNumber("Turn Amnt", 90);
     }

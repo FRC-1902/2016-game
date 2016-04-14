@@ -62,8 +62,10 @@ public class VisionTargeting extends Command {
     public void onLoop() { //TODO: make sure this doesn't cause concurrent modification exceptions
         if (frames.size() > 0) {
             Image i = frames.get(0);
-            onImage(i);
-            frames.remove(0);
+            if (i != null) {
+                onImage(i);
+                if (frames.size() > 0) frames.remove(0);
+            }
             //ImageServer.getInstance().setImage(i); //TODO: if this is too slow or not working, comment this out
             //Log.d("Frames in queue: " + frames.size());
             //TODO: make sure this can loop fast enough to keep up with the frames being passed in
@@ -247,7 +249,7 @@ public class VisionTargeting extends Command {
 
         if (goal != null) {
             if (TARGET_TYPE == TargetType.SHAPE) {
-                Log.d("Final goal shape rating: " + goal.compareTo(goalSample));
+                //Log.d("Final goal shape rating: " + goal.compareTo(goalSample));
             }
         }
 
