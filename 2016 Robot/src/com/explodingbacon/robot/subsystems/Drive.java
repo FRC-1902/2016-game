@@ -178,7 +178,7 @@ public class Drive extends Subsystem {
     /**
      * Tank drive. Typically a driving style that uses two joysticks.
      *
-     * @param l The speed of the gLeft motors.
+     * @param l The speed of the left motors.
      * @param r The speed of the right motors.
      */
     public static void tankDrive(double l, double r) {
@@ -194,6 +194,24 @@ public class Drive extends Subsystem {
      */
     public static void arcadeDrive(double x, double y) {
         tankDrive(x - y, x + y);
+    }
+
+    /**
+     * Tank drives for a certain amount of seconds.
+     *
+     * @param left The speed of the left motors.
+     * @param right The speed of the right motors.
+     * @param seconds How many seconds to drive.
+     */
+    public static void tankDriveFor(double left, double right, double seconds) {
+        try {
+            tankDrive(left, right);
+            Thread.sleep(Math.round(seconds * 1000));
+            tankDrive(0, 0);
+        } catch (Exception e) {
+            Log.e("Drive.tankDriveFor() exception!");
+            e.printStackTrace();
+        }
     }
 
     /**

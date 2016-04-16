@@ -1,10 +1,12 @@
 package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
+import com.explodingbacon.bcnlib.actuators.FakeMotor;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
+import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Collections;
 import java.util.List;
@@ -17,8 +19,13 @@ public class Intake extends Subsystem {
     public Intake() {
         super();
 
-        intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
-        intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
+        if (Robot.real) {
+            intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
+            intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
+        } else {
+            intakeMotor = new FakeMotor();
+            intakeOut = null;
+        }
 
         intakeMotor.setStopOnNoUser();
     }
@@ -37,8 +44,12 @@ public class Intake extends Subsystem {
         if (intakeMotor.isUsableBy(c) && Shooter.getIndexer().isUsableBy(c) && Shooter.getShooter().isUsableBy(c)) {
             setUsingAll(c);
             intakeMotor.setPower(1);
-            Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE);
             Shooter.setIndexerRaw(-1);
+            if (Robot.real) {
+                Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE);
+            } else {
+                Shooter.getShooter().setPower(-4); //TODO: tune
+            }
         }
     }
 
@@ -48,9 +59,12 @@ public class Intake extends Subsystem {
     public static void outtake(Command c) {
         if (intakeMotor.isUsableBy(c) && Shooter.getShooter().isUsableBy(c)) {
             intakeMotor.setPower(-1);
-            Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE * -0.75);
-
             intakeMotor.setUser(c);
+            if (Robot.real) {
+                Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE * -0.75);
+            } else {
+                Shooter.getShooter().setPower(4); //TODO: tune
+            }
             Shooter.getShooter().setUser(c);
         }
     }

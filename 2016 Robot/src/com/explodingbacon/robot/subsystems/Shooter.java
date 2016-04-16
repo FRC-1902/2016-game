@@ -24,7 +24,7 @@ public class Shooter extends Subsystem {
 
     private static MotorGroup shooter;
     private static Motor indexer;
-    private static DigitalInput hasBall;
+    private static DigitalInput hasBall = null;
 
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
@@ -45,7 +45,7 @@ public class Shooter extends Subsystem {
         if (Robot.real) {
             shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
         } else {
-            shooter = new MotorGroup(TalonSRX.class, KitMap.SHOOTER);
+            shooter = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.SHOOTER_A, KitMap.SHOOTER_B).setName("Shooter");
         }
 
         if (Robot.real) {
@@ -67,6 +67,8 @@ public class Shooter extends Subsystem {
             shooterPID.setInputInverted(false); //Changed from true
 
             shooter.onNoUser(() -> shooterPID.setTarget(0));
+
+            hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
         } else {
             shooter.onNoUser(() -> shooter.setPower(0));
         }
@@ -116,7 +118,7 @@ public class Shooter extends Subsystem {
                     }
                 });
             } else {
-                shooter.setPower(0.66); //TODO: tweak
+                shooter.setPower(.7);
             }
         }
     }
@@ -137,11 +139,10 @@ public class Shooter extends Subsystem {
 
             if (Robot.real) {
                 shooterPID.setTarget(0);
+                shooterPID.setExtraCode(null);
             } else {
                 shooter.setPower(0);
             }
-
-            shooterPID.setExtraCode(null);
 
             shooter.setUser(null);
         }
@@ -219,7 +220,11 @@ public class Shooter extends Subsystem {
      * @return If the Shooter has a ball in it.
      */
     public static boolean hasBall() {
-        return hasBall.get();
+        if (Robot.real) {
+            return hasBall.get();
+        } else {
+            return false;
+        }
     }
 
     /**

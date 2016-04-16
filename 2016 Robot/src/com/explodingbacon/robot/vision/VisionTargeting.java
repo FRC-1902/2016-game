@@ -18,6 +18,8 @@ public class VisionTargeting extends Command {
     private static boolean init = false;
     private static Image goalSample;
     private static boolean left, middle, right, goalVisible;
+
+    private static final Object FRAMES_USE = new Object();
     private static List<Image> frames = new ArrayList<>();
 
     private static final Object IMAGE_USE = new Object();
@@ -43,8 +45,12 @@ public class VisionTargeting extends Command {
             t.start();
             camera = new Camera(0, true);
             camera.onEachFrame((img) -> {
-                frames.add(img);
-                imgPerSecond++;
+                if (img != null) {
+                    synchronized (FRAMES_USE) {
+                        frames.add(img);
+                    }
+                    imgPerSecond++;
+                }
             }); //TODO: make sure the roborio can process the images fast enough to not lag or fall behind
 
             goalSample = Image.fromFile(imgDir + "goal_sample.png").inRange(new Color(244, 244, 244), new Color(255, 255, 255));
@@ -61,7 +67,10 @@ public class VisionTargeting extends Command {
     @Override
     public void onLoop() { //TODO: make sure this doesn't cause concurrent modification exceptions
         if (frames.size() > 0) {
-            Image i = frames.get(0);
+            Image i;
+            synchronized (FRAMES_USE) {
+                i = frames.get(0);
+            }
             if (i != null) {
                 onImage(i);
                 if (frames.size() > 0) frames.remove(0);

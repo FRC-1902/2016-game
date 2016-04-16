@@ -21,6 +21,7 @@
  */
 package com.explodingbacon.robot.main;
 
+import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
@@ -50,6 +51,8 @@ public class Robot extends RobotCore {
 
     public static final boolean real = false; //False = kitbot
 
+    //private static Solenoid kitLight;
+
     public OI oi;
 
     public Robot(IterativeRobot r) {
@@ -73,7 +76,7 @@ public class Robot extends RobotCore {
         autoChooser.initTable(NetworkTable.getTable("TableThing"));
         autoChooser.addDefault("Cross (10 points, Neutral Zone facing defense)", AutonomousCommand.Type.CROSS);
         autoChooser.addDefault("Cross w/ High Goal (20 points, Neutral Zone facing defense)", AutonomousCommand.Type.ONE_BOULDER_NEUTRAL);
-        autoChooser.addDefault("Spy High Goal (10 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY_NOCROSS);
+        //autoChooser.addDefault("Spy High Goal (10 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY_NOCROSS);
         //autoChooser.addDefault("Spy High Goal w/ Cross (20 points, Spy Box facing High Goal)", AutonomousCommand.Type.ONE_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Spy (30 Points, Spy Box facing High Goal)", AutonomousCommand.Type.TWO_BOULDER_SPY);
         //autoChooser.addObject("Two Boulder Neutral (30 Points, Neutral Zone facing defense)", AutonomousCommand.Type.TWO_BOULDER_NEUTRAL);
@@ -83,12 +86,9 @@ public class Robot extends RobotCore {
         posChooser = new SendableChooser();
         posChooser.initTable(NetworkTable.getTable("TableThing"));
         //TODO: tune these angles
-        posChooser.addDefault("1st Position", 45);
-        posChooser.addObject("2nd Position", 20);
-        posChooser.addObject("3rd Position", 8);
-        posChooser.addObject("4th Position", -5);
-        posChooser.addObject("5th Position", -20);
-        SmartDashboard.putData("Defense Position Chooser", posChooser);
+        posChooser.addDefault("Right", 1);
+        posChooser.addObject("Left", -1);
+        SmartDashboard.putData("Castle Turn Direction", posChooser);
 
         defenseChooser = new SendableChooser();
         defenseChooser.initTable(NetworkTable.getTable("TableThing"));
@@ -100,12 +100,17 @@ public class Robot extends RobotCore {
 
         SmartDashboard.putNumber("Auto Delay", 3);
 
-        ImageServer.getInstance(); //Calling this should initialize the ImageServer
+        //ImageServer.getInstance(); //Calling this should initialize the ImageServer
+
+        if (!Robot.real) {
+            /*
+            kitLight = new Solenoid(KitMap.RING_LIGHT);
+            kitLight.set(true);
+            */
+        }
 
         Log.i("Battering Ham initialized!");
         Log.i("Robot is in " + (Robot.real ? "Battering Ham" : "KitBot") + " mode.");
-
-        OI.runCommand(new VisionTargeting());
     }
 
     public void initTeleopCommands() {
@@ -114,7 +119,7 @@ public class Robot extends RobotCore {
         if (intake != null) commands.add(new IntakeCommand());
         if (shooter != null) commands.add(new ShooterCommand());
         if (climber != null) commands.add(new ClimberCommand());
-        if (Vision.isInit()) commands.add(new VisionTargeting());
+        //if (Vision.isInit()) commands.add(new VisionTargeting());
         OI.runCommands(commands.toArray(new Command[commands.size()]));
     }
 

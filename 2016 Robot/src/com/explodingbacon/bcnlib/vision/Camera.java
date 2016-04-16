@@ -41,7 +41,12 @@ public class Camera {
                                 if (cam.isOpened()) { //Do this again because synchronized can cause delays
                                     synchronized (IMAGE_USE) {
                                         cam.read(image.getMat());
-                                        if (onEachFrame != null) onEachFrame.accept(image.copy());
+                                        try {
+                                            if (onEachFrame != null) onEachFrame.accept(image.copy());
+                                        } catch (Exception e) {
+                                            Log.e("Camera.onEachFrame Runnable error!");
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
                             }
