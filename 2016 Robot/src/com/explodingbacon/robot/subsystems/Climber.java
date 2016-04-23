@@ -29,9 +29,11 @@ public class Climber extends Subsystem {
         } else {
             cableWinch = (MotorGroup) new MotorGroup(Talon.class, KitMap.CABLE_WINCH).setName("Climber Winch");
         }
-        if (Robot.real) encoder = cableWinch.getMotors().get(1).getEncoder();
-        position = new DoubleSolenoid(Map.CLIMBER_POSITION_A, Map.CLIMBER_POSITION_B);
-        shoot = new Solenoid(Map.CLIMBER_SHOOT);
+        if (Robot.real) {
+            encoder = cableWinch.getMotors().get(1).getEncoder();
+            position = new DoubleSolenoid(Map.CLIMBER_POSITION_A, Map.CLIMBER_POSITION_B);
+            shoot = new Solenoid(Map.CLIMBER_SHOOT);
+        }
     }
 
     @Override

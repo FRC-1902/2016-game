@@ -45,7 +45,7 @@ public class Shooter extends Subsystem {
         if (Robot.real) {
             shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
         } else {
-            shooter = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.SHOOTER_A, KitMap.SHOOTER_B).setName("Shooter");
+            shooter = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.WINCH_A, KitMap.WINCH_B).setName("Shooter");
         }
 
         if (Robot.real) {

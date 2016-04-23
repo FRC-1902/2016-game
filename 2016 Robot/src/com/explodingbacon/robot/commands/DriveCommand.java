@@ -4,6 +4,8 @@ import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.PIDController;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.OI;
+import com.explodingbacon.robot.main.Robot;
+import com.explodingbacon.robot.subsystems.Climber;
 import com.explodingbacon.robot.subsystems.Drive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -32,6 +34,13 @@ public class DriveCommand extends Command {
                 Drive.shift(true);
             } else {
                 Drive.shift(false);
+            }
+        }
+        if (!Robot.real) {
+            if (OI.climb.get()) {
+                Climber.setSpeed(1);
+            } else {
+                Climber.setSpeed(0);
             }
         }
     }

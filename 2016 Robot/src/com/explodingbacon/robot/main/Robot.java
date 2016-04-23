@@ -68,7 +68,7 @@ public class Robot extends RobotCore {
         drive = new Drive();
         //intake = new Intake();
         shooter = new Shooter();
-        //climber = new Climber();
+        climber = new Climber();
 
         oi = new OI();
 
@@ -118,7 +118,7 @@ public class Robot extends RobotCore {
         if (drive != null) commands.add(new DriveCommand());
         if (intake != null) commands.add(new IntakeCommand());
         if (shooter != null) commands.add(new ShooterCommand());
-        if (climber != null) commands.add(new ClimberCommand());
+        //if (climber != null) commands.add(new ClimberCommand());
         //if (Vision.isInit()) commands.add(new VisionTargeting());
         OI.runCommands(commands.toArray(new Command[commands.size()]));
     }

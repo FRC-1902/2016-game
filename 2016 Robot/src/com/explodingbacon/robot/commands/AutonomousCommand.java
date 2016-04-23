@@ -15,8 +15,8 @@ public class AutonomousCommand extends Command {
 
     //Auto values used in most of/all the autos
     private static final double NEUTRAL_TO_CROSS = 13 * 12; //tuned
-    private static final double NEUTRAL_TO_WALL_TIME = 5; //TODO: tune
-    private static final double WALL_TO_BATTER_TIME = 5; //TODO: tune
+    private static final double COURTYARD_TO_WALL_TIME = 5 * 1000; //TODO: tune
+    private static final double WALL_TO_BATTER_TIME = 5 * 1000; //TODO: tune
 
 
     @Override
@@ -27,19 +27,24 @@ public class AutonomousCommand extends Command {
             Defense defense = (Defense) Robot.defenseChooser.getSelected();
             double angleSign =( (Integer)Robot.posChooser.getSelected()) * 1.0;
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
-            if (type == Type.CROSS) {
+            if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) {
                 if (defense == Defense.ROCK_WALL) {
                     Drive.inchDrive(NEUTRAL_TO_CROSS + (4 * 12));
                 } else {
                     Drive.inchDrive(NEUTRAL_TO_CROSS);
                 }
-            } else if (type == Type.ONE_BOULDER_NEUTRAL) {
-                Drive.tankDrive(1, 1);
-                Thread.sleep(Math.round(NEUTRAL_TO_WALL_TIME * 1000));
-                Drive.tankDrive(0, 0);
-                if (Robot.isAutonomous()) {
-                    Drive.gyroTurn(90 * angleSign);
-
+                if (type == Type.ONE_BOULDER_NEUTRAL) {
+                    Drive.tankDriveFor(0.4, 0.4, COURTYARD_TO_WALL_TIME);
+                    Thread.sleep(500);
+                    if (Robot.isAutonomous()) {
+                        Drive.gyroTurn(90 * angleSign);
+                        Shooter.rev(this);
+                        Drive.tankDriveFor(0.4, 0.4, WALL_TO_BATTER_TIME);
+                        //Shooter.rev(this);
+                        Shooter.waitForRev();
+                        Shooter.shootUsingIndexer(this);
+                        Shooter.stopRev(this);
+                    }
                 }
             } else if (type == Type.NOTHING) {
                 Log.i("Doing nothing in auto!");
