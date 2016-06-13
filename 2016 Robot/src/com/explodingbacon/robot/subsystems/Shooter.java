@@ -12,7 +12,6 @@ import com.explodingbacon.robot.main.KitMap;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.main.Robot;
-import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.TalonSRX;
@@ -37,7 +36,7 @@ public class Shooter extends Subsystem {
     public static int LOW_OFFSET = 0;
     public static int HIGH_OFFSET = 0;
 
-    private static boolean doingVisionShoot = false;
+    private static boolean visionShotQueued = false, visionShooting = false;
 
     public Shooter() {
         super();
@@ -158,60 +157,40 @@ public class Shooter extends Subsystem {
         return HIGH_GOAL_RATE + HIGH_OFFSET;
     }
 
-    private static final double slowTurnSpeed = 0.3;
-
     /**
-     * Uses Vision Targeting to make the Robot turn and shoot a high goal.
+     * Checks if the Robot has a Vision Shot queued.
      *
-     * @param c The Command asking for this action to be performed.
+     * @return If the Robot has a Vision Shot queued.
      */
-    public static void doVisionShoot(Command c) {
-        doingVisionShoot = true;
-        boolean didLeft = false;
-        boolean didRight = false;
-        if (VisionTargeting.isGoalVisible()) {
-            boolean abort = false;
-            while (!VisionTargeting.isLinedUp()) { //TODO: see if we can get away with being lazy and just doing motor speeds instead of using a rate PID
-                if (VisionTargeting.shouldGoLeft()) {
-                    didLeft = true;
-                    Drive.tankDrive(slowTurnSpeed, -slowTurnSpeed); //Turn left
-                } else if (VisionTargeting.shouldGoRight()) {
-                    didRight = true;
-                    Drive.tankDrive(-slowTurnSpeed, slowTurnSpeed); //Turn right
-                } else {
-                    Log.e("Shooter.doVisionShoot() made it to an else statement that should not happen!");
-                }
-                if (didLeft && didRight) {
-                    Log.w("Drive train oscillating when doing Vision Shoot!");
-                    didLeft = false;
-                    didRight = false;
-                }
-                if (!VisionTargeting.isGoalVisible()) {
-                    abort = true;
-                    break;
-                }
-            }
-            if (!abort) {
-                Drive.tankDrive(0, 0);
-                waitForRev(); //Should not wait at all if already at target
-                shootUsingIndexer(c);
-            } else {
-                Log.v("Vision Shoot aborted!");
-            }
-        } else {
-            Log.i("Did not do vision shoot due to not being able to see the goal!");
-            //TODO: make the robot turn and look for the goal based off it's defense position instead of giving up
-        }
-        doingVisionShoot = false;
+    public static boolean isVisionShotQueued() {
+        return visionShotQueued;
     }
 
     /**
-     * Checks if the Robot is currently shooting using Vision Targeting.
+     * Sets if the Robot should be currently trying to shoot using Vision Targeting.
      *
-     * @return If the Robot is currently shooting using Vision Targeting.
+     * @param b If the Robot should be currently trying to shoot using Vision Targeting.
+     */
+    public static void setVisionShotQueued(boolean b) {
+        visionShotQueued = b;
+    }
+
+    /**
+     * Checks if the Robot is in the middle of Vision Shooting.
+     *
+     * @return If the Robot is in the middle of Vision Shooting.
      */
     public static boolean isVisionShooting() {
-        return doingVisionShoot;
+        return visionShooting;
+    }
+
+    /**
+     * Sets if the Robot is in the middle of Vision Shooting.
+     *
+     * @param b If the Robot is in the middle of Vision Shooting.
+     */
+    public static void setVisionShooting(boolean b) {
+        visionShooting = b;
     }
 
     /**

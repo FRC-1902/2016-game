@@ -3,14 +3,13 @@ package com.explodingbacon.bcnlib.vision;
 import com.explodingbacon.bcnlib.framework.Log;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
-
 import java.util.function.Consumer;
 
 /**
  * A wrapper class for OpenCV's VideoCapture object.
  *
  * @author Ryan Shavell
- * @version 2016.3.24
+ * @version 2016.6.13
  */
 
 public class Camera {
@@ -42,7 +41,10 @@ public class Camera {
                                     synchronized (IMAGE_USE) {
                                         cam.read(image.getMat());
                                         try {
-                                            if (onEachFrame != null) onEachFrame.accept(image.copy());
+                                            if (onEachFrame != null) {
+                                                Image copy = image.copy();
+                                                onEachFrame.accept(copy);
+                                            }
                                         } catch (Exception e) {
                                             Log.e("Camera.onEachFrame Runnable error!");
                                             e.printStackTrace();

@@ -21,11 +21,9 @@
  */
 package com.explodingbacon.robot.main;
 
-import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
-import com.explodingbacon.bcnlib.vision.ImageServer;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.*;
@@ -100,17 +98,7 @@ public class Robot extends RobotCore {
 
         SmartDashboard.putNumber("Auto Delay", 3);
 
-        //ImageServer.getInstance(); //Calling this should initialize the ImageServer
-
-        if (!Robot.real) {
-            /*
-            kitLight = new Solenoid(KitMap.RING_LIGHT);
-            kitLight.set(true);
-            */
-        }
-
         Log.i("Battering Ham initialized!");
-        Log.i("Robot is in " + (Robot.real ? "Battering Ham" : "KitBot") + " mode.");
     }
 
     public void initTeleopCommands() {
@@ -119,7 +107,7 @@ public class Robot extends RobotCore {
         if (intake != null) commands.add(new IntakeCommand());
         if (shooter != null) commands.add(new ShooterCommand());
         //if (climber != null) commands.add(new ClimberCommand());
-        //if (Vision.isInit()) commands.add(new VisionTargeting());
+        if (Vision.isInit()) commands.add(new VisionTargeting());
         OI.runCommands(commands.toArray(new Command[commands.size()]));
     }
 

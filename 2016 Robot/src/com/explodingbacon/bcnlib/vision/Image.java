@@ -12,7 +12,7 @@ import java.util.List;
  * A wrapper class for OpenCV's Mat object.
  *
  * @author Ryan Shavell
- * @version 2016.3.24
+ * @version 2016.6.13
  */
 
 public class Image {
@@ -263,6 +263,13 @@ public class Image {
         //f.mkdirs();
         if (f.exists()) f.delete();
         Imgcodecs.imwrite(fileName, m);
+    }
+
+    /**
+     * Releases this Image from memory. This object isn't usable after you call this.
+     */
+    public void release() {
+        m.release();
     }
 
     /**

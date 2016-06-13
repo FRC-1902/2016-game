@@ -14,30 +14,27 @@ public class ShooterCommand extends Command {
 
     private final int TRIM_AMOUNT = 1000;
 
-    private final boolean shootMode = true;
-
     @Override
     public void onInit() {}
 
     @Override
     public void onLoop() {
         if (OI.shooterRevButtons.getAny()) {
-            if (shootMode) Shooter.rev(this);
+            Shooter.rev(this);
         } else {
-            if (shootMode) Shooter.stopRev(this);
+            Shooter.stopRev(this);
         }
 
         boolean shoot = OI.shoot.getAll();
 
         if ((shoot || OI.shootNoVision.get()) && Robot.isEnabled()) {
             if (Vision.isInit() && !OI.shootNoVision.get()) {
-                //Shooter.doVisionShoot(this);
+                if (!Shooter.isVisionShooting()) //Don't queue new vision shots while existing ones are in progress
+                Shooter.setVisionShotQueued(true);
             } else {
                 if (Shooter.getIndexer().isUsableBy(this)) {
-                    if (shootMode) {
-                        Shooter.setIndexerRaw(1);
-                        Shooter.getIndexer().setUser(this);
-                    }
+                    Shooter.setIndexerRaw(1);
+                    Shooter.getIndexer().setUser(this);
                 }
             }
             if (!loggedSpeed) {
@@ -61,20 +58,6 @@ public class ShooterCommand extends Command {
         }
 
         holdingTrim = OI.trimButtons.getAny();
-
-        if (!Robot.real && !shootMode) {
-            if (Shooter.getIndexer().isUsableBy(this) && Shooter.getShooter().isUsableBy(this)) {
-                if (OI.intakeMotorIn.get()) {
-                    Shooter.getIndexer().setPower(-1);
-                    Shooter.getShooter().setPower(-.4);
-                    Shooter.getIndexer().setUser(this);
-                    Shooter.getShooter().setUser(this);
-                } else {
-                    Shooter.getIndexer().setUser(null);
-                    Shooter.getShooter().setUser(null);
-                }
-            }
-        }
     }
 
     @Override

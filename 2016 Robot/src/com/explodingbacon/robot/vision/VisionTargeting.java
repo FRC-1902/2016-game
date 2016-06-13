@@ -6,54 +6,71 @@ import com.explodingbacon.bcnlib.utils.Timer;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.bcnlib.vision.*;
 import com.explodingbacon.robot.main.Robot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.explodingbacon.robot.subsystems.Drive;
+import com.explodingbacon.robot.subsystems.Shooter;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class VisionTargeting extends Command {
 
     private static Camera camera;
     private static boolean init = false;
     private static Image goalSample;
-    private static boolean left, middle, right, goalVisible;
-
-    private static final Object FRAMES_USE = new Object();
-    private static List<Image> frames = new ArrayList<>();
-
-    private static final Object IMAGE_USE = new Object();
 
     private static final double TARGET_CENTER = 0;
-    private static final double ACCEPTABLE_ERROR = 10;
+    private static final double ACCEPTABLE_ERROR = 2;
     private static final double MINIMUM_SIMILARITY = 2; //TODO: tune
 
     private static final String imgDir = "/home/lvuser/";
 
     private static final TargetType TARGET_TYPE = TargetType.SHAPE;
 
-    private static int imgPerSecond = 0;
     private Timer t;
 
     @Override
     public void onInit() {
         if (!init) {
-            t = new Timer(1, () -> {
-                //System.out.println("Images per second: " + imgPerSecond);
-                imgPerSecond = 0;
-            });
-            t.start();
-            camera = new Camera(0, true);
-            camera.onEachFrame((img) -> {
-                if (img != null) {
-                    synchronized (FRAMES_USE) {
-                        frames.add(img);
-                    }
-                    imgPerSecond++;
-                }
-            }); //TODO: make sure the roborio can process the images fast enough to not lag or fall behind
-
             goalSample = Image.fromFile(imgDir + "goal_sample.png").inRange(new Color(244, 244, 244), new Color(255, 255, 255));
+
+            camera = new Camera(0, true);
+            camera.onEachFrame((img) -> { //TODO: make sure the roborio can process the images fast enough to not lag or fall behind
+                if (img != null) {
+                    if (Shooter.isVisionShotQueued() && !Shooter.isVisionShooting() && Robot.isEnabled()) {
+                        //TODO: Worry about what happens if Robot is disabled/switches modes in the middle of this? Should we be worried?
+                        Shooter.setVisionShotQueued(false);
+                        Shooter.setVisionShooting(true);
+                        Contour goal = findGoal(img);
+                        double target = (img.getWidth() / 2) + TARGET_CENTER;
+
+                        //Start: Optional image saving code
+                        Image visuals = img.copy();
+                        drawIndicators(visuals, target, goal);
+                        save(visuals, "goal_gui");
+                        visuals.release();
+                        //End: Optional image saving code
+                        Utils.runInOwnThread(() -> {
+                            if (goal != null) {
+                                double angle = Utils.getDegreesToTurn(goal.getMiddleX(), target);
+                                Log.v("Found a goal! X is " + goal.getMiddleX() + ", Y is " + goal.getMiddleY() + ", angle is " + angle + ".");
+                                if (angle > ACCEPTABLE_ERROR) {
+                                    Log.v("Angle error is larger than acceptable error (" + ACCEPTABLE_ERROR + "), turning to adjust.");
+                                    Drive.gyroTurn(angle);
+                                } else {
+                                    Log.v("Angle is within acceptable error. Not turning.");
+                                }
+                            } else {
+                                Log.v("Unable to find goal! Shooting blind.");
+                            }
+                            Shooter.rev(this);
+                            Shooter.waitForRev();
+                            Shooter.shootUsingIndexer(this);
+                            Shooter.stopRev(this);
+                            Shooter.setVisionShooting(false);
+                        });
+                    }
+                    img.release();
+                }
+            });
 
             init = true;
             Log.v("Vision Targeting initialized!");
@@ -65,123 +82,18 @@ public class VisionTargeting extends Command {
     }
 
     @Override
-    public void onLoop() { //TODO: make sure this doesn't cause concurrent modification exceptions
-        if (frames.size() > 0) {
-            Image i;
-            synchronized (FRAMES_USE) {
-                i = frames.get(0);
-            }
-            if (i != null) {
-                onImage(i);
-                if (frames.size() > 0) frames.remove(0);
-            }
-            //ImageServer.getInstance().setImage(i); //TODO: if this is too slow or not working, comment this out
-            //Log.d("Frames in queue: " + frames.size());
-            //TODO: make sure this can loop fast enough to keep up with the frames being passed in
-        }
-    }
+    public void onLoop() {}
 
     @Override
     public void onStop() {}
 
     @Override
     public boolean isFinished() {
-        return false; //TODO: change back
-        //return !Robot.isEnabled();
+        return false;
     }
 
     /**
-     * Runs every time the Camera image updates.
-     *
-     * @param i The new Image.
-     */
-    public static void onImage(Image i) {
-        if (i != null) {
-            Contour goal = findGoal(i);
-            if (goal != null) {
-                setGoalVisible(true);
-                double target = (i.getWidth() / 2) + TARGET_CENTER;
-                double pos = goal.getMiddleX();
-                double diff = pos - target;
-                if (diff < -ACCEPTABLE_ERROR) { //If the goal is to the left of the target area
-                    setAimValues(false, false, true);
-                } else if (diff > ACCEPTABLE_ERROR) {//If the goal is to the right of the target area
-                    setAimValues(true, false, false);
-                } else { //If we are within the target area
-                    setAimValues(false, true, false);
-                }
-            } else {
-                setGoalVisible(false);
-                setAimValues(false, false, false);
-            }
-            //System.out.println("Can see goal? " + goalVisible);
-        }
-    }
-
-    /**
-     * Sets if the goal if visible to the Robot.
-     *
-     * @param b If the goal if visible to the Robot.
-     */
-    private static void setGoalVisible(boolean b) {
-        goalVisible = b;
-        SmartDashboard.putBoolean("goal", b);
-    }
-
-    /**
-     * Checks if the goal is visible.
-     *
-     * @return If the goal is visible.
-     */
-    public static boolean isGoalVisible() {
-        return goalVisible;
-    }
-
-    /**
-     * Sets the values for the aiming indicators on the SmartDashboard.
-     *
-     * @param l The left inidicator value.
-     * @param m The middle inidicator value.
-     * @param r The right inidicator value.
-     */
-    private static void setAimValues(boolean l, boolean m, boolean r) {
-        left = l;
-        middle = m;
-        right = r;
-        SmartDashboard.putBoolean("left", l);
-        SmartDashboard.putBoolean("middle", m);
-        SmartDashboard.putBoolean("right", r);
-    }
-
-    /**
-     * Checks if the Robot should turn left to line up with the goal.
-     *
-     * @return If the Robot should turn left to line up with the goal.
-     */
-    public static boolean shouldGoLeft() {
-        return left;
-    }
-
-    /**
-     * Checks if the Robot should turn right to line up with the goal.
-     *
-     * @return If the Robot should turn right to line up with the goal.
-     */
-    public static boolean shouldGoRight() {
-        return right;
-    }
-
-    /**
-     * Checks if the Robot is lined up with the goal.
-     *
-     * @return If the Robot is lined up with the goal.
-     */
-    public static boolean isLinedUp() {
-        return middle && goalVisible;
-    }
-
-    /**
-     * Saves the Image.
+     * Saves the Image to the VisionTargeting directory.
      *
      * @param i The Image to save.
      * @param name The name of the file to save it as.

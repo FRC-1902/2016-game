@@ -45,11 +45,7 @@ public class Intake extends Subsystem {
             setUsingAll(c);
             intakeMotor.setPower(1);
             Shooter.setIndexerRaw(-1);
-            if (Robot.real) {
-                Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE);
-            } else {
-                Shooter.getShooter().setPower(-4); //TODO: tune
-            }
+            Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE);
         }
     }
 
@@ -60,11 +56,7 @@ public class Intake extends Subsystem {
         if (intakeMotor.isUsableBy(c) && Shooter.getShooter().isUsableBy(c)) {
             intakeMotor.setPower(-1);
             intakeMotor.setUser(c);
-            if (Robot.real) {
-                Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE * -0.75);
-            } else {
-                Shooter.getShooter().setPower(4); //TODO: tune
-            }
+            Shooter.shooterPID.setTarget(-Shooter.INTAKE_RATE);
             Shooter.getShooter().setUser(c);
         }
     }
