@@ -23,13 +23,7 @@ public class Map {
     public static final int SHOOTER_MOTOR_1 = 10;
     public static final int SHOOTER_MOTOR_2 = 11; //has encoder
 
-    //Relay
-
-    public static final int SPOTLIGHT = 0;
-
     //PCM ports
-
-    public static final int LIGHT = 0;
 
     public static final int SHIFT_SOLENOID_A = 2;
     public static final int SHIFT_SOLENOID_B = 5;
@@ -37,12 +31,11 @@ public class Map {
     public static final int INTAKE_SOLENOID_A = 4;
     public static final int INTAKE_SOLENOID_B = 1;
 
-    public static final int MANTIS_1_A = 6;
-    public static final int MANTIS_1_B = 3;
 
-    public static final int MANTIS_2 = 7;
+    public static final int CLIMBER_POSITION_A = 3;
+    public static final int CLIMBER_POSITION_B = 6;
 
-    public static final int CLIMBER_DEPLOY = 8;
+    public static final int CLIMBER_SHOOT = 7;
 
     //SENSORS
 

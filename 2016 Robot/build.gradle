@@ -17,7 +17,8 @@ repositories {
 }
 
 dependencies {
-    compile name: 'BCNLib'
+    compile name: 'WPILib'
+    compile name: 'opencv-310'
 }
 
 remotes {

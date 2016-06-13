@@ -5,12 +5,14 @@ import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.subsystems.ShooterSubsystem;
+import com.explodingbacon.robot.subsystems.Shooter;
 
 public class ShooterCommand extends Command {
 
     private boolean loggedSpeed = false;
-    private boolean shooterHeldSinceVisionShot = false; //TODO: get a better name for this
+    private boolean holdingTrim = false;
+
+    private final int TRIM_AMOUNT = 1000;
 
     @Override
     public void onInit() {}
@@ -18,44 +20,44 @@ public class ShooterCommand extends Command {
     @Override
     public void onLoop() {
         if (OI.shooterRevButtons.getAny()) {
-            ShooterSubsystem.rev(this);
+            Shooter.rev(this);
         } else {
-            ShooterSubsystem.stopRev(this);
+            Shooter.stopRev(this);
         }
 
         boolean shoot = OI.shoot.getAll();
 
-        if (!shoot) shooterHeldSinceVisionShot = false;
-
-        if (shoot || OI.shootNoVision.get() && Robot.isEnabled()) {
+        if ((shoot || OI.shootNoVision.get()) && Robot.isEnabled()) {
             if (Vision.isInit() && !OI.shootNoVision.get()) {
-                if (!ShooterSubsystem.isVisionShootQueued() && !shooterHeldSinceVisionShot) {
-                    ShooterSubsystem.queueVisionShoot();
-                    shooterHeldSinceVisionShot = true;
-                }
+                if (!Shooter.isVisionShooting()) //Don't queue new vision shots while existing ones are in progress
+                Shooter.setVisionShotQueued(true);
             } else {
-                if (ShooterSubsystem.getIndexer().isUsableBy(this)) {
-                    ShooterSubsystem.shootUsingIndexer(this);
-                    /*
-                    ShooterSubsystem.setIndexerRaw(1);
-                    ShooterSubsystem.getIndexer().setUser(this);
-                    */
+                if (Shooter.getIndexer().isUsableBy(this)) {
+                    Shooter.setIndexerRaw(1);
+                    Shooter.getIndexer().setUser(this);
                 }
             }
             if (!loggedSpeed) {
-                Log.d("Shooter Speed: " + ShooterSubsystem.shooterPID.getCurrentSourceValue());
+                if(Robot.real)
+                    Log.d("Shooter Speed: " + Shooter.shooterPID.getCurrentSourceValue());
                 loggedSpeed = true;
             }
         } else {
-            if (ShooterSubsystem.getIndexer().isUsableBy(this)) ShooterSubsystem.getIndexer().setUser(null);
+            if (Shooter.getIndexer().isUsableBy(this)) Shooter.getIndexer().setUser(null);
             loggedSpeed = false;
         }
 
-        if (ShooterSubsystem.hasBall()) {
-            ShooterSubsystem.getLight().enable();
-        } else {
-            ShooterSubsystem.getLight().stop();
+        if(OI.resetLeftTrim.get()) Shooter.HIGH_OFFSET = 0;
+        if(OI.resetRightTrim.get()) Shooter.LOW_OFFSET = 0;
+
+        if(!holdingTrim) {
+            if (OI.trimLeftUp.get()) Shooter.HIGH_OFFSET += TRIM_AMOUNT;
+            if (OI.trimLeftDown.get()) Shooter.HIGH_OFFSET -= TRIM_AMOUNT;
+            if (OI.trimRightUp.get()) Shooter.LOW_OFFSET += TRIM_AMOUNT;
+            if (OI.trimRightDown.get()) Shooter.LOW_OFFSET -= TRIM_AMOUNT;
         }
+
+        holdingTrim = OI.trimButtons.getAny();
     }
 
     @Override

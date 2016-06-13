@@ -14,19 +14,23 @@ public class OI extends AbstractOI {
 
     public static ButtonGroup shoot;
 
-    public static Button shootNoVision;
+    public static Button shootNoVision, shootAbort;
 
     //Manipulator buttons
 
     public static ButtonGroup intakeRetract;
     public static Button intakeMotorIn, intakeMotorOut;
 
-    public static Button shooterRev;
+    public static Button shooterRevLow, shooterRevHigh;
     public static ButtonGroup shooterRevButtons;
 
-    public static Button deployClimber, climb;
+    public static Button climberShoot, climb;
 
     public static Button testingBall;
+
+    public static Button trimLeftUp, trimLeftDown, trimRightUp, trimRightDown;
+    public static Button resetLeftTrim, resetRightTrim;
+    public static ButtonGroup trimButtons;
 
     public OI() {
         init();
@@ -48,19 +52,32 @@ public class OI extends AbstractOI {
 
         shootNoVision = drive.one;
 
+        shootAbort = drive.two;
+
         //Manipulator controls
 
         intakeRetract = manip.bumpers;
 
         intakeMotorIn = manip.x;
-        intakeMotorOut = manip.y;
+        intakeMotorOut = manip.a;
 
-        shooterRev = manip.triggers;
+        shooterRevLow = manip.rightTrigger;
+        shooterRevHigh = manip.leftTrigger;
         shooterRevButtons = manip.triggers;
 
-        deployClimber = manip.start; //TODO: check if this is the left
-        climb = manip.select;
+        climberShoot = manip.select; //TODO: check if this is the left
+        climb = manip.start;
 
         testingBall = new FakeButton();
+
+        trimLeftUp = new FakeButton(() -> manip.getY() < -0.8);
+        trimLeftDown = new FakeButton(() -> manip.getY() > 0.8);
+        trimRightUp = new FakeButton(() -> manip.getY2() < -0.8);
+        trimRightDown = new FakeButton(() -> manip.getY2() > 0.8);
+
+        trimButtons = new ButtonGroup(trimLeftUp, trimLeftDown, trimRightUp, trimRightDown);
+
+        resetLeftTrim = manip.leftJoyButton;
+        resetRightTrim = manip.rightJoyButton;
     }
 }
