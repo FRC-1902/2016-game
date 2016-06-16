@@ -9,7 +9,7 @@ import java.util.function.Consumer;
  * A wrapper class for OpenCV's VideoCapture object.
  *
  * @author Ryan Shavell
- * @version 2016.6.13
+ * @version 2016.6.16
  */
 
 public class Camera {
@@ -25,6 +25,12 @@ public class Camera {
     private boolean updatingEnabled = true;
     private Thread updateThread = null;
 
+    /**
+     * Creates a new Camera.
+     *
+     * @param i The ID of the Camera, 0-indexed. If there is only one Camera available, it should be ID 0.
+     * @param b If this Camera should keep the frames served by Camera.getImage() up to date.
+     */
     public Camera(int i, boolean b) {
         index = i;
         try {
@@ -33,7 +39,6 @@ public class Camera {
             Thread.sleep(1000);
             if (autoUpdate) {
                 updateThread = new Thread(() -> {
-                    //Log.d("Camera autoupdate thread init");
                     while (true) {
                         if (cam.isOpened() && updatingEnabled) {
                             synchronized (CAMERA_USE) {

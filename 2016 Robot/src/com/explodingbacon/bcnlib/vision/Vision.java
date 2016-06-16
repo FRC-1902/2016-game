@@ -4,10 +4,10 @@ import com.explodingbacon.bcnlib.framework.Log;
 import org.opencv.core.*;
 
 /**
- * A Vision utility class. Used for initializing the library and contains some utility functions.
+ * A Vision utility class. Used for initializing the library and contains some vision-specific utility functions.
  *
  * @author Ryan Shavell
- * @version 2016.3.8
+ * @version 2016.6.16
  */
 
 public class Vision {
@@ -37,12 +37,24 @@ public class Vision {
         return init;
     }
 
+    /**
+     * Converts a MatOfPoint2f to a MatOfPoint.
+     *
+     * @param mop2f The MatOfPoint2f to be converted.
+     * @return The converted MatOfPoint2f.
+     */
     public static MatOfPoint toMOP(MatOfPoint2f mop2f) {
         MatOfPoint mop = new MatOfPoint();
         mop2f.convertTo(mop, CvType.CV_32S);
         return mop;
     }
 
+    /**
+     * Converts a MatOfPoint to a MatOfPoint2f.
+     *
+     * @param mop The MatOfPoint to be converted.
+     * @return The converted MatOfPoint.
+     */
     public static MatOfPoint2f toMOP2f(MatOfPoint mop) {
         MatOfPoint2f mop2f = new MatOfPoint2f();
         mop.convertTo(mop2f, CvType.CV_32FC2);

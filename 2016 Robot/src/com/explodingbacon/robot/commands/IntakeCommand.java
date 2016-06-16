@@ -11,9 +11,6 @@ public class IntakeCommand extends Command {
 
     boolean currentState = true, wasPressed = false;
 
-    List<Double> powerList;
-    private final int AVERAGER_SIZE = 10; //The number of records to average
-
     @Override
     public void onInit() {}
 

@@ -8,14 +8,9 @@ import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
-import com.explodingbacon.robot.main.KitMap;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Talon;
-import edu.wpi.first.wpilibj.TalonSRX;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,65 +23,48 @@ public class Shooter extends Subsystem {
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
 
+    private static boolean visionShotQueued = false, visionShooting = false;
+
+    public static int LOW_OFFSET = 0;
+    public static int HIGH_OFFSET = 0;
+
     public static final int INTAKE_RATE = -25000;
 
     public static final int LOW_GOAL_RATE = 26500;
     public static final int HIGH_GOAL_RATE = 55000; //Used to be 50000
 
-    public static int LOW_OFFSET = 0;
-    public static int HIGH_OFFSET = 0;
 
-    private static boolean visionShotQueued = false, visionShooting = false;
 
     public Shooter() {
         super();
 
-        if (Robot.real) {
-            shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
-        } else {
-            shooter = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.WINCH_A, KitMap.WINCH_B).setName("Shooter");
-        }
+        shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
 
-        if (Robot.real) {
-            indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
-        } else {
-            indexer = new Motor(Talon.class, KitMap.INDEXER);
-        }
-
+        indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
 
-        if (Robot.real) {
-            encoder = shooter.getMotors().get(1).getEncoder();
-            encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
-            encoder.setReversed(true);
+        encoder = shooter.getMotors().get(1).getEncoder();
+        encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
+        encoder.setReversed(true);
 
-            shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
-            shooterPID.setFinishedTolerance(1500);
-            shooterPID.setInputInverted(false); //Changed from true
+        shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
+        shooterPID.setFinishedTolerance(1500);
+        shooterPID.setInputInverted(false); //Changed from true
 
-            shooter.onNoUser(() -> shooterPID.setTarget(0));
+        shooter.onNoUser(() -> shooterPID.setTarget(0));
 
-            hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
-        } else {
-            shooter.onNoUser(() -> shooter.setPower(0));
-        }
+        hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
     }
 
     @Override
     public void enabledInit() {
-        if (Robot.real) {
-            Shooter.shooterPID.enable();
-        }
+        Shooter.shooterPID.enable();
     }
 
     @Override
     public void disabledInit() {
-        if (Robot.real) {
-            Shooter.shooterPID.setTarget(0);
-        } else {
-            shooter.setPower(0);
-        }
+        Shooter.shooterPID.setTarget(0);
     }
 
     /**
@@ -106,7 +84,6 @@ public class Shooter extends Subsystem {
      */
     public static void rev(Command c, double speed) {
         if (shooter.claim(c)) {
-            if (Robot.real) {
                 shooterPID.setTarget(speed);
 
                 shooterPID.setExtraCode(() -> {
@@ -116,9 +93,6 @@ public class Shooter extends Subsystem {
                         OI.manip.rumble(0, 0);
                     }
                 });
-            } else {
-                shooter.setPower(.7);
-            }
         }
     }
 
@@ -135,13 +109,8 @@ public class Shooter extends Subsystem {
     public static void stopRev(Command c) {
         if (shooter.isUsableBy(c)) {
             //setSpotlight(false);
-
-            if (Robot.real) {
-                shooterPID.setTarget(0);
-                shooterPID.setExtraCode(null);
-            } else {
-                shooter.setPower(0);
-            }
+            shooterPID.setTarget(0);
+            shooterPID.setExtraCode(null);
 
             shooter.setUser(null);
         }
@@ -199,11 +168,7 @@ public class Shooter extends Subsystem {
      * @return If the Shooter has a ball in it.
      */
     public static boolean hasBall() {
-        if (Robot.real) {
-            return hasBall.get();
-        } else {
-            return false;
-        }
+        return hasBall.get();
     }
 
     /**
