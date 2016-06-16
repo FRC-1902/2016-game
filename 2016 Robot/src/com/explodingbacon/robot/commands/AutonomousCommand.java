@@ -5,7 +5,6 @@ import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.Drive;
-import com.explodingbacon.robot.subsystems.Intake;
 import com.explodingbacon.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
