@@ -38,8 +38,7 @@ public class ShooterCommand extends Command {
                 }
             }
             if (!loggedSpeed) {
-                if(Robot.real)
-                    Log.d("Shooter Speed: " + Shooter.shooterPID.getCurrentSourceValue());
+                Log.d("Shooter Speed: " + Shooter.shooterPID.getCurrentSourceValue());
                 loggedSpeed = true;
             }
         } else {

@@ -47,8 +47,6 @@ public class Robot extends RobotCore {
     public static SendableChooser defenseChooser;
     //public static DataLogger logger = new DataLogger();
 
-    public static final boolean real = false; //False = kitbot
-
     //private static Solenoid kitLight;
 
     public OI oi;

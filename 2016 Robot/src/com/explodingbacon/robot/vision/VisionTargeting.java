@@ -42,13 +42,13 @@ public class VisionTargeting extends Command {
                         Contour goal = findGoal(img);
                         double target = (img.getWidth() / 2) + TARGET_CENTER;
 
-                        //Start: Optional image saving code
-                        Image visuals = img.copy();
-                        drawIndicators(visuals, target, goal);
-                        save(visuals, "goal_gui");
-                        visuals.release();
-                        //End: Optional image saving code
                         Utils.runInOwnThread(() -> {
+                            //Start: Optional image saving code
+                            Image visuals = img.copy();
+                            drawIndicators(visuals, target, goal);
+                            save(visuals, "goal_gui");
+                            visuals.release();
+                            //End: Optional image saving code
                             if (goal != null) {
                                 double angle = Utils.getDegreesToTurn(goal.getMiddleX(), target);
                                 Log.v("Found a goal! X is " + goal.getMiddleX() + ", Y is " + goal.getMiddleY() + ", angle is " + angle + ".");

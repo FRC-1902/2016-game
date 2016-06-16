@@ -3,7 +3,6 @@ package com.explodingbacon.bcnlib.utils;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.bcnlib.framework.RobotCore;
-
 import java.lang.management.ManagementFactory;
 import java.util.function.BooleanSupplier;
 

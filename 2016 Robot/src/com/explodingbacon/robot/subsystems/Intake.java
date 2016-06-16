@@ -1,12 +1,10 @@
 package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
-import com.explodingbacon.bcnlib.actuators.FakeMotor;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.robot.main.Map;
-import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.CANTalon;
 import java.util.Collections;
 import java.util.List;
@@ -19,13 +17,8 @@ public class Intake extends Subsystem {
     public Intake() {
         super();
 
-        if (Robot.real) {
-            intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
-            intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
-        } else {
-            intakeMotor = new FakeMotor();
-            intakeOut = null;
-        }
+        intakeMotor = new Motor(CANTalon.class, Map.INTAKE_MOTOR).setName("Intake");
+        intakeOut = new DoubleSolenoid(Map.INTAKE_SOLENOID_A, Map.INTAKE_SOLENOID_B);
 
         intakeMotor.setStopOnNoUser();
     }
