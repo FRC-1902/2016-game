@@ -1,13 +1,11 @@
 package com.explodingbacon.robot.commands;
 
-import com.explodingbacon.bcnlib.actuators.Light;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.controllers.Direction;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.Drive;
-import com.explodingbacon.robot.subsystems.Shooter;
 
 public class CalibrateDriveMotorsCommand extends Command {
 

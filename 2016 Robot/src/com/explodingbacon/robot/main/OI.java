@@ -61,8 +61,8 @@ public class OI extends AbstractOI {
         intakeMotorIn = manip.x;
         intakeMotorOut = manip.a;
 
-        shooterRevLow = manip.rightTrigger;
-        shooterRevHigh = manip.leftTrigger;
+        shooterRevLow = manip.leftTrigger;
+        shooterRevHigh = manip.rightTrigger;
         shooterRevButtons = manip.triggers;
 
         climberShoot = manip.select; //TODO: check if this is the left
@@ -70,10 +70,10 @@ public class OI extends AbstractOI {
 
         testingBall = new FakeButton();
 
-        trimLeftUp = new FakeButton(() -> manip.getY() < -0.8);
-        trimLeftDown = new FakeButton(() -> manip.getY() > 0.8);
-        trimRightUp = new FakeButton(() -> manip.getY2() < -0.8);
-        trimRightDown = new FakeButton(() -> manip.getY2() > 0.8);
+        trimLeftUp = new FakeButton(() -> manip.getY2() < -0.8);
+        trimLeftDown = new FakeButton(() -> manip.getY2() > 0.8);
+        trimRightUp = new FakeButton(() -> manip.getY() < -0.8);
+        trimRightDown = new FakeButton(() -> manip.getY() > 0.8);
 
         trimButtons = new ButtonGroup(trimLeftUp, trimLeftDown, trimRightUp, trimRightDown);
 

@@ -8,14 +8,10 @@ import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.DigitalInput;
 import com.explodingbacon.bcnlib.sensors.MotorEncoder;
-import com.explodingbacon.robot.main.KitMap;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.OI;
-import com.explodingbacon.robot.main.Robot;
-import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Talon;
-import edu.wpi.first.wpilibj.TalonSRX;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +27,8 @@ public class Shooter extends Subsystem {
 
     public static final int INTAKE_RATE = -25000;
 
-    public static final int LOW_GOAL_RATE = 26500;
-    public static final int HIGH_GOAL_RATE = 55000; //Used to be 50000
+    public static final int LOW_GOAL_RATE = 26500; //Lower
+    public static final int HIGH_GOAL_RATE = 26500; //Used to be 50000
 
     public static int LOW_OFFSET = 0;
     public static int HIGH_OFFSET = 0;
@@ -42,52 +38,38 @@ public class Shooter extends Subsystem {
     public Shooter() {
         super();
 
-        if (Robot.real) {
-            shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
-        } else {
-            shooter = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.WINCH_A, KitMap.WINCH_B).setName("Shooter");
-        }
+        shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+        shooter.setInverts(true, false);
+        shooter.setReversed(true);
 
-        if (Robot.real) {
-            indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
-        } else {
-            indexer = new Motor(Talon.class, KitMap.INDEXER);
-        }
-
+        indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
 
-        if (Robot.real) {
-            encoder = shooter.getMotors().get(1).getEncoder();
-            encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
-            encoder.setReversed(true);
+        encoder = shooter.getMotors().get(1).getEncoder();
+        encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
+        encoder.setReversed(true);
 
-            shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
-            shooterPID.setFinishedTolerance(1500);
-            shooterPID.setInputInverted(false); //Changed from true
+        shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
+        shooterPID.setFinishedTolerance(1500);
+        shooterPID.setInputInverted(false);
 
-            shooter.onNoUser(() -> shooterPID.setTarget(0));
+        shooter.onNoUser(() -> shooterPID.setTarget(0));
+        .;
 
-            hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
-        } else {
-            shooter.onNoUser(() -> shooter.setPower(0));
-        }
+        //SmartDashboard.putNumber("shooter speed", 26500);
+
+        hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
     }
 
     @Override
     public void enabledInit() {
-        if (Robot.real) {
-            Shooter.shooterPID.enable();
-        }
+        Shooter.shooterPID.enable();
     }
 
     @Override
     public void disabledInit() {
-        if (Robot.real) {
-            Shooter.shooterPID.setTarget(0);
-        } else {
-            shooter.setPower(0);
-        }
+        Shooter.shooterPID.setTarget(0);
     }
 
     /**
@@ -102,29 +84,30 @@ public class Shooter extends Subsystem {
     /**
      * Revs up the Shooter to a certain speed.
      *
-     * @param c The Command calling this function.
+     * @param c     The Command calling this function.
      * @param speed The speed the shooter should rev up to.
      */
     public static void rev(Command c, double speed) {
         if (shooter.claim(c)) {
-            if (Robot.real) {
-                shooterPID.setTarget(speed);
 
-                shooterPID.setExtraCode(() -> {
-                    if (shooterPID.isDone()) {
-                        OI.manip.rumble(0.1f, 0.1f);
-                    } else {
-                        OI.manip.rumble(0, 0);
-                    }
-                });
-            } else {
-                shooter.setPower(.7);
-            }
+            shooterPID.setTarget(speed);
+            //shooterPID.setTarget(SmartDashboard.getNumber("shooter speed"));
+
+            shooterPID.setExtraCode(() -> {
+                if (shooterPID.isDone()) {
+                    OI.manip.rumble(0.1f, 0.1f);
+                } else {
+                    OI.manip.rumble(0, 0);
+                }
+            });
         }
     }
 
     /**
-     * Makes the Thread wait until the shooter is up to speed.
+     * Makes the Thread wait until the shooter
+     *
+     *
+     * is up to speed.
      */
     public static void waitForRev() {
         shooterPID.waitUntilDone();
@@ -137,12 +120,8 @@ public class Shooter extends Subsystem {
         if (shooter.isUsableBy(c)) {
             //setSpotlight(false);
 
-            if (Robot.real) {
-                shooterPID.setTarget(0);
-                shooterPID.setExtraCode(null);
-            } else {
-                shooter.setPower(0);
-            }
+            shooterPID.setTarget(0);
+            shooterPID.setExtraCode(null);
 
             shooter.setUser(null);
         }
@@ -161,51 +140,6 @@ public class Shooter extends Subsystem {
     private static final double slowTurnSpeed = 0.3;
 
     /**
-     * Uses Vision Targeting to make the Robot turn and shoot a high goal.
-     *
-     * @param c The Command asking for this action to be performed.
-     */
-    public static void doVisionShoot(Command c) {
-        doingVisionShoot = true;
-        boolean didLeft = false;
-        boolean didRight = false;
-        if (VisionTargeting.isGoalVisible()) {
-            boolean abort = false;
-            while (!VisionTargeting.isLinedUp()) { //TODO: see if we can get away with being lazy and just doing motor speeds instead of using a rate PID
-                if (VisionTargeting.shouldGoLeft()) {
-                    didLeft = true;
-                    Drive.tankDrive(slowTurnSpeed, -slowTurnSpeed); //Turn left
-                } else if (VisionTargeting.shouldGoRight()) {
-                    didRight = true;
-                    Drive.tankDrive(-slowTurnSpeed, slowTurnSpeed); //Turn right
-                } else {
-                    Log.e("Shooter.doVisionShoot() made it to an else statement that should not happen!");
-                }
-                if (didLeft && didRight) {
-                    Log.w("Drive train oscillating when doing Vision Shoot!");
-                    didLeft = false;
-                    didRight = false;
-                }
-                if (!VisionTargeting.isGoalVisible()) {
-                    abort = true;
-                    break;
-                }
-            }
-            if (!abort) {
-                Drive.tankDrive(0, 0);
-                waitForRev(); //Should not wait at all if already at target
-                shootUsingIndexer(c);
-            } else {
-                Log.v("Vision Shoot aborted!");
-            }
-        } else {
-            Log.i("Did not do vision shoot due to not being able to see the goal!");
-            //TODO: make the robot turn and look for the goal based off it's defense position instead of giving up
-        }
-        doingVisionShoot = false;
-    }
-
-    /**
      * Checks if the Robot is currently shooting using Vision Targeting.
      *
      * @return If the Robot is currently shooting using Vision Targeting.
@@ -220,11 +154,7 @@ public class Shooter extends Subsystem {
      * @return If the Shooter has a ball in it.
      */
     public static boolean hasBall() {
-        if (Robot.real) {
             return hasBall.get();
-        } else {
-            return false;
-        }
     }
 
     /**

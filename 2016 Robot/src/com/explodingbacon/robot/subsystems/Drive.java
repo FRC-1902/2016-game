@@ -9,14 +9,12 @@ import com.explodingbacon.bcnlib.framework.Subsystem;
 import com.explodingbacon.bcnlib.sensors.ADXSensor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.sensors.Encoder;
-import com.explodingbacon.robot.main.KitMap;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
-import edu.wpi.first.wpilibj.TalonSRX;
 import edu.wpi.first.wpilibj.VictorSP;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,54 +42,41 @@ public class Drive extends Subsystem {
     public Drive() {
         super();
 
-        if (Robot.real) {
-            leftMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
-            rightMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+        //These motor types NEED to be Talon.class
+        leftMotors = (MotorGroup) new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
+        rightMotors = (MotorGroup) new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
 
-            leftMotors.setReversed(true);
-            rightMotors.setReversed(true);
-
-            Log.d("Initialized Drive in Battering Ham mode.");
-        } else {
-            leftMotors = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.LEFT_DRIVE).setName("Left Drive");
-            rightMotors = (MotorGroup) new MotorGroup(TalonSRX.class, KitMap.RIGHT_DRIVE).setName("Right Drive");
-
-            Log.d("Initialized Drive in KitBot mode.");
-
-            leftMotors.setReversed(true);
-            rightMotors.setReversed(true);
-        }
+        leftMotors.setReversed(true);
+        rightMotors.setReversed(true);
 
         shift = new DoubleSolenoid(Map.SHIFT_SOLENOID_A, Map.SHIFT_SOLENOID_B);
 
-        if (Robot.real) {
-            leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
-            rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
+        leftEncoder = new Encoder(Map.LEFT_DRIVE_ENCODER_A, Map.LEFT_DRIVE_ENCODER_B);
+        rightEncoder = new Encoder(Map.RIGHT_DRIVE_ENCODER_A, Map.RIGHT_DRIVE_ENCODER_B);
 
-            adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
+        adx = new ADXSensor(SPI.Port.kOnboardCS1, SPI.Port.kOnboardCS0);
 
-            eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
-            eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
+        eLeft = new PIDController(leftMotors, leftEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax);
+        eRight = new PIDController(rightMotors, rightEncoder, encoderkP, encoderkI, encoderkD, encoderMin, encoderMax).setInputInverted(true);
 
-            gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
-            gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
-        }
+        gLeft = new PIDController(leftMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
+        gRight = new PIDController(rightMotors, adx, gyrokP, gyrokI, gyrokD, gyroMin, gyroMax);
 
         leftMotors.setLoggingChanges(true);
         rightMotors.setLoggingChanges(true);
 
-        if (Robot.real) {
-            gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
-            gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
 
-            eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
-            eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
-        }
+        gLeft.setFinishedTolerance(GYRO_PID_TOLERANCE);
+        gRight.setFinishedTolerance(GYRO_PID_TOLERANCE);
+
+        eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
+        eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
 
 
+        /*
         SmartDashboard.putNumber("Gyro kP", gyrokP);
         SmartDashboard.putNumber("Gyro kI", gyrokI);
-        SmartDashboard.putNumber("Gyro kD", gyrokD);
+        SmartDashboard.putNumber("Gyro kD", gyrokD);*/
 
     }
 

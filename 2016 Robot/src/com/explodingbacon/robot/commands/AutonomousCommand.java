@@ -5,7 +5,6 @@ import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.Mode;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.subsystems.Drive;
-import com.explodingbacon.robot.subsystems.Intake;
 import com.explodingbacon.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -14,7 +13,7 @@ public class AutonomousCommand extends Command {
     Type type;
 
     //Auto values used in most of/all the autos
-    private static final double NEUTRAL_TO_CROSS = 13 * 12; //tuned
+    private static final double NEUTRAL_TO_CROSS = 15 * 12; //tuned
     private static final double COURTYARD_TO_WALL_TIME = 5 * 1000; //TODO: tune
     private static final double WALL_TO_BATTER_TIME = 5 * 1000; //TODO: tune
 
@@ -29,11 +28,12 @@ public class AutonomousCommand extends Command {
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
             if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) {
                 if (defense == Defense.ROCK_WALL) {
-                    Drive.inchDrive(NEUTRAL_TO_CROSS + (4 * 12));
+                    Drive.inchDrive(NEUTRAL_TO_CROSS + (2 * 12));
                 } else {
                     Drive.inchDrive(NEUTRAL_TO_CROSS);
                 }
                 if (type == Type.ONE_BOULDER_NEUTRAL) {
+                    Drive.gyroTurn(-Drive.getADX().getAngle());
                     Drive.tankDriveFor(0.4, 0.4, COURTYARD_TO_WALL_TIME);
                     Thread.sleep(500);
                     if (Robot.isAutonomous()) {

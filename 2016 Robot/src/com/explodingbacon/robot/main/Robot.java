@@ -21,20 +21,16 @@
  */
 package com.explodingbacon.robot.main;
 
-import com.explodingbacon.bcnlib.actuators.Solenoid;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
-import com.explodingbacon.bcnlib.vision.ImageServer;
-import com.explodingbacon.bcnlib.vision.Vision;
+import com.explodingbacon.bcnlib.sensors.PDP;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.*;
-import com.explodingbacon.robot.vision.VisionTargeting;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,8 +44,9 @@ public class Robot extends RobotCore {
     public static SendableChooser posChooser;
     public static SendableChooser defenseChooser;
     //public static DataLogger logger = new DataLogger();
+    public static PDP pdp = new PDP();
 
-    public static final boolean real = false; //False = kitbot
+    public static final boolean real = true; //False = kitbot
 
     //private static Solenoid kitLight;
 
@@ -63,10 +60,10 @@ public class Robot extends RobotCore {
     public void robotInit() {
         super.robotInit();
 
-        Vision.init();
+        //Vision.init();
 
         drive = new Drive();
-        //intake = new Intake();
+        intake = new Intake();
         shooter = new Shooter();
         climber = new Climber();
 
@@ -95,19 +92,12 @@ public class Robot extends RobotCore {
         defenseChooser.addDefault("Normal Static", AutonomousCommand.Defense.NORMAL);
         defenseChooser.addObject("Rock Wall", AutonomousCommand.Defense.ROCK_WALL);
         //defenseChooser.addObject("Cheval De Frise", AutonomousCommand.Defense.CHEVAL);
-        //defensheCooser.addObject("Portcullis", AutonomousCommand.Defense.PORTCULLIS);
+        //defenseCooser.addObject("Portcullis", AutonomousCommand.Defense.PORTCULLIS);
         SmartDashboard.putData("Defense Type Chooser", defenseChooser);
 
         SmartDashboard.putNumber("Auto Delay", 3);
 
-        //ImageServer.getInstance(); //Calling this should initialize the ImageServer
-
-        if (!Robot.real) {
-            /*
-            kitLight = new Solenoid(KitMap.RING_LIGHT);
-            kitLight.set(true);
-            */
-        }
+        pdp.setLoggingTripping(true);
 
         Log.i("Battering Ham initialized!");
         Log.i("Robot is in " + (Robot.real ? "Battering Ham" : "KitBot") + " mode.");
@@ -118,7 +108,7 @@ public class Robot extends RobotCore {
         if (drive != null) commands.add(new DriveCommand());
         if (intake != null) commands.add(new IntakeCommand());
         if (shooter != null) commands.add(new ShooterCommand());
-        //if (climber != null) commands.add(new ClimberCommand());
+        if (climber != null) commands.add(new ClimberCommand());
         //if (Vision.isInit()) commands.add(new VisionTargeting());
         OI.runCommands(commands.toArray(new Command[commands.size()]));
     }
@@ -134,7 +124,10 @@ public class Robot extends RobotCore {
         super.teleopInit();
         initTeleopCommands();
         Drive.setDriverControlled(true);
-        //Drive.tankDrive(0.25, 0);
+
+        //Drive.setDriverControlled(false);
+        //Drive.getLeft().testEachWait(0.6, 1.5);
+        //Drive.getRight().testEachWait(0.6, 1.5);
 
         //SmartDashboard.putNumber("Turn Amnt", 90);
     }
@@ -144,7 +137,6 @@ public class Robot extends RobotCore {
         super.autonomousInit();
 
         OI.runCommand(new AutonomousCommand());
-        if (Vision.isInit()) OI.runCommand(new VisionTargeting());
     }
 
     @Override
@@ -166,8 +158,7 @@ public class Robot extends RobotCore {
     public void teleopPeriodic() {
         super.teleopPeriodic();
 
-        //Log.d("Target: " + Shooter.shooterPID.getTarget() + ", Shooter Rate: " +
-        // Shooter.getEncoder().getRate() + ", Setpoint: " + Shooter.shooterPID.getMotorPower());
+        //Log.d("Shooter Rate: " + Shooter.getEncoder().getRate());
 
         /*
         if(OI.manip.a.get()) {

@@ -143,7 +143,8 @@ public class MotorGroup extends Motor {
     }
 
     /**
-     * Checks if this MotorGroup is logging changes in power.
+     * Checks if this MotorGroup
+     * is logging changes in power.
      *
      * @return If this MotorGroup is logging changes in power.
      */
@@ -212,6 +213,10 @@ public class MotorGroup extends Motor {
         this.reversed = reversed;
     }
 
+    @Override
+    public void setBrakeMode(boolean b) {
+        forEach((m) -> m.setBrakeMode(b));
+    }
     @Override
     public void stopMotor() {
         forEach(Motor::stopMotor);
