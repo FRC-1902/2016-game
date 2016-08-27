@@ -55,7 +55,6 @@ public class Shooter extends Subsystem {
         shooterPID.setInputInverted(false);
 
         shooter.onNoUser(() -> shooterPID.setTarget(0));
-        .;
 
         //SmartDashboard.putNumber("shooter speed", 26500);
 
@@ -104,10 +103,7 @@ public class Shooter extends Subsystem {
     }
 
     /**
-     * Makes the Thread wait until the shooter
-     *
-     *
-     * is up to speed.
+     * Makes the Thread wait until the shooter is up to speed.
      */
     public static void waitForRev() {
         shooterPID.waitUntilDone();

@@ -36,13 +36,6 @@ public class DriveCommand extends Command {
                 Drive.shift(false);
             }
         }
-        if (!Robot.real) {
-            if (OI.climb.get()) {
-                Climber.setSpeed(1);
-            } else {
-                Climber.setSpeed(0);
-            }
-        }
     }
 
     @Override

@@ -42,7 +42,7 @@ public class Drive extends Subsystem {
     public Drive() {
         super();
 
-        //These motor types NEED to be Talon.class
+        //These motor types NEED to be Talon.class, even though they are not Talons on the robot.
         leftMotors = (MotorGroup) new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
         rightMotors = (MotorGroup) new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
 
@@ -71,7 +71,6 @@ public class Drive extends Subsystem {
 
         eLeft.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
         eRight.setFinishedTolerance(ENCODER_ANGLE_TOLERANCE);
-
 
         /*
         SmartDashboard.putNumber("Gyro kP", gyrokP);
