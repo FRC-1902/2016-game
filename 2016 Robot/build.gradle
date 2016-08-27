@@ -3,6 +3,10 @@ plugins {
     id 'org.hidetake.ssh' version '0.4.5'
 }
 
+compileJava{
+    source = fileTree(dir:'src')
+}
+
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
