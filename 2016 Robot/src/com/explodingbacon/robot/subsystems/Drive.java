@@ -12,6 +12,7 @@ import com.explodingbacon.bcnlib.sensors.Encoder;
 import com.explodingbacon.robot.main.Map;
 import com.explodingbacon.robot.main.Robot;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.Arrays;
@@ -41,8 +42,9 @@ public class Drive extends Subsystem {
     public Drive() {
         super();
 
-        leftMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
-        rightMotors = (MotorGroup) new MotorGroup(VictorSP.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
+        //These motor types NEED to be Talon.class, even though they are not Talons on the robot.
+        leftMotors = (MotorGroup) new MotorGroup(Talon.class, Map.LEFT_DRIVE_1, Map.LEFT_DRIVE_2, Map.LEFT_DRIVE_3).setName("Left Drive");
+        rightMotors = (MotorGroup) new MotorGroup(Talon.class, Map.RIGHT_DRIVE_1, Map.RIGHT_DRIVE_2, Map.RIGHT_DRIVE_3).setName("Right Drive");
 
         leftMotors.setReversed(true);
         rightMotors.setReversed(true);

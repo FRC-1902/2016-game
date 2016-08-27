@@ -59,7 +59,7 @@ public class Robot extends RobotCore {
     public void robotInit() {
         super.robotInit();
 
-        Vision.init();
+        //Vision.init();
 
         drive = new Drive();
         //intake = new Intake();

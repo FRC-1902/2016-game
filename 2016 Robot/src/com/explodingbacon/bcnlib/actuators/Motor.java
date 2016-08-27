@@ -184,6 +184,19 @@ public class Motor extends Usable {
     }
 
     /**
+     * Sets if this Motor should be on brake mode. CANTalons only.
+     *
+     * @param b If this Motor should be on brake mode.
+     */
+    public void setBrakeMode(boolean b) {
+        if (sc instanceof CANTalon) {
+            ((CANTalon) sc).enableBrakeMode(b);
+        } else {
+            Log.e("Called Motor.setBrakeMode() on a Motor that is not a CANTalon! (Motor is a " + getClass().getSimpleName() + ")");
+        }
+    }
+
+    /**
      * Gets the watts of this Motor. CANTalons only.
      *
      * @return The watts of this Motor.

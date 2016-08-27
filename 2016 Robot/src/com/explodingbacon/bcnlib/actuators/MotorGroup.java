@@ -142,6 +142,11 @@ public class MotorGroup extends Motor {
         }
     }
 
+    @Override
+    public void setBrakeMode(boolean b) {
+        forEach((m) -> m.setBrakeMode(b));
+    }
+
     /**
      * Checks if this MotorGroup is logging changes in power.
      *
