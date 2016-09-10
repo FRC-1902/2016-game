@@ -24,6 +24,8 @@ package com.explodingbacon.robot.main;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
+import com.explodingbacon.bcnlib.networking.Server;
+import com.explodingbacon.bcnlib.quneo.QuNeo;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;
 import com.explodingbacon.robot.subsystems.*;
@@ -45,6 +47,8 @@ public class Robot extends RobotCore {
     public static SendableChooser autoChooser;
     public static SendableChooser posChooser;
     public static SendableChooser defenseChooser;
+    public static Server server;
+    public static QuNeo quneo = null;
     //public static DataLogger logger = new DataLogger();
 
     //private static Solenoid kitLight;
@@ -95,6 +99,11 @@ public class Robot extends RobotCore {
         SmartDashboard.putData("Defense Type Chooser", defenseChooser);
 
         SmartDashboard.putNumber("Auto Delay", 3);
+
+        server = new Server();
+        server.initialize();
+
+        quneo = new QuNeo();
 
         Log.i("Battering Ham initialized!");
     }

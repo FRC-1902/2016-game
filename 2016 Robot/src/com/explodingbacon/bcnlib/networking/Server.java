@@ -1,7 +1,8 @@
 package com.explodingbacon.bcnlib.networking;
 
 import com.explodingbacon.bcnlib.framework.Log;
-import com.explodingbacon.bcnlib.utils.CodeThread;
+import com.explodingbacon.bcnlib.utils.Utils;
+import com.explodingbacon.robot.main.Robot;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -9,60 +10,53 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Server code (robot-side) for communication between the robot and a client.
+ * Server code (robot-side) for communication between a robot and a client.
  *
  * @author Ryan Shavell
- * @version 2016.2.15
+ * @version 2016.9.10
  */
-
-public class Server extends CodeThread {
-
-    private ServerSocket server;
-    private Socket client;
-    private PrintWriter out;
-    private BufferedReader in;
-    private boolean init = false;
+public class Server extends Communicator {
 
     public static int PORT = 5800;
 
-    /**
-     * Creates a Server.
-     */
+    private ServerSocket server;
+    private Socket client;
+
     public Server() {
         super();
-        try {
-            server = new ServerSocket(PORT);
-            start();
-        } catch (Exception e) {
-            Log.e("Server initializer exception!");
-            e.printStackTrace();
-        }
+        Utils.runInOwnThread(() -> {
+            try {
+                server = new ServerSocket(PORT);
+                client = server.accept();
+
+                PrintWriter o = new PrintWriter(client.getOutputStream(), true);
+                BufferedReader i = new BufferedReader(new InputStreamReader(client.getInputStream()));
+
+                initialize(o, i);
+                Log.i("Server init");
+            } catch (Exception e) {
+                Log.e("Server constructor exception!");
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
-    public void code() {
-        try {
-            if (!init) {
-                Log.i("Server init!");
-                client = server.accept();
-
-                out = new PrintWriter(client.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-
-                init = true;
+    public void onReceiveMessage(String message) {
+        Log.i(String.format("Server got message \"%s\".", message));
+        //sendMessage("Stop bugging me");
+        if (message.startsWith("quneo:")) {
+            message = message.replace("quneo:", "");
+            if (Robot.quneo != null) Robot.quneo.handlePacket(message);
+            //TODO: Figure out the QuNeo data sending format
+        } else if (message.startsWith("keyboard:")) { //example message: "keyboard:72:true"
+            message = message.replace("keyboard:", "");
+            String[] data = message.split(":");
+            int keycode = Integer.parseInt(data[0]);
+            KeyboardButton b = KeyboardButton.getButton(keycode);
+            if (b != null) {
+                b.set(Boolean.parseBoolean(data[1]));
             }
-            String input;
-
-            while ((input = in.readLine()) != null) {
-                //Log.i(String.format("Server got message \"%s\"", input));
-                if (input.contains("js=")) {
-                    input = input.replaceFirst("js=", "");
-                    //Javascript.run(input);
-                }
-            }
-        } catch (Exception e) {
-            Log.e("Server exception");
-            e.printStackTrace();
         }
     }
 }

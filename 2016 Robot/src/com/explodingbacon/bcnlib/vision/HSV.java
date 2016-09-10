@@ -6,7 +6,6 @@ package com.explodingbacon.bcnlib.vision;
  * @author Ryan Shavell
  * @version 2016.6.16
  */
-
 public class HSV extends BCNScalar {
 
     private int h, s, v;

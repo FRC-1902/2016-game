@@ -6,7 +6,7 @@ import com.explodingbacon.bcnlib.utils.Timer;
  * An extension class of Joystick that makes it much easier to do game controller specific things, such as reading from the DPad or rumbling.
  *
  * @author Ryan Shavell
- * @version 2016.2.17
+ * @version 2016.9.10
  */
 
 public abstract class GameController extends Joystick {
@@ -38,7 +38,7 @@ public abstract class GameController extends Joystick {
      * @return The Direction of the DPad. Returns null if the DPad is not pressed.
      */
     public Direction getDPad() {
-        return Direction.toDirection(getPOV(0));
+        return Direction.toDirection(joy.getPOV(0));
     }
 
     /**
@@ -47,8 +47,8 @@ public abstract class GameController extends Joystick {
      * @param r The right rumble value.
      */
     public void rumble(float l, float r) {
-        setRumble(RumbleType.kLeftRumble, l);
-        setRumble(RumbleType.kRightRumble, r);
+        joy.setRumble(edu.wpi.first.wpilibj.Joystick.RumbleType.kLeftRumble, l);
+        joy.setRumble(edu.wpi.first.wpilibj.Joystick.RumbleType.kRightRumble, r);
     }
 
     /**
