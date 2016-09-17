@@ -17,7 +17,6 @@
     -BCNLib
        -WPILib
        -OpenCV
-       -Jedis
  */
 package com.explodingbacon.robot.main;
 
@@ -66,7 +65,7 @@ public class Robot extends RobotCore {
         //Vision.init();
 
         drive = new Drive();
-        //intake = new Intake();
+        intake = new Intake();
         shooter = new Shooter();
         climber = new Climber();
 
@@ -161,8 +160,10 @@ public class Robot extends RobotCore {
     public void teleopPeriodic() {
         super.teleopPeriodic();
 
-        //Log.d("Target: " + Shooter.shooterPID.getTarget() + ", Shooter Rate: " +
-        // Shooter.getEncoder().getRate() + ", Setpoint: " + Shooter.shooterPID.getMotorPower());
+        if(OI.manip.b.get()) throw new RuntimeException();
+
+        Log.d("Target: " + Shooter.shooterPID.getTarget() + ", Shooter Rate: " +
+        Shooter.getEncoder().getRate() + ", Setpoint: " + Shooter.shooterPID.getMotorPower());
 
         /*
         if(OI.manip.a.get()) {
@@ -201,13 +202,5 @@ public class Robot extends RobotCore {
     @Override
     public void disabledPeriodic() {
         super.disabledPeriodic();
-        /*
-        double sdExposure = SmartDashboard.getNumber("Camera Exposure");
-        if (VisionTargeting.currentExposure != sdExposure)) {
-            VisionTargeting.camera.setExposure(sdExposure);
-            VisionTargeting.currentExposure = sdExposure;
-            Log.i("Camera exposure updated!");
-        }
-        */
     }
 }

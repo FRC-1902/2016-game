@@ -4,7 +4,6 @@ import com.explodingbacon.bcnlib.actuators.FakeMotor;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.sensors.AbstractEncoder;
 import com.explodingbacon.bcnlib.utils.Utils;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 /**
  * All-encompassing PID controller that can be used for rate and for position controllers. Set any tuning parameter to 0 to
@@ -292,7 +291,8 @@ public class PIDController implements Runnable { //TODO: Check this
                 }
 
                 if(Utils.sign(power) != Utils.sign(p)) {
-                    power = 0;
+                    //power = 0;
+                    Log.i("Sign isn't equal to P. NOT compensating by setting motor power to 0.");
                 }
 
                 m.setPower(power);

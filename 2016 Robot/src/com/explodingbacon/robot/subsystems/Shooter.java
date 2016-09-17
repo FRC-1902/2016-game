@@ -18,7 +18,8 @@ public class Shooter extends Subsystem {
 
     private static MotorGroup shooter;
     private static Motor indexer;
-    private static DigitalInput hasBall = null;
+    private static DigitalInput ballSensor;
+    private static boolean hasBall = false;
 
     private static MotorEncoder encoder;
     public static PIDController shooterPID;
@@ -28,10 +29,8 @@ public class Shooter extends Subsystem {
     public static int LOW_OFFSET = 0;
     public static int HIGH_OFFSET = 0;
 
-    public static final int INTAKE_RATE = -25000;
-
-    public static final int LOW_GOAL_RATE = 26500;
-    public static final int HIGH_GOAL_RATE = 55000; //Used to be 50000
+    public static final int LOW_GOAL_RATE = -26500 / 2;
+    public static final int HIGH_GOAL_RATE = -111000;//-55000 / 2; //Used to be 50000
 
 
 
@@ -39,22 +38,24 @@ public class Shooter extends Subsystem {
         super();
 
         shooter = (MotorGroup) new MotorGroup(CANTalon.class, Map.SHOOTER_MOTOR_1, Map.SHOOTER_MOTOR_2).setName("Shooter");
+        shooter.setInverts(true, false);
 
         indexer = new Motor(CANTalon.class, Map.SHOOTER_INDEXER).setName("Shooter Indexer");
         indexer.setStopOnNoUser();
         indexer.setReversed(true);
 
         encoder = shooter.getMotors().get(1).getEncoder();
+        if (encoder == null) Log.e("Shooter encoder is null");
         encoder.setPIDMode(AbstractEncoder.PIDMode.RATE);
-        encoder.setReversed(true);
+        encoder.setReversed(false);
 
-        shooterPID = new PIDController(shooter, encoder, 0.00002, 0.00000085, 0.00001, 0.1, 0.9); //0.00002, 0.0000008, 0.00001
-        shooterPID.setFinishedTolerance(1500);
-        shooterPID.setInputInverted(false); //Changed from true
+        shooterPID = new PIDController(shooter, encoder, 0.00002 / 2, 0.00000085 / 1, 0.00001 / 3, 0.1, .96); //0.00002, 0.0000008, 0.00001
+        shooterPID.setFinishedTolerance(800); //formerly 1500
+        shooterPID.setInputInverted(false);
 
         shooter.onNoUser(() -> shooterPID.setTarget(0));
 
-        hasBall = new DigitalInput(Map.SHOOTER_BALL_TOUCH);
+        ballSensor = new DigitalInput(Map.SHOOTER_BALL_SENSOR);
     }
 
     @Override
@@ -162,13 +163,21 @@ public class Shooter extends Subsystem {
         visionShooting = b;
     }
 
+    public static DigitalInput getBallSensor() {
+        return ballSensor;
+    }
+
+    public static void setHasBall(boolean b) {
+        hasBall = b;
+    }
+
     /**
      * Checks if the Shooter has a ball in it.
      *
      * @return If the Shooter has a ball in it.
      */
     public static boolean hasBall() {
-        return hasBall.get();
+        return hasBall;
     }
 
     /**

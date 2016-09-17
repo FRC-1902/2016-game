@@ -63,8 +63,8 @@ public class OI extends AbstractOI {
         intakeMotorIn = manip.x;
         intakeMotorOut = manip.a;
 
-        shooterRevLow = manip.rightTrigger;
-        shooterRevHigh = manip.leftTrigger;
+        shooterRevLow = manip.leftTrigger;
+        shooterRevHigh = manip.rightTrigger;
         shooterRevButtons = manip.triggers;
 
         climberShoot = manip.select; //TODO: check if this is the left

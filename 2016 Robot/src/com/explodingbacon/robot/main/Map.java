@@ -28,14 +28,14 @@ public class Map {
     public static final int SHIFT_SOLENOID_A = 2;
     public static final int SHIFT_SOLENOID_B = 5;
 
-    public static final int INTAKE_SOLENOID_A = 4;
-    public static final int INTAKE_SOLENOID_B = 1;
+    public static final int INTAKE_SOLENOID_A = 3; //4
+    public static final int INTAKE_SOLENOID_B = 6; // 1
 
 
-    public static final int CLIMBER_POSITION_A = 3;
-    public static final int CLIMBER_POSITION_B = 6;
+    public static final int CLIMBER_POSITION_A = 4; //3
+    public static final int CLIMBER_POSITION_B = 1; //6
 
-    public static final int CLIMBER_SHOOT = 7;
+    public static final int CLIMBER_SHOOT = 7; //7
 
     //SENSORS
 
@@ -45,5 +45,5 @@ public class Map {
     public static final int LEFT_DRIVE_ENCODER_A = 3;
     public static final int LEFT_DRIVE_ENCODER_B = 2;
 
-    public static final int SHOOTER_BALL_TOUCH = 4;
+    public static final int SHOOTER_BALL_SENSOR = 8;
 }

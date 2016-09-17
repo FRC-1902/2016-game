@@ -1,6 +1,7 @@
 package com.explodingbacon.robot.subsystems;
 
 import com.explodingbacon.bcnlib.actuators.DoubleSolenoid;
+import com.explodingbacon.bcnlib.actuators.FakeMotor;
 import com.explodingbacon.bcnlib.actuators.Motor;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Subsystem;
@@ -34,11 +35,10 @@ public class Intake extends Subsystem {
      * Starts intaking.
      */
     public static void intake(Command c) {
-        if (intakeMotor.isUsableBy(c) && Shooter.getIndexer().isUsableBy(c) && Shooter.getShooter().isUsableBy(c)) {
+        if (intakeMotor.isUsableBy(c) && Shooter.getIndexer().isUsableBy(c)) {
             setUsingAll(c);
             intakeMotor.setPower(1);
-            Shooter.setIndexerRaw(-1);
-            Shooter.shooterPID.setTarget(Shooter.INTAKE_RATE);
+            Shooter.setIndexerRaw(1);
         }
     }
 
@@ -46,11 +46,10 @@ public class Intake extends Subsystem {
      * Starts outtaking.
      */
     public static void outtake(Command c) {
-        if (intakeMotor.isUsableBy(c) && Shooter.getShooter().isUsableBy(c)) {
+        if (intakeMotor.isUsableBy(c) && Shooter.getIndexer().isUsableBy(c)) {
             intakeMotor.setPower(-1);
             intakeMotor.setUser(c);
-            Shooter.shooterPID.setTarget(-Shooter.INTAKE_RATE);
-            Shooter.getShooter().setUser(c);
+            Shooter.setIndexerRaw(-1);
         }
     }
 

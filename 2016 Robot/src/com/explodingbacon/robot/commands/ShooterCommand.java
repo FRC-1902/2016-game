@@ -2,6 +2,7 @@ package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
+import com.explodingbacon.bcnlib.utils.Timer;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.main.Robot;
 import com.explodingbacon.robot.main.OI;
@@ -11,6 +12,7 @@ public class ShooterCommand extends Command {
 
     private boolean loggedSpeed = false;
     private boolean holdingTrim = false;
+    private boolean sensorWasFalse = true;
 
     private final int TRIM_AMOUNT = 1000;
 
@@ -24,6 +26,19 @@ public class ShooterCommand extends Command {
         } else {
             Shooter.stopRev(this);
         }
+        Shooter.setHasBall(Shooter.getBallSensor().get());
+
+        /*
+        if (Shooter.getBallSensor().get() && sensorWasFalse) {
+                Timer t = new Timer(.25, false, () -> {
+                    Shooter.setHasBall(!Shooter.hasBall());
+                });
+                t.start();
+            sensorWasFalse = false;
+        } else if (!Shooter.getBallSensor().get()) {
+            sensorWasFalse = true;
+        }
+        */
 
         boolean shoot = OI.shoot.getAll();
 
