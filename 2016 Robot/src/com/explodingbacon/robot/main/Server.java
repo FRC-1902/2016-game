@@ -1,8 +1,9 @@
-package com.explodingbacon.bcnlib.networking;
+package com.explodingbacon.robot.main;
 
 import com.explodingbacon.bcnlib.framework.Log;
+import com.explodingbacon.bcnlib.networking.Communicator;
+import com.explodingbacon.bcnlib.networking.KeyboardButton;
 import com.explodingbacon.bcnlib.utils.Utils;
-import com.explodingbacon.robot.main.Robot;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
