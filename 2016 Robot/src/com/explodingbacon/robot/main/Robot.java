@@ -99,10 +99,10 @@ public class Robot extends RobotCore {
 
         SmartDashboard.putNumber("Auto Delay", 3);
 
-        server = new Server();
-        server.initialize();
+        //server = new Server();
+        //server.initialize();
 
-        quneo = new QuNeo();
+        //quneo = new QuNeo();
 
         Log.i("Battering Ham initialized!");
     }
