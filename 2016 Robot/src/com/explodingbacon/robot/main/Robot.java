@@ -23,7 +23,6 @@ package com.explodingbacon.robot.main;
 import com.explodingbacon.bcnlib.framework.Command;
 import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.framework.RobotCore;
-import com.explodingbacon.bcnlib.networking.Server;
 import com.explodingbacon.bcnlib.quneo.QuNeo;
 import com.explodingbacon.bcnlib.vision.Vision;
 import com.explodingbacon.robot.commands.*;

@@ -124,12 +124,15 @@ public class MidiAPI {
         }
 
         public void sendNote(Boolean on, byte note, byte channel) {
-            sendNote(on, 1, note, channel);
+            //sendNote(on, 1, note, channel);
+            byte b = 100;
+            sendNote(on, channel, note, b);
         }
 
-        public void sendNote(Boolean on, int channel, byte note, byte velocity) {
+        public void sendNote(Boolean on, byte channel, byte note, byte velocity) {
             try {
-                MidiMessage m = new ShortMessage(on ? NOTE_ON : NOTE_OFF, channel, note, velocity);
+                MidiMessage m = new ShortMessage(on ? 0x90 : 0x80, channel, note, velocity);
+                System.out.println(Arrays.toString(m.getMessage()));
                 r.send(m, System.currentTimeMillis());
             } catch (InvalidMidiDataException e) {
                 e.printStackTrace();

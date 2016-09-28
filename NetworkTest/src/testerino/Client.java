@@ -19,7 +19,7 @@ public class Client extends Communicator {
     private int port = 5800;
     private Socket server;
 
-    private MidiAPI api = new MidiAPI("quneo");
+    private MidiAPI api = new MidiAPI("QUNEO");
 
     public Client() {
         super();
@@ -54,10 +54,19 @@ public class Client extends Communicator {
                 int[] subscribees = new int[data.length-1];
                 for (int i=1;i<data.length;i++) {
                     subscribees[i-1] = (Integer.parseInt(data[i]));
+                    Log.d(subscribees[i-1] + " - subscriber note");
                 }
+                Log.d("Subscriber count: " + subscribees.length + ", type: " + type + ", " + subscribees.toString());
                 api.registerListener((eventType, channel, note, data1) -> {
+                    Log.d("Event fired!");
                     sendMessage("quneo:update:"+ data[0] + ":" + note + ":" + eventType + ":" + data1); //quneo:update:type:note:data
                 }, type, 1, subscribees);
+            } else if (message.startsWith("setlight:")) {
+                message = message.replace("setlight:", "");
+                String[] data = message.split(":");
+                Log.d(Byte.parseByte(data[0]) + " bytething");
+                byte b = 1;
+                api.sendNote(b, Boolean.parseBoolean(data[1]), Byte.parseByte(data[0]));
             }
         }
     }
