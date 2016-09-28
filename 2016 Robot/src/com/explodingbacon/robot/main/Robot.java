@@ -165,22 +165,7 @@ public class Robot extends RobotCore {
         //if(OI.manip.triggers.getAny()) Log.d("Target: " + Shooter.shooterPID.getTarget() + ", Shooter Rate: " +
         //Shooter.getEncoder().getRate() + ", Setpoint: " + Shooter.shooterPID.getMotorPower());
 
-        Shooter.shooterPID.logVerbose();
-
-        /*
-        if(OI.manip.a.get()) {
-            Drive.gLeft.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
-                    SmartDashboard.getNumber("Gyro kD"));
-            Drive.gRight.reTune(SmartDashboard.getNumber("Gyro kP"), SmartDashboard.getNumber("Gyro kI"),
-                    SmartDashboard.getNumber("Gyro kD"));
-
-            while(OI.manip.a.get());
-        }
-
-        if(OI.manip.b.get()) {
-            Drive.gyroTurn(SmartDashboard.getNumber("Turn Amnt"), 10);
-        }
-        */
+        //Shooter.shooterPID.logVerbose();
     }
 
     @Override

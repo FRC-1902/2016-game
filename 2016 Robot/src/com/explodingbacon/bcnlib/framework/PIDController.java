@@ -260,7 +260,8 @@ public class PIDController implements Runnable { //TODO: Check this
     public void logVerbose() {
         if(enabled)
             synchronized (verboseLogLock) {
-                Log.t(String.format("P %d; I %d; D %d", p, i, d));
+                Log.t("P: " + p + ", I: " + i + ", D: " + d + ", set: " + t + ", current: " + s.getForPID());
+                //Log.t(String.format("P %d; I %d; D %d", p, i, d));
             }
     }
 
@@ -283,7 +284,7 @@ public class PIDController implements Runnable { //TODO: Check this
                     d = lastP - p;
                     lastP = p;
 
-                    i = Math.abs(i * kI) > 1 ? (1 / kI) : i; //Prevent i windup
+                    i = Math.abs(i * kI) > 1 ? (1 / kI) * Utils.sign(i) : i; //Prevent i windup
 
                     double setpoint = p * kP + i * kI - d * kD;
                     setpoint = Utils.minMax(setpoint, 0.1, 1);

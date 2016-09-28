@@ -70,7 +70,7 @@ public class Intake extends Subsystem {
      */
     private static void setUsingAll(Command c) {
         intakeMotor.setUser(c);
-        Shooter.getShooter().setUser(c);
+        //Shooter.getShooter().setUser(c);
         Shooter.getIndexer().setUser(c);
     }
 
