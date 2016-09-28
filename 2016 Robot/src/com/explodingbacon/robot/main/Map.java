@@ -25,8 +25,8 @@ public class Map {
 
     //PCM ports
 
-    public static final int SHIFT_SOLENOID_A = 2;
-    public static final int SHIFT_SOLENOID_B = 5;
+    public static final int SHIFT_SOLENOID_A = 5;
+    public static final int SHIFT_SOLENOID_B = 2;
 
     public static final int INTAKE_SOLENOID_A = 3; //4
     public static final int INTAKE_SOLENOID_B = 6; // 1

@@ -18,6 +18,8 @@ public class OI extends AbstractOI {
 
     public static Button shootNoVision, shootAbort;
 
+    public static Button reverseDirection, setIntakeFront, setShootFront;
+
     //Manipulator buttons
 
     public static ButtonGroup intakeRetract;
@@ -55,6 +57,12 @@ public class OI extends AbstractOI {
         shootNoVision = drive.one;
 
         shootAbort = drive.two;
+
+        reverseDirection = drive.three; //Obsolete
+
+        setIntakeFront = new FakeButton(() -> drive.getDPad().isUp());
+
+        setShootFront = new FakeButton(() -> drive.getDPad().isDown());
 
         //Manipulator controls
 

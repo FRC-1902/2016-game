@@ -28,9 +28,11 @@ public class AutonomousCommand extends Command {
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
             if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) {
                 if (defense == Defense.ROCK_WALL) {
-                    Drive.inchDrive(NEUTRAL_TO_CROSS + (2 * 12));
+                    Drive.tankDriveFor(1, -1, 3);
+                    //Drive.inchDrive(NEUTRAL_TO_CROSS + (2 * 12));
                 } else {
-                    Drive.inchDrive(NEUTRAL_TO_CROSS);
+                    Drive.tankDriveFor(1, -1, 2.6);
+                    //Drive.inchDrive(NEUTRAL_TO_CROSS);
                 }
                 if (type == Type.ONE_BOULDER_NEUTRAL) {
                     Drive.gyroTurn(-Drive.getADX().getAngle());

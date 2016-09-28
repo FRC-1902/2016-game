@@ -22,6 +22,7 @@ public class PIDController implements Runnable { //TODO: Check this
     private Thread thread;
     private Runnable whenFinished = null;
     private Runnable extraCode = null;
+    private static final Object verboseLogLock = new Object();
     private boolean enabled = false, inverted = false, done = false, shouldInstaKill = false;
 
 
@@ -256,6 +257,13 @@ public class PIDController implements Runnable { //TODO: Check this
             Log.t("Target: " + getTarget() + "; Current Value: " + getCurrentSourceValue() + "; Motor Setpoint: " + getMotorPower());
     }
 
+    public void logVerbose() {
+        if(enabled)
+            synchronized (verboseLogLock) {
+                Log.t(String.format("P %d; I %d; D %d", p, i, d));
+            }
+    }
+
     @Override
     public void run() {
         boolean isRate = false;
@@ -266,63 +274,65 @@ public class PIDController implements Runnable { //TODO: Check this
         }
         while (true) {
             if (enabled && RobotCore.isEnabled()) {
-                p = t - s.getForPID();
+                synchronized (verboseLogLock) {
+                    p = t - s.getForPID();
 
-                if (inverted) p *= -1;
+                    if (inverted) p *= -1;
 
-                i += p;
-                d = lastP - p;
-                lastP = p;
+                    i += p;
+                    d = lastP - p;
+                    lastP = p;
 
-                i = Math.abs(i * kI) > 1 ? (1 / kI) : i; //Prevent i windup
+                    i = Math.abs(i * kI) > 1 ? (1 / kI) : i; //Prevent i windup
 
-                double setpoint = p * kP + i * kI - d * kD;
-                setpoint = Utils.minMax(setpoint, 0.1, 1);
+                    double setpoint = p * kP + i * kI - d * kD;
+                    setpoint = Utils.minMax(setpoint, 0.1, 1);
 
-                double power = Utils.minMax(setpoint, min, max);
+                    double power = Utils.minMax(setpoint, min, max);
 
-                //If our target is 0 and our target is a rate, set the motor to 0, since that'll get us a rate of 0 easily
-                if (isRate && getTarget()== 0) {
-                    power = 0;
-                    p = 0;
-                    i = 0;
-                    d = 0;
-                    lastP = 0;
-                }
-
-                if(Utils.sign(power) != Utils.sign(p)) {
-                    //power = 0;
-                    Log.i("Sign isn't equal to P. NOT compensating by setting motor power to 0.");
-                }
-
-                m.setPower(power);
-
-                try {
-                    if (extraCode != null) {
-                        Utils.runInOwnThread(extraCode);
+                    //If our target is 0 and our target is a rate, set the motor to 0, since that'll get us a rate of 0 easily
+                    if (isRate && getTarget() == 0) {
+                        power = 0;
+                        p = 0;
+                        i = 0;
+                        d = 0;
+                        lastP = 0;
                     }
-                } catch (Exception e) {
-                    Log.e("PIDController.extraCode Runnable error!");
-                    e.printStackTrace();
-                }
 
-                done = Math.abs(p) <= tolerance;
+                    if (Utils.sign(power) != Utils.sign(p)) {
+                        //power = 0;
+                        Log.i("Sign isn't equal to P. NOT compensating by setting motor power to 0.");
+                    }
 
-                if((Utils.sign(p) != startingSign) && shouldInstaKill) disable();
+                    m.setPower(power);
 
-                if (done && whenFinished != null) {
                     try {
-                        whenFinished.run();
+                        if (extraCode != null) {
+                            Utils.runInOwnThread(extraCode);
+                        }
                     } catch (Exception e) {
-                        Log.e("PIDController.whenFinished Runnable error!");
+                        Log.e("PIDController.extraCode Runnable error!");
                         e.printStackTrace();
                     }
+
+                    done = Math.abs(p) <= tolerance;
+
+                    if ((Utils.sign(p) != startingSign) && shouldInstaKill) disable();
+
+                    if (done && whenFinished != null) {
+                        try {
+                            whenFinished.run();
+                        } catch (Exception e) {
+                            Log.e("PIDController.whenFinished Runnable error!");
+                            e.printStackTrace();
+                        }
+                    }
                 }
-            } else {
-                done = true;
-                if(enabled)
-                    disable();
-            }
+            } else{
+                    done = true;
+                    if (enabled)
+                        disable();
+                }
 
             try {
                 Thread.sleep(50);

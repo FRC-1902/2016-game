@@ -1,6 +1,7 @@
 package com.explodingbacon.robot.commands;
 
 import com.explodingbacon.bcnlib.framework.Command;
+import com.explodingbacon.bcnlib.framework.Log;
 import com.explodingbacon.bcnlib.utils.Utils;
 import com.explodingbacon.robot.main.OI;
 import com.explodingbacon.robot.subsystems.Drive;
@@ -8,6 +9,7 @@ import com.explodingbacon.robot.subsystems.Drive;
 public class DriveCommand extends Command {
 
     public double deadzone = 0.08;
+    public boolean reverseWasFalse = true;
 
     @Override
     public void onInit() {}
@@ -31,7 +33,20 @@ public class DriveCommand extends Command {
             } else {
                 Drive.shift(false);
             }
-        }
+
+            if(OI.setIntakeFront.get()) Drive.driveReversed = false;
+            if(OI.setShootFront.get()) Drive.driveReversed = true;
+
+/*
+            if (OI.reverseDirection.get() && reverseWasFalse) {
+                Drive.driveReversed = !Drive.driveReversed;
+                reverseWasFalse = false;
+                Log.d("Reverse??");
+            } else if (!OI.reverseDirection.get()) {
+                reverseWasFalse = true;
+            }
+*/
+        } else Drive.driveReversed = false;
     }
 
     @Override

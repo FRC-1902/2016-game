@@ -50,7 +50,7 @@ public class Shooter extends Subsystem {
         encoder.setReversed(false);
 
         shooterPID = new PIDController(shooter, encoder, 0.00002 / 2, 0.00000085 / 1, 0.00001 / 3, 0.1, .96); //0.00002, 0.0000008, 0.00001
-        shooterPID.setFinishedTolerance(800); //formerly 1500
+        shooterPID.setFinishedTolerance(400); //formerly 1500 and then 800
         shooterPID.setInputInverted(false);
 
         shooter.onNoUser(() -> shooterPID.setTarget(0));

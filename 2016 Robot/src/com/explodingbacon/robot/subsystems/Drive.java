@@ -33,6 +33,8 @@ public class Drive extends Subsystem {
 
     private static boolean driverControlled = true;
 
+    public static boolean driveReversed = false;
+
     private static double encoderkP = 0.0001, encoderkI = 0, encoderkD = 0, encoderMin = 0.2, encoderMax = 1; //33300=8ft, encoderMax was 0.5
     private static double gyrokP = 0.025, gyrokI = 0.005, gyrokD = 0.03, gyroMin = 0.05, gyroMax = 0.5;
 
@@ -164,8 +166,13 @@ public class Drive extends Subsystem {
      * @param r The speed of the right motors.
      */
     public static void tankDrive(double l, double r) {
-        leftMotors.setPower(l);
-        rightMotors.setPower(r);
+        if (!driveReversed) {
+            leftMotors.setPower(l);
+            rightMotors.setPower(r);
+        } else {
+            leftMotors.setPower(r);
+            rightMotors.setPower(l);
+        }
     }
 
     /**

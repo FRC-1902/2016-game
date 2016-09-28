@@ -47,9 +47,10 @@ public class Intake extends Subsystem {
      */
     public static void outtake(Command c) {
         if (intakeMotor.isUsableBy(c) && Shooter.getIndexer().isUsableBy(c)) {
-            intakeMotor.setPower(-1);
-            intakeMotor.setUser(c);
+            //intakeMotor.setPower(-1);
+            //intakeMotor.setUser(c);
             Shooter.setIndexerRaw(-1);
+            Shooter.getIndexer().setUser(c);
         }
     }
 
