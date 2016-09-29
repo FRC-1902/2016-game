@@ -1,7 +1,7 @@
-package testerino;
+package networktest.bcnlib;
 
-import testerino.bcnlib.CodeThread;
-import testerino.bcnlib.Log;
+import networktest.bcnlib.CodeThread;
+import networktest.bcnlib.Log;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;

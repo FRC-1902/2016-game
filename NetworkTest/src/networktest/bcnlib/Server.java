@@ -1,8 +1,7 @@
-package testerino.bcnlib;
+package networktest.bcnlib;
 
-import testerino.Communicator;
-import testerino.Main;
-import testerino.quneo.QuNeo;
+import networktest.Main;
+import networktest.quneo.QuNeo;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -37,6 +36,7 @@ public class Server extends Communicator {
                 Log.i("Server init");
 
                 Main.quneo.subscribeTo(QuNeo.Type.NOTE_ON, 1, 48, 49);
+                Main.quneo.subscribeTo(QuNeo.Type.NOTE_OFF, 1, 48, 49);
             } catch (Exception e) {
                 Log.e("Server constructor exception!");
                 e.printStackTrace();

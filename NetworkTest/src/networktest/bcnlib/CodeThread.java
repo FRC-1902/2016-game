@@ -1,4 +1,4 @@
-package testerino.bcnlib;
+package networktest.bcnlib;
 
 /**
  * A class that allows us to easily write code that will run in its own separate thread.

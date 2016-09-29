@@ -1,8 +1,8 @@
-package testerino;
+package networktest;
 
-import testerino.bcnlib.Server;
-import testerino.quneo.QuNeo;
-import testerino.quneo.QuNeoInput;
+import networktest.bcnlib.Server;
+import networktest.quneo.QuNeo;
+import networktest.quneo.QuNeoInput;
 
 import javax.swing.*;
 
@@ -26,6 +26,7 @@ public class Main extends JFrame {
             quneo = new QuNeo();
             server = new Server();
             new QuNeoInput(48);
+            new QuNeoInput(49);
         } else {
             new Main();
             client = new Client();

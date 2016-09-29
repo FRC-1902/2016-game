@@ -1,8 +1,9 @@
-package testerino;
+package networktest;
 
-import testerino.bcnlib.Log;
-import testerino.bcnlib.MidiAPI;
-import testerino.bcnlib.Utils;
+import networktest.bcnlib.Communicator;
+import networktest.bcnlib.Log;
+import networktest.bcnlib.MidiAPI;
+import networktest.bcnlib.Utils;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -11,7 +12,7 @@ import java.net.Socket;
  * Client code (non-robot side) for communication between a robot and a client.
  *
  * @author Ryan Shavell
- * @version 2016.9.10
+ * @version 2016.9.28
  */
 public class Client extends Communicator {
 
@@ -58,15 +59,14 @@ public class Client extends Communicator {
                 }
                 Log.d("Subscriber count: " + subscribees.length + ", type: " + type + ", " + subscribees.toString());
                 api.registerListener((eventType, channel, note, data1) -> {
-                    Log.d("Event fired!");
+                    //Log.d("Event fired!");
                     sendMessage("quneo:update:"+ data[0] + ":" + note + ":" + eventType + ":" + data1); //quneo:update:type:note:data
                 }, type, 1, subscribees);
             } else if (message.startsWith("setlight:")) {
                 message = message.replace("setlight:", "");
                 String[] data = message.split(":");
-                Log.d(Byte.parseByte(data[0]) + " bytething");
-                byte b = 1;
-                api.sendNote(b, Boolean.parseBoolean(data[1]), Byte.parseByte(data[0]));
+                //Log.d(Byte.parseByte(data[0]) + " bytething");
+                api.sendNote(Byte.parseByte(data[0]), Boolean.parseBoolean(data[2]), Byte.parseByte(data[1]), Byte.parseByte(data[3]));
             }
         }
     }

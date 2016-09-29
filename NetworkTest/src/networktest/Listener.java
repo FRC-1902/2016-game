@@ -1,6 +1,6 @@
-package testerino;
+package networktest;
 
-import testerino.bcnlib.Log;
+import networktest.bcnlib.Log;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -19,7 +19,7 @@ public class Listener implements KeyListener {
         if (!pressedKeys.contains("key"+e.getKeyCode())) {
             pressedKeys.add("key" + e.getKeyCode());
             Main.client.sendMessage("keyPress:" + e.getKeyCode());
-            Log.i("Key pressed: " + e.getKeyChar());
+            //Log.i("Key pressed: " + e.getKeyChar());
         }
     }
 

@@ -1,4 +1,4 @@
-package testerino.bcnlib;
+package networktest.bcnlib;
 
 /**
  * A Logging class for logging different types of messages.

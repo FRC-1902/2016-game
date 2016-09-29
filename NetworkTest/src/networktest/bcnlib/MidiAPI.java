@@ -1,4 +1,4 @@
-package testerino.bcnlib;
+package networktest.bcnlib;
 
 import javax.sound.midi.*;
 import java.security.MessageDigest;

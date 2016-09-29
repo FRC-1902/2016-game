@@ -1,4 +1,4 @@
-package testerino.bcnlib;
+package networktest.bcnlib;
 
 import javax.swing.*;
 import java.lang.management.ManagementFactory;

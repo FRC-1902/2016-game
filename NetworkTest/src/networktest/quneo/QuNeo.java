@@ -1,8 +1,8 @@
-package testerino.quneo;
+package networktest.quneo;
 
-import testerino.Main;
-import testerino.bcnlib.Log;
-import testerino.bcnlib.MidiAPI;
+import networktest.Main;
+import networktest.bcnlib.Log;
+import networktest.bcnlib.MidiAPI;
 
 public class QuNeo {
 
@@ -34,15 +34,16 @@ public class QuNeo {
             //Log.d(QuNeoInput.quNeoInputs.size() + " size");
             QuNeoInput qInput = QuNeoInput.getInput(note);
             if (qInput != null) {
+                int colorCC = QuNeoInput.Type.PAD.getColors(note)[1];
                 //Log.d("qInput is not null");
                 if (type == MidiAPI.NOTE_ON) {
                     qInput.set(true);
                     //Log.d("Sending message");
-                    Main.server.sendMessage("quneo:setlight:24:true");
+                    Main.server.sendMessage("quneo:setlight:0:" + colorCC + ":true:127");
                 } else if (type == MidiAPI.NOTE_OFF) {
                     qInput.set(false);
                     //Log.d("Sending message 2");
-                    Main.server.sendMessage("quneo:setlight:24:false");
+                    Main.server.sendMessage("quneo:setlight:0:" + colorCC + ":false:0");
                 } else if (type == MidiAPI.CONTROL_CHANGE) {
                     qInput.handleControlChange(data[2], data[3]);
                 }
