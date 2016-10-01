@@ -1,5 +1,7 @@
 package networktest.quneo;
 
+import networktest.Main;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,9 +9,12 @@ public class QuNeoInput {
 
     public static List<QuNeoInput> quNeoInputs = new ArrayList<>();
 
-    private final int note;
-    private Type inputType = null;
-    private int pressure = 0;
+    protected Runnable notePress = null;
+    protected Runnable noteRelease = null;
+
+    protected final int note;
+    protected Type inputType = null;
+    protected int pressure = 0;
 
     private boolean isPressed = false;
 
@@ -23,6 +28,8 @@ public class QuNeoInput {
             }
         }
         if (!taken) {
+            Main.quneo.subscribeTo(QuNeo.Type.NOTE_ON, 1, note);
+            Main.quneo.subscribeTo(QuNeo.Type.NOTE_OFF, 1, note);
             quNeoInputs.add(this);
         }
     }
@@ -37,6 +44,22 @@ public class QuNeoInput {
 
     public void handleControlChange(String eventType, String data) {}
 
+    public void onNotePress(Runnable r) {
+        notePress = r;
+    }
+
+    public void onNoteRelease(Runnable r) {
+        noteRelease = r;
+    }
+
+    protected void triggerNotePress() {
+        if (notePress != null) notePress.run();
+    }
+
+    protected void triggerNoteRelease() {
+        if (noteRelease != null) noteRelease.run();
+    }
+
     public static QuNeoInput getInput(int note) {
         for (QuNeoInput i : quNeoInputs) {
             if (i.note == note) {
@@ -44,19 +67,6 @@ public class QuNeoInput {
             }
         }
         return null;
-    }
-
-    public class Rotary extends QuNeoInput {
-
-        public Rotary(int note) {
-            super(note);
-            inputType = Type.ROTARIES;
-        }
-
-        @Override
-        public void handleControlChange(String eventType, String data) {
-
-        }
     }
 
     public enum Type {

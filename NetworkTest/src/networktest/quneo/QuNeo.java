@@ -37,18 +37,23 @@ public class QuNeo {
                 int colorCC = QuNeoInput.Type.PAD.getColors(note)[1];
                 //Log.d("qInput is not null");
                 if (type == MidiAPI.NOTE_ON) {
+                    Log.d("NOTE ON");
                     qInput.set(true);
-                    //Log.d("Sending message");
-                    Main.server.sendMessage("quneo:setlight:0:" + colorCC + ":true:127");
+                    qInput.triggerNotePress();
                 } else if (type == MidiAPI.NOTE_OFF) {
+                    Log.d("NOTE OFF");
                     qInput.set(false);
-                    //Log.d("Sending message 2");
-                    Main.server.sendMessage("quneo:setlight:0:" + colorCC + ":false:0");
+                    qInput.triggerNoteRelease();
                 } else if (type == MidiAPI.CONTROL_CHANGE) {
                     qInput.handleControlChange(data[2], data[3]);
                 }
             }
         }
+    }
+
+    public void setColor(int channel, int colorCC, boolean on, int strength) {
+        //Main.server.sendMessage("quneo:setlight:1:" + colorCC + ":false:0");
+        Main.server.sendMessage("quneo:setlight:" + channel + ":" + colorCC + ":" + on + ":" + strength);
     }
 
     public enum Type {
