@@ -1,4 +1,4 @@
-package networktest.quneo;
+package networktest.bcnlib.quneo;
 
 @FunctionalInterface
 public interface IntArrayGetter {

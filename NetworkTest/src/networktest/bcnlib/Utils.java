@@ -7,7 +7,7 @@ import java.lang.management.ManagementFactory;
  * A Utility class that contains helpful functions that don't really fit in any other classes.
  *
  * @author Ryan Shavell
- * @version 2016.9.10
+ * @version 2016.10.2
  */
 
 public class Utils {
@@ -107,7 +107,7 @@ public class Utils {
      * @return The double rounded down to a certain amount of decimal places.
      */
     public static double roundToDecimals(double number, int decimalPlaces) {
-        int pow = (int) Math.pow(10, decimalPlaces);
+        double pow = (int) Math.pow(10, decimalPlaces);
         return Math.round(number * pow)/pow;
     }
 
@@ -171,5 +171,29 @@ public class Utils {
     public static int getKeycode(char c) {
         KeyStroke ks = KeyStroke.getKeyStroke(c, 0);
         return ks.getKeyCode();
+    }
+
+    /**
+     * Converts an int to a 0-1 scale, like WPILib and BCNLib uses.
+     *
+     * @param i The int to be converted.
+     * @param oldMax The maximum number on i's scale. (i.e. 127 in the case of a range of 0-127)
+     * @return i converted to a 0-1 scale.
+     */
+    public static double toRobotScale(int i, int oldMax) {
+        double d = (i * 1.0) / (oldMax * 1.0);
+        d = Utils.roundToDecimals(d, 5);
+        return d;
+    }
+
+    /**
+     * Converts a robot scale double (range 0-1) to a 0-max scale.
+     *
+     * @param i The robot scale double.
+     * @param max The maximum number of the new scale. (i.e. 127 in the case of a range of 0-127)
+     * @return i converted to a 0-max scale.
+     */
+    public static int toScale(double i, int max) {
+        return ((Double)Math.floor((i * max))).intValue();
     }
 }

@@ -1,20 +1,29 @@
-package networktest.quneo;
+package networktest.bcnlib.quneo.inputs;
 
 import networktest.Main;
+import networktest.bcnlib.quneo.IntArrayGetter;
+import networktest.bcnlib.quneo.QuNeo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class QuNeoInput {
+/**
+ * An asbtract class that represents any button or slider on the QuNeo.
+ *
+ * @author Ryan Shavell
+ * @version 2016.10.2
+ */
+public abstract class QuNeoInput {
 
     public static List<QuNeoInput> quNeoInputs = new ArrayList<>();
 
-    protected Runnable notePress = null;
-    protected Runnable noteRelease = null;
+    protected Consumer<Integer> notePress = null, noteRelease = null;
+    protected CCEvent controlChange = null;
+    protected List<Integer> ccs = new ArrayList<>();
 
     protected final int note;
-    protected Type inputType = null;
-    protected int pressure = 0;
+    protected InputType inputType = null;
 
     private boolean isPressed = false;
 
@@ -34,35 +43,72 @@ public class QuNeoInput {
         }
     }
 
-    public boolean get() {
+    public void subscribeToCC(int...ccList) {
+        Main.quneo.subscribeTo(QuNeo.Type.CONTROL_CHANGE, 1, ccList);
+        for (int i : ccList) {
+            ccs.add(i);
+        }
+    }
+
+    public void onNotePress(Consumer<Integer> t) {
+        notePress = t;
+    }
+
+    public void onNoteRelease(Consumer<Integer> t) {
+        noteRelease = t;
+    }
+
+    public void onControlChange(CCEvent e) {
+        controlChange = e;
+    }
+
+    public void triggerNotePress(int data) {
+        setPressed(true);
+        //updateData(data);
+        if (notePress != null) notePress.accept(data);
+    }
+
+    public void triggerNoteRelease(int data) {
+        setPressed(false);
+        //updateData(data);
+        if (noteRelease != null) noteRelease.accept(data);
+    }
+
+    public void triggerControlChange(int cc, int data) {
+        updateData(cc, data);
+        if (controlChange != null) controlChange.onControlChange(cc, data);
+    }
+
+    public abstract void updateData(int cc, int data);
+
+    public int getNote() {
+        return note;
+    }
+
+    public List<Integer> getCCS() {
+        return new ArrayList<>(ccs);
+    }
+
+    public boolean getPressed() {
         return isPressed;
     }
 
-    public void set(boolean b) {
+    protected void setPressed(boolean b) {
         isPressed = b;
-    }
-
-    public void handleControlChange(String eventType, String data) {}
-
-    public void onNotePress(Runnable r) {
-        notePress = r;
-    }
-
-    public void onNoteRelease(Runnable r) {
-        noteRelease = r;
-    }
-
-    protected void triggerNotePress() {
-        if (notePress != null) notePress.run();
-    }
-
-    protected void triggerNoteRelease() {
-        if (noteRelease != null) noteRelease.run();
     }
 
     public static QuNeoInput getInput(int note) {
         for (QuNeoInput i : quNeoInputs) {
             if (i.note == note) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    public static QuNeoInput getInputByCC(int cc) {
+        for (QuNeoInput i : quNeoInputs) {
+            if (i.ccs.contains(cc)) {
                 return i;
             }
         }
@@ -91,6 +137,7 @@ public class QuNeoInput {
             int vertID = n - 6;
             return new int[]{18 + vertID, n};
         }),
+
         HORIZONTAL_SLIDER(new int[]{0, 1, 2, 3}, n-> {
             return new int[]{12 + n, n};
         }),
@@ -108,14 +155,6 @@ public class QuNeoInput {
             this.ids = ids;
             noteToCC = ccSupplier;
             noteToColors = colorSupplier;
-        }
-
-        public int[] getCCS(int note) {
-            return noteToCC.get(note);
-        }
-
-        public int[] getColors(int note) {
-            return noteToColors.get(note);
         }
     }
 }

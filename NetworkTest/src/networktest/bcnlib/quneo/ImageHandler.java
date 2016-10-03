@@ -1,9 +1,17 @@
-package networktest.quneo;
+package networktest.bcnlib.quneo;
+
+import networktest.bcnlib.quneo.inputs.Pad;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * Renders 8x8 images onto the 4x4 Pad section of the QuNeo.
+ *
+ * @author Ryan Shavell
+ * @version 2016.10.1
+ */
 public class ImageHandler {
 
     private static final Color orange = new Color(255, 127, 39);
@@ -18,18 +26,18 @@ public class ImageHandler {
                 for (int y = 0; y < 4; y++) {
                     Pad p = pads[x][y];
                     QuNeoColor topL = null, topR = null, botL = null, botR = null;
-                    Point[] points = new Point[]{
+                    Point[] points = new Point[] {
                         new Point(x * 2, y * 2),
-                    new Point((x * 2) + 1, y * 2),
-                    new Point(x * 2, (y * 2) + 1),
-                    new Point((x * 2) + 1, (y * 2) + 1)};
+                        new Point((x * 2) + 1, y * 2),
+                        new Point(x * 2, (y * 2) + 1),
+                        new Point((x * 2) + 1, (y * 2) + 1)
+                    };
                     int currPoint = 0;
                     for (Point point : points) {
-                        QuNeoColor thisColor = null;
+                        QuNeoColor thisColor;
                         Color c = getColor(i, point.x, point.y);
                         if (c.getRGB() == orange.getRGB()) {
                            thisColor = QuNeoColor.ORANGE;
-                            System.out.println("no kill p");
                         } else if (c.getRGB() == green.getRGB()) {
                             thisColor = QuNeoColor.GREEN;
                         } else if (c.getRGB() == red.getRGB()) {
@@ -62,13 +70,11 @@ public class ImageHandler {
                     Color c = getColor(i, x, y);
                     if (c.getRGB() == orange.getRGB()) {
                         p.setColor(QuNeoColor.ORANGE, 127);
-                        System.out.println("no kill p");
                     } else if (c.getRGB() == green.getRGB()) {
                         p.setColor(QuNeoColor.GREEN, 127);
                     } else if (c.getRGB() == red.getRGB()) {
                         p.setColor(QuNeoColor.RED, 127);
                     } else {
-                        System.out.println("killed p");
                         p.setColorOff();
                     }
                 }

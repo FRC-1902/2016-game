@@ -1,9 +1,16 @@
-package networktest.quneo;
+package networktest.bcnlib.quneo;
 
 import networktest.Main;
 import networktest.bcnlib.Log;
 import networktest.bcnlib.MidiAPI;
+import networktest.bcnlib.quneo.inputs.QuNeoInput;
 
+/**
+ * A class for communicating with and controlling a QuNeo over a network.
+ *
+ * @author Ryan Shavell
+ * @version 2016.10.1
+ */
 public class QuNeo {
 
     /**
@@ -26,34 +33,43 @@ public class QuNeo {
      */
     public void handlePacket(String message) {
         if (message.startsWith("update:")) {
-            Log.d("QuNeo.handlePacket()");
+            //Log.d("QuNeo.handlePacket()");
             message = message.replaceFirst("update:", "");
             String[] data = message.split(":");
             int type = Integer.parseInt(data[0]);
             int note = Integer.parseInt(data[1]);
+            int updateData = Integer.parseInt(data[2]);
+            int cc = -1;
+            if (type == Type.CONTROL_CHANGE.getInt()) {
+                cc = note;
+                QuNeoInput possibleInput = QuNeoInput.getInputByCC(cc);
+                if (possibleInput != null) {
+                    note = possibleInput.getNote();
+                } else {
+                    Log.e("Received packet for CC \"" + cc + "\", but there is no QuNeoInput that listens to it!");
+                }
+            }
             //Log.d(QuNeoInput.quNeoInputs.size() + " size");
             QuNeoInput qInput = QuNeoInput.getInput(note);
             if (qInput != null) {
-                int colorCC = QuNeoInput.Type.PAD.getColors(note)[1];
-                //Log.d("qInput is not null");
                 if (type == MidiAPI.NOTE_ON) {
-                    Log.d("NOTE ON");
-                    qInput.set(true);
-                    qInput.triggerNotePress();
+                    qInput.triggerNotePress(updateData);
                 } else if (type == MidiAPI.NOTE_OFF) {
-                    Log.d("NOTE OFF");
-                    qInput.set(false);
-                    qInput.triggerNoteRelease();
+                    qInput.triggerNoteRelease(updateData);
                 } else if (type == MidiAPI.CONTROL_CHANGE) {
-                    qInput.handleControlChange(data[2], data[3]);
+                    qInput.triggerControlChange(cc, updateData);
                 }
             }
         }
     }
 
     public void setColor(int channel, int colorCC, boolean on, int strength) {
-        //Main.server.sendMessage("quneo:setlight:1:" + colorCC + ":false:0");
         Main.server.sendMessage("quneo:setlight:" + channel + ":" + colorCC + ":" + on + ":" + strength);
+    }
+
+    public void setCC(int channel, int note, int data) {
+        Log.d("Server set cc");
+        Main.server.sendMessage("quneo:setcc:" + channel + ":" + note + ":" + data);
     }
 
     public enum Type {

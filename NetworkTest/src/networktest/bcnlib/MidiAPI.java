@@ -74,7 +74,7 @@ public class MidiAPI {
         t.sendCC(note, data);
     }
 
-    public void sendCC(int channel, byte note, byte data) {
+    public void sendCC(byte channel, byte note, byte data) {
         t.sendCC(channel, note, data);
     }
 
@@ -111,12 +111,13 @@ public class MidiAPI {
         }
 
         public void sendCC(byte note, byte data) {
-            sendCC(1, note, data);
+            byte b = 1;
+            sendCC(b, note, data);
         }
 
-        public void sendCC(int channel, byte note, byte data) {
+        public void sendCC(byte channel, byte note, byte data) {
             try {
-                MidiMessage m = new ShortMessage(CONTROL_CHANGE, channel, note, data);
+                MidiMessage m = new ShortMessage(0xB0, channel, note, data);
                 r.send(m, System.currentTimeMillis());
             } catch (InvalidMidiDataException e) {
                 e.printStackTrace();
@@ -124,15 +125,14 @@ public class MidiAPI {
         }
 
         public void sendNote(Boolean on, byte note, byte channel) {
-            //sendNote(on, 1, note, channel);
-            byte b = 100;
+            byte b = 127;
             sendNote(on, channel, note, b);
         }
 
         public void sendNote(Boolean on, byte channel, byte note, byte velocity) {
             try {
                 MidiMessage m = new ShortMessage(on ? 0x90 : 0x80, channel, note, velocity);
-                System.out.println(Arrays.toString(m.getMessage()));
+                //System.out.println(Arrays.toString(m.getMessage()));
                 r.send(m, System.currentTimeMillis());
             } catch (InvalidMidiDataException e) {
                 e.printStackTrace();
@@ -143,7 +143,7 @@ public class MidiAPI {
     private class Receiver implements javax.sound.midi.Receiver {
 
         @Override
-        public void send(MidiMessage message, long timeStamp) { //TODO: Figure out channels
+        public void send(MidiMessage message, long timeStamp) {
             byte[] msg = message.getMessage();
             int messageType = msg[0] == -80 ? CONTROL_CHANGE : msg[0] == -112 ? NOTE_ON : msg[0] == -128 ? NOTE_OFF : 0;
             String messageHash = hashOfMessage(messageType, 1, msg[1]);

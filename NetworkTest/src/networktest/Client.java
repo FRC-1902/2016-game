@@ -4,6 +4,8 @@ import networktest.bcnlib.Communicator;
 import networktest.bcnlib.Log;
 import networktest.bcnlib.MidiAPI;
 import networktest.bcnlib.Utils;
+import networktest.bcnlib.quneo.QuNeo;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -33,7 +35,7 @@ public class Client extends Communicator {
 
                 initialize(o, i);
 
-                Log.i("Client init");
+                Log.c("CLIENT", "QuNeo client initialized!");
 
                 sendMessage("Hello server :)");
             } catch (Exception e) {
@@ -45,7 +47,7 @@ public class Client extends Communicator {
 
     @Override
     public void onReceiveMessage(String message) {
-        Log.i(String.format("Client got message \"%s\".", message));
+        //Log.i(String.format("Client got message \"%s\".", message));
         if (message.startsWith("quneo:")) {
             message = message.replace("quneo:", "");
             if (message.startsWith("subscribe:")) { //example: quneo:subscribe:note_on:5:2:78
@@ -55,18 +57,22 @@ public class Client extends Communicator {
                 int[] subscribees = new int[data.length-1];
                 for (int i=1;i<data.length;i++) {
                     subscribees[i-1] = (Integer.parseInt(data[i]));
-                    Log.d(subscribees[i-1] + " - subscriber note");
+                    //Log.d(subscribees[i-1] + " - subscriber note");
                 }
-                Log.d("Subscriber count: " + subscribees.length + ", type: " + type + ", " + subscribees.toString());
+                //Log.d("Subscriber count: " + subscribees.length + ", type: " + type + ", " + subscribees.toString());
                 api.registerListener((eventType, channel, note, data1) -> {
-                    //Log.d("Event fired!");
-                    sendMessage("quneo:update:"+ data[0] + ":" + note + ":" + eventType + ":" + data1); //quneo:update:type:note:data
+                    sendMessage("quneo:update:"+ eventType + ":" + note + ":" + data1); //quneo:update:type:note:data
                 }, type, 1, subscribees);
             } else if (message.startsWith("setlight:")) {
                 message = message.replace("setlight:", "");
                 String[] data = message.split(":");
-                //Log.d(Byte.parseByte(data[0]) + " bytething");
                 api.sendNote(Byte.parseByte(data[0]), Boolean.parseBoolean(data[2]), Byte.parseByte(data[1]), Byte.parseByte(data[3]));
+            } else if (message.startsWith("setcc:")) { //quneo:setcc:channel:note:data
+                Log.d("Client set cc");
+                message = message.replace("setcc:", "");
+                String[] data = message.split(":");
+                System.out.println("Data: " + Byte.parseByte(data[2]));
+                api.sendCC(Byte.parseByte(data[0]), Byte.parseByte(data[1]), Byte.parseByte(data[2]));
             }
         }
     }

@@ -1,7 +1,5 @@
 package networktest.bcnlib;
 
-import networktest.bcnlib.CodeThread;
-import networktest.bcnlib.Log;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -11,9 +9,8 @@ import java.util.List;
  * Class for communicating between two sockets.
  *
  * @author Ryan Shavell
- * @version 2016.9.10
+ * @version 2016.10.2
  */
-//TODO: Fix giant wall of errors when a connection is broken.
 public abstract class Communicator {
 
     private PrintWriter out = null;
@@ -50,13 +47,17 @@ public abstract class Communicator {
     protected CodeThread messageIn = new CodeThread(() -> {
         try {
             String input;
-            while ((input = in.readLine()) != null) {
+            while (in.ready() && (input = in.readLine()) != null) {
                 onReceiveMessage(input);
             }
             Thread.sleep(5); //To stop from looping at the speed of go
         } catch (Exception e) {
             Log.e("Communicator.messageIn exception!");
-            e.printStackTrace();
+            try {
+                in.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();;
+            }
         }
     });
 
@@ -65,14 +66,18 @@ public abstract class Communicator {
             synchronized (MESSAGE_QUEUE_EDIT) {
                 for (String m : outQueue) {
                     out.println(m);
-                    Log.d(String.format("Sent message \"%s\"", m));
+                    //Log.d(String.format("Sent message \"%s\"", m));
                 }
                 outQueue.clear();
             }
             Thread.sleep(5); //To stop from looping at the speed of go
         } catch (Exception e) {
             Log.e("Communicator.messageOut exception!");
-            e.printStackTrace();
+            try {
+                out.close();
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
         }
     });
 

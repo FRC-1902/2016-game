@@ -1,4 +1,4 @@
-package networktest.quneo;
+package networktest.bcnlib.quneo;
 
 /**
  * Created by LenovoBacon1 on 10/1/2016.
