@@ -22,9 +22,15 @@ public class DriveCommand extends Command {
             joyX = OI.drive.getX();
             joyY = OI.drive.getY() * 0.75;
 
+            //double joyX2 = OI.drive.getX2();
+
 
             joyX = Utils.deadzone(joyX, deadzone);
             joyY = Utils.deadzone(joyY, deadzone);
+
+            //joyX2 = Utils.deadzone(joyX2, deadzone);
+
+            //Drive.tankDrive(joyX, joyX2);
 
             Drive.arcadeDrive(joyX, joyY);
 

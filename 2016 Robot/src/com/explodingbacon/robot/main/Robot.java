@@ -126,10 +126,10 @@ public class Robot extends RobotCore {
     public void teleopInit() {
         super.teleopInit();
         initTeleopCommands();
+        //Drive.shift(false);
         Drive.setDriverControlled(true);
-        //Drive.tankDrive(0.25, 0);
-
-        //SmartDashboard.putNumber("Turn Amnt", 90);
+        //Drive.getLeft().testEachWait(1, 1);
+        //Drive.getRight().testEachWait(1, 1);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class ShooterCommand extends Command {
 
     private boolean loggedSpeed = false;
     private boolean holdingTrim = false;
-    private boolean sensorWasFalse = true;
+    private boolean sensorWasTrue = true;
 
     private final int TRIM_AMOUNT = 1000;
 
@@ -26,17 +26,34 @@ public class ShooterCommand extends Command {
         } else {
             Shooter.stopRev(this);
         }
-        Shooter.setHasBall(Shooter.getBallSensor().get());
+        boolean sensorTrue = Shooter.getBallSensor().get();
+        Shooter.setHasBall(sensorTrue);
+        if (sensorTrue && !sensorWasTrue) {
+            Timer t = new Timer(0.5, false, () -> {
+                if (Shooter.getIndexer().isUsableBy(this)) {
+                    Shooter.setIndexerRaw(-1);
+                    Log.d("Did backroll");
+                    Shooter.getIndexer().setUser(this);
+                    Timer t2 = new Timer(.1, false, () -> {
+                        Shooter.setIndexerRaw(0);
+                        Shooter.getIndexer().setUser(null);
+                    });
+                    t2.start();
+                }
+            });
+            t.start();
+        }
+        sensorWasTrue = sensorTrue;
 
         /*
-        if (Shooter.getBallSensor().get() && sensorWasFalse) {
+        if (Shooter.getBallSensor().get() && sensorWasTrue) {
                 Timer t = new Timer(.25, false, () -> {
                     Shooter.setHasBall(!Shooter.hasBall());
                 });
                 t.start();
-            sensorWasFalse = false;
+            sensorWasTrue = false;
         } else if (!Shooter.getBallSensor().get()) {
-            sensorWasFalse = true;
+            sensorWasTrue = true;
         }
         */
 

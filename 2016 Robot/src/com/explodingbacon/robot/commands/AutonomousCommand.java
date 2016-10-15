@@ -27,6 +27,7 @@ public class AutonomousCommand extends Command {
             double angleSign =( (Integer)Robot.posChooser.getSelected()) * 1.0;
             Thread.sleep(Math.round(SmartDashboard.getNumber("Auto Delay", 3) * 1000));
             if (type == Type.CROSS || type == Type.ONE_BOULDER_NEUTRAL) {
+                Drive.shift(false);
                 if (defense == Defense.ROCK_WALL) {
                     Drive.tankDriveFor(1, -1, 3);
                     //Drive.inchDrive(NEUTRAL_TO_CROSS + (2 * 12));
