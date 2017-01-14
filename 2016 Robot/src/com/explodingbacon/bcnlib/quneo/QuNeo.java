@@ -17,7 +17,6 @@ public class QuNeo {
     public void subscribeTo(Type t, int channel, int...notes) {
         String noteString = "";
         for (int i : notes) noteString += ":" + i;
-        Robot.server.sendMessage("quneo:subscribe:" + t.getInt() + noteString);
     }
 
     /**
